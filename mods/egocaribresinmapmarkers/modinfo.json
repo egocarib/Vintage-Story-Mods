@@ -1,0 +1,11 @@
+{
+  "type": "code",
+  "modid": "egocaribresinmapmarkers",
+  "name": "Resin Auto Map Markers",
+  "author": "egocarib",
+  "description": "Automatically adds a map marker to your map whenever you harvest resin from a pine tree.",
+  "version": "1.0.0",
+  "dependency": {
+    "game": "1.14.10"
+  }
+}

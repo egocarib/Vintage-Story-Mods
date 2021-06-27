@@ -1,0 +1,15 @@
+﻿[
+  {
+    "op": "add",
+    "file": "game:blocktypes/wood/log-withresin",
+    "path": "/behaviorsByType/*/-",
+    "value": {
+      "name": "egocarib_ResinMarker",
+      "properties": {
+        "markerColor": "orange",
+        "markerIcon": "circle",
+        "markerTitle": "Resin"
+      }
+    }
+  }
+]
