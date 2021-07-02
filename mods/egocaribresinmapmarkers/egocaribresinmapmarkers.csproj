@@ -33,8 +33,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="cairo-sharp">
+      <HintPath>..\..\..\..\..\..\..\..\Program Files\Vintagestory\Lib\cairo-sharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -63,13 +67,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="assets\resinmarker\patches\log-withresin.json" />
+    <None Include="assets\automapmarkers\lang\en.json" />
+    <None Include="assets\automapmarkers\patches\bigberrybush.json" />
+    <None Include="assets\automapmarkers\patches\log-withresin.json" />
     <Content Include="modicon.png" />
+    <Content Include="images\cover-image.png" />
+    <Content Include="images\mod-config-menu-1.png" />
+    <Content Include="images\mod-config-menu-2.png" />
     <Content Include="modinfo.json" />
+    <None Include="assets\automapmarkers\patches\looseores.json" />
+    <None Include="assets\automapmarkers\patches\mushroom.json" />
+    <None Include="assets\automapmarkers\patches\smallberrybush.json" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\ResinMarker.cs" />
+    <Compile Include="src\BlockBehavior\HarvestMarkerBehavior.cs" />
+    <Compile Include="src\BlockBehavior\LooseOresMarkerBehavior.cs" />
+    <Compile Include="src\MapMarker.cs" />
+    <Compile Include="src\GUI\MapMarkerGUI.cs" />
+    <Compile Include="src\Settings\MapMarkerConfig.cs" />
+    <Compile Include="src\BlockBehavior\MushroomMarkerBehavior.cs" />
+    <Compile Include="src\Utilities\WaypointUtil.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

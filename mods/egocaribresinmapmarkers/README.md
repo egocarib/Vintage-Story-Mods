@@ -1,6 +1,6 @@
-﻿# Resin Auto Map Markers
+﻿# Auto Map Markers
 
-Automatically adds a map marker to your map whenever you harvest resin from a pine tree.
+Automatically adds map markers to your map when you harvest certain objects or find loose ore. Fully configurable.
 
 Links:
  - [Vintage Story ModsDB](https://mods.vintagestory.at/resinmapmarkers)

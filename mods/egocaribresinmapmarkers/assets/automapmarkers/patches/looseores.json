@@ -1,0 +1,10 @@
+[
+  {
+    "op": "add",
+    "file": "game:blocktypes/stone/looseores",
+    "path": "/behaviors/-",
+    "value": {
+      "name": "egocarib_LooseOreMarkerBehavior"
+    }
+  }
+]

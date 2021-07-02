@@ -1,0 +1,10 @@
+﻿[
+  {
+    "op": "add",
+    "file": "game:blocktypes/plant/mushroom",
+    "path": "/behaviorsByType",
+    "value": {
+      "*": [ { "name": "egocarib_MushroomMarkerBehavior" } ]
+    }
+  }
+]

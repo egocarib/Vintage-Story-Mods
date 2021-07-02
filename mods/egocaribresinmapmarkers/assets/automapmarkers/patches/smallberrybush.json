@@ -1,0 +1,10 @@
+[
+  {
+    "op": "add",
+    "file": "game:blocktypes/plant/smallberrybush",
+    "path": "/behaviorsByType/*-ripe/-",
+    "value": {
+      "name": "egocarib_HarvestMarkerBehavior"
+    }
+  }
+]

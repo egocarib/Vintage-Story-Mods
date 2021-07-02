@@ -1,0 +1,14 @@
+{
+  "egocarib-mapmarkers:config-keybind-name": "Auto Map Marker Config",
+  "egocarib-mapmarkers:config-menu-title": "Auto Map Marker Settings",
+  "egocarib-mapmarkers:config-menu-section-header1": "Automatic Map Markers",
+  "egocarib-mapmarkers:icon": "Icon",
+  "egocarib-mapmarkers:color": "Color",
+  "egocarib-mapmarkers:name": "Name",
+  "egocarib-mapmarkers:disabled": "Disabled",
+  "egocarib-mapmarkers:not-saved-warning": "Auto Map Marker settings not saved: Settings included invalid colors or names.",
+  "egocarib-mapmarkers:organic-matter": "Organic Matter",
+  "egocarib-mapmarkers:surface-ore": "Surface Ore",
+  "egocarib-mapmarkers:ui": "UI",
+  "egocarib-mapmarkers:show-chat-message": "Show chat message when new waypoint is added"
+}
