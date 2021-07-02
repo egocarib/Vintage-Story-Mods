@@ -7,8 +7,8 @@
     <ProjectGuid>{15BB7CCA-5724-4CAC-B447-932B4ED7BF14}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>egocaribresinmapmarkers</RootNamespace>
-    <AssemblyName>egocaribresinmapmarkers</AssemblyName>
+    <RootNamespace>egocaribautomapmarkers</RootNamespace>
+    <AssemblyName>egocaribautomapmarkers</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>6</LangVersion>
@@ -17,8 +17,8 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\bin\Debug\egocaribresinmapmarkers\</OutputPath>
-    <IntermediateOutputPath>..\..\obj\Debug\egocaribresinmapmarkers\</IntermediateOutputPath>
+    <OutputPath>..\..\bin\Debug\egocaribautomapmarkers\</OutputPath>
+    <IntermediateOutputPath>..\..\obj\Debug\egocaribautomapmarkers\</IntermediateOutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -26,8 +26,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\bin\Release\egocaribresinmapmarkers\</OutputPath>
-    <IntermediateOutputPath>..\..\obj\Release\egocaribresinmapmarkers\</IntermediateOutputPath>
+    <OutputPath>..\..\bin\Release\egocaribautomapmarkers\</OutputPath>
+    <IntermediateOutputPath>..\..\obj\Release\egocaribautomapmarkers\</IntermediateOutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
