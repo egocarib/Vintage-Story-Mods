@@ -4,7 +4,7 @@
   "name": "Auto Map Markers",
   "author": "egocarib",
   "description": "Automatically adds map markers to your map when you harvest certain objects or find loose ore. Fully configurable.",
-  "version": "1.0.0 (1.14.10)",
+  "version": "2.0.1",
   "dependency": {
     "game": "1.14.10"
   }

@@ -1,7 +1,7 @@
 ﻿[
   {
     "op": "add",
-    "file": "game:blocktypes/wood/log-withresin",
+    "file": "game:blocktypes/wood/woodtyped/log-withresin",
     "path": "/behaviorsByType/*/-",
     "value": {
       "name": "egocarib_HarvestMarkerBehavior"
