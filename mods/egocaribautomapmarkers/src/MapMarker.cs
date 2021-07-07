@@ -1,10 +1,13 @@
-﻿using Vintagestory.API.Client;
+﻿using Egocarib.AutoMapMarkers.BlockBehavior;
+using Egocarib.AutoMapMarkers.EntityBehavior;
+using Egocarib.AutoMapMarkers.Settings;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
-namespace egocarib_AutoMapMarkers
+namespace Egocarib.AutoMapMarkers
 {
     public class MapMarkerMod : ModSystem
     {
@@ -17,6 +20,7 @@ namespace egocarib_AutoMapMarkers
         {
             base.Start(api);
             CoreAPI = api;
+            api.RegisterEntityBehaviorClass("egocarib_TraderMarkerBehavior", typeof(TraderMarkerBehavior));
             api.RegisterBlockBehaviorClass("egocarib_HarvestMarkerBehavior", typeof(HarvestMarkerBehavior));
             api.RegisterBlockBehaviorClass("egocarib_MushroomMarkerBehavior", typeof(MushroomMarkerBehavior));
             api.RegisterBlockBehaviorClass("egocarib_LooseOreMarkerBehavior", typeof(LooseOresMarkerBehavior));

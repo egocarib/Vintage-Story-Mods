@@ -5,7 +5,7 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 
-namespace egocarib_AutoMapMarkers
+namespace Egocarib.AutoMapMarkers.Settings
 {
     public static class MapMarkerConfig
     {
@@ -178,6 +178,15 @@ namespace egocarib_AutoMapMarkers
                 //    MarkerCoverageRadius = 9
                 //};
 
+                public AutoMapMarkerSetting LooseOreGold = new AutoMapMarkerSetting
+                {
+                    Enabled = true,
+                    MarkerTitle = Lang.GetMatching("block-looseores-quartz_nativegold-*"),
+                    MarkerColor = "gold",
+                    MarkerIcon = "pick",
+                    MarkerCoverageRadius = 9
+                };
+
                 //public AutoMapMarkerSetting LooseOreGraphite = new AutoMapMarkerSetting
                 //{
                 //    Enabled = false,
@@ -232,6 +241,24 @@ namespace egocarib_AutoMapMarkers
                 //    MarkerCoverageRadius = 9
                 //};
 
+                public AutoMapMarkerSetting LooseOreQuartz = new AutoMapMarkerSetting
+                {
+                    Enabled = false,
+                    MarkerTitle = Lang.GetMatching("block-looseores-quartz-*"),
+                    MarkerColor = "white",
+                    MarkerIcon = "pick",
+                    MarkerCoverageRadius = 9
+                };
+
+                public AutoMapMarkerSetting LooseOreSilver = new AutoMapMarkerSetting
+                {
+                    Enabled = true,
+                    MarkerTitle = Lang.GetMatching("block-looseores-quartz_nativesilver-*"),
+                    MarkerColor = "silver",
+                    MarkerIcon = "pick",
+                    MarkerCoverageRadius = 9
+                };
+
                 public AutoMapMarkerSetting LooseOreSulfur = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -279,14 +306,17 @@ namespace egocarib_AutoMapMarkers
                                 { Lang.GetMatching("block-looseores-borax-*"), AutoMapMarkers.SurfaceOre.LooseOreBorax },
                                 { Lang.GetMatching("block-looseores-lignite-*"), AutoMapMarkers.SurfaceOre.LooseOreBrownCoal },
                                 { Lang.GetMatching("block-looseores-cinnabar-*"), AutoMapMarkers.SurfaceOre.LooseOreCinnabar },
-                                { Lang.GetMatching("block-looseores-nativecopper-*"), AutoMapMarkers.SurfaceOre.LooseOreCopper },
+                                { Lang.Get("egocarib-mapmarkers:copper-ore-bits"), AutoMapMarkers.SurfaceOre.LooseOreCopper },
                                 //{ Lang.GetMatching("block-looseores-fluorite-*"), AutoMapMarkers.SurfaceOre.LooseOreFluorite },
+                                { Lang.Get("egocarib-mapmarkers:gold-ore-bits"), AutoMapMarkers.SurfaceOre.LooseOreGold },
                                 //{ Lang.GetMatching("block-looseores-graphite-*"), AutoMapMarkers.SurfaceOre.LooseOreGraphite },
                                 //{ Lang.GetMatching("block-looseores-kernite-*"), AutoMapMarkers.SurfaceOre.LooseOreKernite },
                                 { Lang.GetMatching("block-looseores-lapislazuli-*"), AutoMapMarkers.SurfaceOre.LooseOreLapisLazuli },
                                 { Lang.GetMatching("block-looseores-galena-*"), AutoMapMarkers.SurfaceOre.LooseOreLead },
                                 { Lang.GetMatching("block-looseores-olivine-peridotite-*"), AutoMapMarkers.SurfaceOre.LooseOreOlivine },
                                 //{ Lang.GetMatching("block-looseores-phosphorite-*"), AutoMapMarkers.SurfaceOre.LooseOrePhosporite },
+                                { Lang.GetMatching("block-looseores-quartz-*"), AutoMapMarkers.SurfaceOre.LooseOreQuartz },
+                                { Lang.Get("egocarib-mapmarkers:silver-ore-bits"), AutoMapMarkers.SurfaceOre.LooseOreSilver },
                                 { Lang.GetMatching("block-looseores-sulfur-*"), AutoMapMarkers.SurfaceOre.LooseOreSulfur },
                                 { Lang.GetMatching("block-looseores-cassiterite-*"), AutoMapMarkers.SurfaceOre.LooseOreTin }
                             }

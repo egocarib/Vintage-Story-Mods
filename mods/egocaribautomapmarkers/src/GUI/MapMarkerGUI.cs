@@ -6,13 +6,15 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
-using Color = System.Drawing.Color;
-using AutoMapMarkerSetting = egocarib_AutoMapMarkers.MapMarkerConfig.Settings.AutoMapMarkerSetting;
 using Vintagestory.API.Datastructures;
 using System.Linq;
+using Egocarib.AutoMapMarkers.Settings;
 
-namespace egocarib_AutoMapMarkers
+namespace Egocarib.AutoMapMarkers.GUI
 {
+    using Color = System.Drawing.Color;
+    using AutoMapMarkerSetting = MapMarkerConfig.Settings.AutoMapMarkerSetting;
+
     public class MapMarkerGUISystem : ModSystem
     {
         ICoreClientAPI capi;
@@ -124,7 +126,7 @@ namespace egocarib_AutoMapMarkers
             double ypos = 2.5;
             double yStart = 0; // 25;
             double dgWidth = 960 + dialogPadding * 2;
-            double opAreaHeight = 450;
+            double opAreaHeight = 575;
             double opAreaWidth = 960 + dialogPadding * 2;
             double toggleBarHeight = 76;
             double headerHeight = 48;

@@ -1,10 +1,14 @@
-﻿using Vintagestory.API.Common;
+﻿using Egocarib.AutoMapMarkers.Settings;
+using Egocarib.AutoMapMarkers.Utilities;
+using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
-namespace egocarib_AutoMapMarkers
+namespace Egocarib.AutoMapMarkers.BlockBehavior
 {
+    using BlockBehavior = Vintagestory.API.Common.BlockBehavior;
+
     public class MushroomMarkerBehavior : BlockBehavior
     {
         public bool IsBolete { get { return block.Code.Path.Contains("-bolete-"); } }

@@ -1,9 +1,13 @@
-﻿using Vintagestory.API.Common;
+﻿using Egocarib.AutoMapMarkers.Settings;
+using Egocarib.AutoMapMarkers.Utilities;
+using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 
-namespace egocarib_AutoMapMarkers
+namespace Egocarib.AutoMapMarkers.BlockBehavior
 {
+    using BlockBehavior = Vintagestory.API.Common.BlockBehavior;
+
     public class HarvestMarkerBehavior : BlockBehavior
     {
         public bool IsResin { get { return block.Code.Path.StartsWith("log-resin-"); } }

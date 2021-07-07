@@ -1,9 +1,13 @@
-﻿using Vintagestory.API.Common;
+﻿using Egocarib.AutoMapMarkers.Settings;
+using Egocarib.AutoMapMarkers.Utilities;
+using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 
-namespace egocarib_AutoMapMarkers
+namespace Egocarib.AutoMapMarkers.BlockBehavior
 {
+    using BlockBehavior = Vintagestory.API.Common.BlockBehavior;
+
     public class LooseOresMarkerBehavior : BlockBehavior
     {
         public bool IsAnthracite { get { return block.Code.Path.Contains("-anthracite-"); } }
@@ -12,6 +16,7 @@ namespace egocarib_AutoMapMarkers
         public bool IsBrownCoal { get { return block.Code.Path.Contains("-lignite-"); } }
         public bool IsCinnabar { get { return block.Code.Path.Contains("-cinnabar-"); } }
         //public bool IsFluorite { get { return block.Code.Path.Contains("-fluorite-"); } }
+        public bool IsGold { get { return block.Code.Path.Contains("_nativegold-"); } }
         //public bool IsGraphite { get { return block.Code.Path.Contains("-graphite-"); } }
         //public bool IsKernite { get { return block.Code.Path.Contains("-kernite-"); } }
         public bool IsLapisLazuli { get { return block.Code.Path.Contains("-lapislazuli-"); } }
@@ -20,6 +25,8 @@ namespace egocarib_AutoMapMarkers
         public bool IsNativeCopper { get { return block.Code.Path.Contains("-nativecopper-"); } }
         public bool IsOlivine { get { return block.Code.Path.Contains("-olivine-"); } }
         //public bool IsPhosporite { get { return block.Code.Path.Contains("-phosphorite-"); } }
+        public bool IsQuartz { get { return block.Code.Path.Contains("-quartz-"); } }
+        public bool IsSilver { get { return block.Code.Path.Contains("_nativesilver-");  } }
         public bool IsSulfur { get { return block.Code.Path.Contains("-sulfur-"); } }
         public bool IsTin { get { return block.Code.Path.Contains("-cassiterite-"); } }
 
@@ -107,6 +114,10 @@ namespace egocarib_AutoMapMarkers
             //{
             //    return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreFluorite;
             //}
+            if (IsGold)
+            {
+                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreGold;
+            }
             //if (IsGraphite)
             //{
             //    return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreGraphite;
@@ -140,6 +151,14 @@ namespace egocarib_AutoMapMarkers
             //{
             //    return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.LooseOrePhosporite;
             //}
+            if (IsQuartz)
+            {
+                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreQuartz;
+            }
+            if (IsSilver)
+            {
+                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreSilver;
+            }
             if (IsSulfur)
             {
                 return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreSulfur;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Egocarib.AutoMapMarkers.Settings;
+using System;
 using System.Linq;
 using System.Reflection;
 using Vintagestory.API.Config;
@@ -6,7 +7,7 @@ using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
-namespace egocarib_AutoMapMarkers
+namespace Egocarib.AutoMapMarkers.Utilities
 {
     public class WaypointUtil
     {
