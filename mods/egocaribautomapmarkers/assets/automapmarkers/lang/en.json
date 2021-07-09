@@ -9,6 +9,11 @@
   "egocarib-mapmarkers:not-saved-warning": "Auto Map Marker settings not saved: Settings included invalid colors or names.",
   "egocarib-mapmarkers:organic-matter": "Organic Matter",
   "egocarib-mapmarkers:surface-ore": "Surface Ore",
+  "egocarib-mapmarkers:traders": "Traders",
+  "egocarib-mapmarkers:copy-setting-to-all-traders": "Copy Icon and Color from \"{0}\" to All",
+  "egocarib-mapmarkers:copper-ore-bits": "Copper bits",
+  "egocarib-mapmarkers:gold-ore-bits": "Gold bits",
+  "egocarib-mapmarkers:silver-ore-bits": "Silver bits",
   "egocarib-mapmarkers:ui": "UI",
   "egocarib-mapmarkers:show-chat-message": "Show chat message when new waypoint is added"
 }
