@@ -34,31 +34,9 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
         {
         }
 
-        //public override void OnBlockRemoved(IWorldAccessor world, BlockPos pos, ref EnumHandling handling)
-        //{
-        //    if (world.Side == EnumAppSide.Server)
-        //    {
-        //        IServerPlayer byPlayer = world.NearestPlayer(pos.X, pos.Y, pos.Z) as IServerPlayer;
-        //        if (byPlayer.CurrentBlockSelection.Position == pos)
-        //        {
-        //            HandleInteraction(pos, byPlayer);
-        //        }
-        //    }
-        //    base.OnBlockRemoved(world, pos, ref handling);
-        //}
-
-        //public override void OnBlockInteractStop(float secondsUsed, IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, ref EnumHandling handling)
-        //{
-        //    if (world.Side == EnumAppSide.Server)
-        //    {
-        //        HandleInteraction(blockSel.Position, byPlayer);
-        //    }
-        //    base.OnBlockInteractStop(secondsUsed, world, byPlayer, blockSel, ref handling);
-        //}
-
         public override bool OnBlockInteractStart(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, ref EnumHandling handling)
         {
-            if (world.Side == EnumAppSide.Server)
+            if (world.Side == EnumAppSide.Client)
             {
                 HandleInteraction(blockSel.Position, byPlayer);
             }
@@ -67,7 +45,7 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
 
         public override void OnBlockBroken(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, ref EnumHandling handling)
         {
-            if (world.Side == EnumAppSide.Server)
+            if (world.Side == EnumAppSide.Client)
             {
                 HandleInteraction(pos, byPlayer);
             }
@@ -82,8 +60,7 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
                 if (looseOreSettings != null)
                 {
                     Vec3d looseOreBlockPosition = new Vec3d(pos.X, pos.Y, pos.Z);
-                    WaypointUtil waypointUtil = new WaypointUtil(byPlayer as IServerPlayer);
-                    waypointUtil.AddWaypoint(looseOreBlockPosition, looseOreSettings);
+                    MapMarkerMod.Network.RequestWaypointFromServer(looseOreBlockPosition, looseOreSettings);
                 }
             }
         }

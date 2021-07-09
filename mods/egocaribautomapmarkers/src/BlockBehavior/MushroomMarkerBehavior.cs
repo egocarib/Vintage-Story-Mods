@@ -21,7 +21,7 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
 
         public override void OnBlockBroken(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, ref EnumHandling handling)
         {
-            if (world.Side == EnumAppSide.Server)
+            if (world.Side == EnumAppSide.Client)
             {
                 if (byPlayer != null)
                 {
@@ -31,8 +31,9 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
                     {
                         //set map marker
                         Vec3d mushroomBlockPosition = new Vec3d(pos.X, pos.Y, pos.Z);
-                        WaypointUtil waypointUtil = new WaypointUtil(byPlayer as IServerPlayer);
-                        waypointUtil.AddWaypoint(mushroomBlockPosition, GetMushroomSettings());
+                        //WaypointUtil waypointUtil = new WaypointUtil(byPlayer as IServerPlayer);
+                        //waypointUtil.AddWaypoint(mushroomBlockPosition, GetMushroomSettings());
+                        MapMarkerMod.Network.RequestWaypointFromServer(mushroomBlockPosition, GetMushroomSettings());
                     }
                 }
             }
