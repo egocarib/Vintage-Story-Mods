@@ -7,7 +7,7 @@ namespace Egocarib.AutoMapMarkers.Patches
     public static class HarmonyAgent
     {
         public static Harmony harmonyInstance;
-        public const string harmonyID = "Egocarib.AutoMapMarkers.Patches.Server";
+        public const string harmonyID = "Egocarib.AutoMapMarkers.Patches";
 
         /// <summary>
         /// Applies the mod's Harmony patches.

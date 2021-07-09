@@ -21,7 +21,6 @@ namespace Egocarib.AutoMapMarkers.Utilities
         /// <summary>
         /// Waypoint generator. To be instantiated and used only on the Server thread.
         /// </summary>
-        /// <param name="serverPlayer"></param>
         public WaypointUtil(IServerPlayer serverPlayer)
         {
             ServerPlayer = serverPlayer;

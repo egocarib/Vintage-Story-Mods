@@ -9,7 +9,11 @@ namespace Egocarib.AutoMapMarkers.EntityBehavior
 {
     using EntityBehavior = Vintagestory.API.Common.Entities.EntityBehavior;
 
-    class TraderMarkerBehavior : EntityBehavior
+    /// <summary>
+    /// Block behavior for traders. Automatically creates map markers when the player
+    /// interacts with a trader.
+    /// </summary>
+    public class TraderMarkerBehavior : EntityBehavior
     {
         public bool IsArtisan => entity.Code.Path.EndsWith("-trader-artisan");
         public bool IsBuildingMaterials => entity.Code.Path.EndsWith("-trader-buildmaterials");
@@ -49,6 +53,9 @@ namespace Egocarib.AutoMapMarkers.EntityBehavior
             base.OnInteract(byEntity, itemslot, hitPosition, mode, ref handled);
         }
 
+        /// <summary>
+        /// Gets the map marker settings for the block this behavior is attached to.
+        /// </summary>
         private MapMarkerConfig.Settings.AutoMapMarkerSetting GetTraderSettings()
         {
             if (IsArtisan)

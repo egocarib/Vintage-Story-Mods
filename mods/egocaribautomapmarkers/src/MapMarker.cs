@@ -16,6 +16,9 @@ namespace Egocarib.AutoMapMarkers
         public static ICoreClientAPI CoreClientAPI;
         public static MapMarkerNetwork Network;
 
+        /// <summary>
+        /// Server/client shared initialization
+        /// </summary>
         public override void Start(ICoreAPI api)
         {
             CoreAPI = api;
@@ -26,6 +29,9 @@ namespace Egocarib.AutoMapMarkers
             HarmonyAgent.Harmonize();
         }
 
+        /// <summary>
+        /// Server-specific intialization
+        /// </summary>
         public override void StartServerSide(ICoreServerAPI api)
         {
             CoreServerAPI = api;
@@ -33,6 +39,9 @@ namespace Egocarib.AutoMapMarkers
             Network = new MapMarkerNetwork(CoreServerAPI);
         }
 
+        /// <summary>
+        /// Client-specific initialization
+        /// </summary>
         public override void StartClientSide(ICoreClientAPI api)
         {
             CoreClientAPI = api;
@@ -41,6 +50,9 @@ namespace Egocarib.AutoMapMarkers
             Network = new MapMarkerNetwork(CoreClientAPI);
         }
 
+        /// <summary>
+        /// Unapplies Harmony patches and disposes of all static variables in the ModSystem.
+        /// </summary>
         public override void Dispose()
         {
             HarmonyAgent.Deharmonize();

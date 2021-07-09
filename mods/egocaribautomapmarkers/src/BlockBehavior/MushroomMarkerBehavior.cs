@@ -9,6 +9,10 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
 {
     using BlockBehavior = Vintagestory.API.Common.BlockBehavior;
 
+    /// <summary>
+    /// Block behavior for harvestable mushrooms, such as Bolete and Field Mushrooms.
+    /// Automatically creates map markers when the player harvests mushrooms with a knife.
+    /// </summary>
     public class MushroomMarkerBehavior : BlockBehavior
     {
         public bool IsBolete { get { return block.Code.Path.Contains("-bolete-"); } }
@@ -40,6 +44,9 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
             base.OnBlockBroken(world, pos, byPlayer, ref handling);
         }
 
+        /// <summary>
+        /// Gets the map marker settings for the block this behavior is attached to.
+        /// </summary>
         private MapMarkerConfig.Settings.AutoMapMarkerSetting GetMushroomSettings()
         {
             if (IsBolete)

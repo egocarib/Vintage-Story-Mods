@@ -17,6 +17,9 @@ namespace Egocarib.AutoMapMarkers.GUI
     using Color = System.Drawing.Color;
     using AutoMapMarkerSetting = MapMarkerConfig.Settings.AutoMapMarkerSetting;
 
+    /// <summary>
+    /// Mod system for our mod's settings GUI. Only loaded on the client side.
+    /// </summary>
     public class MapMarkerGUISystem : ModSystem
     {
         ICoreClientAPI capi;
@@ -61,6 +64,9 @@ namespace Egocarib.AutoMapMarkers.GUI
         }
     }
 
+    /// <summary>
+    /// The Auto Map Marker configuration menu
+    /// </summary>
     public class MapMarkerGUI : GuiDialog
     {
         public const string HotkeyCode = "egocarib_MapMarkerGUI";

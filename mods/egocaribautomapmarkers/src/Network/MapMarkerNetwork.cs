@@ -8,13 +8,9 @@ using static Egocarib.AutoMapMarkers.Settings.MapMarkerConfig.Settings;
 
 namespace Egocarib.AutoMapMarkers.Network
 {
-
-    //[ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
-    //public class MessageFromServer
-    //{
-    //    //Not implemented
-    //}
-
+    /// <summary>
+    /// Data required for handling client waypoint creation requests.
+    /// </summary>
     [ProtoContract]
     public class ClientWaypointRequest
     {
@@ -24,6 +20,11 @@ namespace Egocarib.AutoMapMarkers.Network
         public AutoMapMarkerSetting waypointSettings;
     }
 
+    /// <summary>
+    /// Network handler for Auto Map Markers mod. Facilitates communication between the
+    /// client, which may request that a waypoint be created, and the server, which creates 
+    /// the waypoints and syncs them back to the client.
+    /// </summary>
     public class MapMarkerNetwork
     {
         public EnumAppSide Side;
@@ -44,29 +45,30 @@ namespace Egocarib.AutoMapMarkers.Network
             }
         }
 
+        /// <summary>
+        /// Configures the client side of the network channel.
+        /// </summary>
         private void ConfigureClient(ICoreClientAPI clientAPI)
         {
             ClientNetworkChannel = clientAPI.Network
                 .RegisterChannel(ChannelID)
-                //.RegisterMessageType(typeof(MessageFromServer))
                 .RegisterMessageType(typeof(ClientWaypointRequest));
-                //.SetMessageHandler<MessageFromServer>(OnServerMessage);
         }
 
+        /// <summary>
+        /// Configures the server side of the network channel.
+        /// </summary>
         private void ConfigureServer(ICoreServerAPI serverAPI)
         {
             ServerNetworkChannel = serverAPI.Network
                 .RegisterChannel(ChannelID)
-                //.RegisterMessageType(typeof(MessageFromServer))
                 .RegisterMessageType(typeof(ClientWaypointRequest))
                 .SetMessageHandler<ClientWaypointRequest>(OnClientMessage);
         }
 
-        //private void OnServerMessage(MessageFromServer serverMessage)
-        //{
-
-        //}
-
+        /// <summary>
+        /// Server-side handler - receives a waypoint creation request arriving from a client.
+        /// </summary>
         private void OnClientMessage(IPlayer fromPlayer, ClientWaypointRequest request)
         {
             IServerPlayer serverPlayer = fromPlayer as IServerPlayer;
@@ -79,6 +81,9 @@ namespace Egocarib.AutoMapMarkers.Network
             waypointUtil.AddWaypoint(request.waypointPosition, request.waypointSettings);
         }
 
+        /// <summary>
+        /// Method called by a client to request that the server create a waypoint on behalf of the client.
+        /// </summary>
         public void RequestWaypointFromServer(Vec3d position, AutoMapMarkerSetting settings)
         {
             if (Side != EnumAppSide.Client)

@@ -8,6 +8,10 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
 {
     using BlockBehavior = Vintagestory.API.Common.BlockBehavior;
 
+    /// <summary>
+    /// Block behavior for loose surface ore blocks that indicate the location of underground ores.
+    /// Automatically creates map markers when the player collects loose ores.
+    /// </summary>
     public class LooseOresMarkerBehavior : BlockBehavior
     {
         public bool IsAnthracite { get { return block.Code.Path.Contains("-anthracite-"); } }
@@ -65,6 +69,9 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
             }
         }
 
+        /// <summary>
+        /// Gets the map marker settings for the block this behavior is attached to.
+        /// </summary>
         private MapMarkerConfig.Settings.AutoMapMarkerSetting GetLooseOreSettings()
         {
             if (IsAnthracite)
