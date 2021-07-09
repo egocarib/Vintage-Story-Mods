@@ -18,22 +18,32 @@ namespace Egocarib.AutoMapMarkers.Utilities
 
         private bool Valid { get { return ServerPlayer != null && WaypointMapLayer != null && ResendWaypointsMethod != null; } }
 
+        /// <summary>
+        /// Waypoint generator. To be instantiated and used only on the Server thread.
+        /// </summary>
+        /// <param name="serverPlayer"></param>
         public WaypointUtil(IServerPlayer serverPlayer)
         {
             ServerPlayer = serverPlayer;
-            WaypointMapLayer = MapMarkerMod.MapManager.MapLayers.FirstOrDefault((MapLayer ml) => ml.GetType() == typeof(WaypointMapLayer)) as WaypointMapLayer;
+            WorldMapManager serverWorldMapManager = MapMarkerMod.CoreServerAPI.ModLoader.GetModSystem<WorldMapManager>();
+            WaypointMapLayer = serverWorldMapManager.MapLayers.FirstOrDefault((MapLayer ml) => ml.GetType() == typeof(WaypointMapLayer)) as WaypointMapLayer;
         }
 
+        /// <summary>
+        /// Parses the provided map marker settings and determines whether a new waypoint should be added
+        /// at the specified coordinates based on those settings. Then creates the waypoint and syncs it
+        /// back to the client.
+        /// </summary>
         public void AddWaypoint(Vec3d position, MapMarkerConfig.Settings.AutoMapMarkerSetting settings)
         {
             if (!Valid)
             {
-                MapMarkerMod.CoreAPI.Logger.Error("Map Marker Mod: Unable to create waypoint - ServerPlayer or WaypointMapLayer is inaccessible.");
+                MessageUtil.LogError("Unable to create waypoint - ServerPlayer or WaypointMapLayer is inaccessible.");
                 return;
             }
             if (position == null || settings == null)
             {
-                MapMarkerMod.CoreAPI.Logger.Error("Map Marker Mod: Unable to create waypoint - missing position or settings data.");
+                MessageUtil.LogError("Unable to create waypoint - missing position or settings data.");
                 return;
             }
             if (!settings.Enabled)
@@ -54,7 +64,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
                         int? settingColor = settings.MarkerColorInteger;
                         if (settingColor == null || waypoint.Color == settingColor)
                         {
-                            return; // Don't create another waypoint - this spot is too close to an existing waypoint
+                            return; // Don't create another waypoint because this spot is too close to an existing waypoint
                         }
                     }
                 }
@@ -63,6 +73,9 @@ namespace Egocarib.AutoMapMarkers.Utilities
             AddWaypointToMap(position, settings.MarkerTitle, settings.MarkerIcon, settings.MarkerColorInteger);
         }
 
+        /// <summary>
+        /// Adds a waypoint marker to the map at the specified position, using the specified parameters, and syncs it back to the client.
+        /// </summary>
         private void AddWaypointToMap(Vec3d pos, string title, string icon, int? color, bool pinned = false)
         {
             if (!Valid)
@@ -95,11 +108,14 @@ namespace Egocarib.AutoMapMarkers.Utilities
             if (MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).ChatNotifyOnWaypointCreation)
             {
                 Waypoint[] ownwpaypoints = WaypointMapLayer.Waypoints.Where((p) => p.OwningPlayerUid == ServerPlayer.PlayerUID).ToArray();
-                MapMarkerMod.Chat(ServerPlayer, Lang.Get("Ok, waypoint nr. {0} added", ownwpaypoints.Length - 1));
+                MessageUtil.Chat(Lang.Get("Ok, waypoint nr. {0} added", ownwpaypoints.Length - 1), ServerPlayer);
             }
             ResendWaypoints();
         }
 
+        /// <summary>
+        /// Resends waypoints to the client(s).
+        /// </summary>
         private void ResendWaypoints()
         {
             if (Valid)

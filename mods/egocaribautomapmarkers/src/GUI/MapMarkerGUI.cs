@@ -9,6 +9,8 @@ using Vintagestory.API.MathTools;
 using Vintagestory.API.Datastructures;
 using System.Linq;
 using Egocarib.AutoMapMarkers.Settings;
+using System.Collections;
+using Egocarib.AutoMapMarkers.Utilities;
 
 namespace Egocarib.AutoMapMarkers.GUI
 {
@@ -124,16 +126,14 @@ namespace Egocarib.AutoMapMarkers.GUI
             double dialogPadding = 40;
             double xpos = 0;
             double ypos = 2.5;
-            double yStart = 0; // 25;
-            double dgWidth = 960 + dialogPadding * 2;
+            double yStart = 0;
             double opAreaHeight = 575;
-            double opAreaWidth = 960 + dialogPadding * 2;
             double toggleBarHeight = 76;
             double headerHeight = 48;
             double rowIndent = 20;
             double rowHeight = 42;
             double uiElementHeight = 25;
-            double opPromptWidth = 200;
+            double opPromptWidth = 240;
             double toggleWidth = 100; //Toggle switch, plus empty space after
             double disabledMsgWidth = 200;
             double iconLabelWidth = 52;
@@ -146,6 +146,8 @@ namespace Egocarib.AutoMapMarkers.GUI
             double nameLabelWidth = 62;
             double nameInputWidth = 140;
             double titleBarThickness = 31;
+            double dgWidth = opPromptWidth + toggleWidth + iconLabelWidth + iconDropdownWidth + iconDropdownAfter + colorLabelWidth + colorInputWidth
+                + colorInputAfter + colorPreviewWidth + nameLabelWidth + nameInputWidth + rowIndent * 2 + dialogPadding * 2;
 
             ElementBounds toggleButtonBarBounds = ElementBounds
                 .Fixed(0, titleBarThickness, dgWidth, toggleBarHeight)
@@ -209,13 +211,11 @@ namespace Egocarib.AutoMapMarkers.GUI
                     CurrentTab = settingGroupName;
                 }
                 CairoFont buttonFont = CairoFont.ButtonText();
-                TextExtents textExtents = buttonFont.GetTextExtents(settingGroupName);
-                double width = textExtents.Width / (double)RuntimeEnv.GUIScale + 15.0;
                 SingleComposer.AddToggleButton(
                     text: settingGroupName,
                     font: buttonFont,
                     onToggle: isSelected => OnTabToggle(settingGroupName),
-                    bounds: toggleButtonBounds.WithFixedWidth(width),
+                    bounds: toggleButtonBounds.WithFixedWidth(GetFontTextWidth(buttonFont, settingGroupName)),
                     key: settingGroupName + "-toggle-tab");
                 toggleButtonBounds = toggleButtonBounds.RightCopy(15, 0);
             }
@@ -321,6 +321,36 @@ namespace Egocarib.AutoMapMarkers.GUI
                     }
 
                     markerOptionRowBounds = markerOptionRowBounds.BelowCopy(); // Create next row, immediately below current row
+                }
+                if (CurrentTab == Lang.Get("egocarib-mapmarkers:traders"))
+                {
+                    string firstTraderSettingName = settingGroup.Value.Cast<KeyValuePair<string, AutoMapMarkerSetting>>().ElementAt(0).Key.ToString();
+                    string buttonLabel = Lang.Get("egocarib-mapmarkers:copy-setting-to-all-traders", firstTraderSettingName);
+                    SingleComposer.AddSmallButton(
+                        text: buttonLabel,
+                        onClick: () =>
+                        {
+                            AutoMapMarkerSetting firstSetting = null;
+                            foreach (var traderSettingInfo in settingGroup.Value)
+                            {
+                                if (firstSetting == null)
+                                {
+                                    firstSetting = traderSettingInfo.Value;
+                                }
+                                else
+                                {
+                                    traderSettingInfo.Value.CopyIconAndColorFrom(firstSetting);
+                                }
+                            }
+                            SetupDialog();
+                            return true;
+                        },
+                        bounds: markerOptionRowBounds
+                            .WithSizing(ElementSizing.Fixed)
+                            .WithParent(markerOptionAreaBounds)
+                            .WithFixedPadding(12, 0)
+                            .WithFixedAlignmentOffset(1, 10)
+                            .WithAlignment(EnumDialogArea.RightFixed));
                 }
             }
             if (CurrentTab == ExtraSettingsTabName)
@@ -523,13 +553,19 @@ namespace Egocarib.AutoMapMarkers.GUI
             if (saveButton != null && saveButton.Enabled == false)
             {
                 //"Auto Map Marker settings not saved: Settings included invalid colors or names."
-                MapMarkerMod.CoreClientAPI.SendChatMessage(Lang.Get("egocarib-mapmarkers:not-saved-warning"));
+                MessageUtil.Chat(Lang.Get("egocarib-mapmarkers:not-saved-warning"));
             }
             else
             {
                 MapMarkerConfig.SaveSettings(capi, ModSettings);
             }
             base.OnGuiClosed();
+        }
+
+        private double GetFontTextWidth(CairoFont font, string text)
+        {
+            TextExtents textExtents = font.GetTextExtents(text);
+            return textExtents.Width / (double)RuntimeEnv.GUIScale + 15.0;
         }
 
         public override bool CaptureAllInputs()

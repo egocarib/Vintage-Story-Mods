@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using ProtoBuf;
 using System;
 using System.Globalization;
 using Vintagestory.API.Common;
@@ -27,6 +28,7 @@ namespace Egocarib.AutoMapMarkers.Settings
             {
                 public MapMarkerSettings_OrganicMatter OrganicMatter = new MapMarkerSettings_OrganicMatter();
                 public MapMarkerSettings_Ore SurfaceOre = new MapMarkerSettings_Ore();
+                public MapMarkerSettings_Traders Traders = new MapMarkerSettings_Traders();
             }
 
             public class MapMarkerSettings_OrganicMatter
@@ -88,7 +90,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 public AutoMapMarkerSetting MushroomBolete = new AutoMapMarkerSetting
                 {
                     Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-mushroom-bolete-*"),
+                    MarkerTitle = Lang.GetMatching("block-mushroom-bolete-normal-*"),
                     MarkerColor = "#503922",
                     MarkerIcon = "circle",
                     MarkerCoverageRadius = 6
@@ -97,7 +99,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 public AutoMapMarkerSetting MushroomFieldMushroom = new AutoMapMarkerSetting
                 {
                     Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-mushroom-fieldmushroom-*"),
+                    MarkerTitle = Lang.GetMatching("block-mushroom-fieldmushroom-normal-*"),
                     MarkerColor = "ghostwhite",
                     MarkerIcon = "circle",
                     MarkerCoverageRadius = 6
@@ -106,7 +108,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 public AutoMapMarkerSetting MushroomFlyAgaric = new AutoMapMarkerSetting
                 {
                     Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-mushroom-flyagaric-*"),
+                    MarkerTitle = Lang.GetMatching("block-mushroom-flyagaric-normal-*"),
                     MarkerColor = "brown",
                     MarkerIcon = "circle",
                     MarkerCoverageRadius = 6
@@ -278,6 +280,90 @@ namespace Egocarib.AutoMapMarkers.Settings
                 };
             }
 
+            public class MapMarkerSettings_Traders
+            {
+                public AutoMapMarkerSetting TraderArtisan = new AutoMapMarkerSetting
+                {
+                    Enabled = true,
+                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-artisan"),
+                    MarkerColor = "yellow",
+                    MarkerIcon = "trader",
+                    MarkerCoverageRadius = 20
+                };
+
+                public AutoMapMarkerSetting TraderBuildingMaterials = new AutoMapMarkerSetting
+                {
+                    Enabled = true,
+                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-buildmaterials"),
+                    MarkerColor = "yellow",
+                    MarkerIcon = "trader",
+                    MarkerCoverageRadius = 20
+                };
+
+                public AutoMapMarkerSetting TraderClothing = new AutoMapMarkerSetting
+                {
+                    Enabled = true,
+                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-clothing"),
+                    MarkerColor = "yellow",
+                    MarkerIcon = "trader",
+                    MarkerCoverageRadius = 20
+                };
+
+                public AutoMapMarkerSetting TraderCommodities = new AutoMapMarkerSetting
+                {
+                    Enabled = true,
+                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-commodities"),
+                    MarkerColor = "yellow",
+                    MarkerIcon = "trader",
+                    MarkerCoverageRadius = 20
+                };
+
+                public AutoMapMarkerSetting TraderFoods = new AutoMapMarkerSetting
+                {
+                    Enabled = true,
+                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-foods"),
+                    MarkerColor = "yellow",
+                    MarkerIcon = "trader",
+                    MarkerCoverageRadius = 20
+                };
+
+                public AutoMapMarkerSetting TraderFurniture = new AutoMapMarkerSetting
+                {
+                    Enabled = true,
+                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-furniture"),
+                    MarkerColor = "yellow",
+                    MarkerIcon = "trader",
+                    MarkerCoverageRadius = 20
+                };
+
+                public AutoMapMarkerSetting TraderLuxuries = new AutoMapMarkerSetting
+                {
+                    Enabled = true,
+                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-luxuries"),
+                    MarkerColor = "yellow",
+                    MarkerIcon = "trader",
+                    MarkerCoverageRadius = 20
+                };
+
+                public AutoMapMarkerSetting TraderSurvivalGoods = new AutoMapMarkerSetting
+                {
+                    Enabled = true,
+                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-survivalgoods"),
+                    MarkerColor = "yellow",
+                    MarkerIcon = "trader",
+                    MarkerCoverageRadius = 20
+                };
+
+                public AutoMapMarkerSetting TraderTreasureHunter = new AutoMapMarkerSetting
+                {
+                    Enabled = true,
+                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-treasurehunter"),
+                    MarkerColor = "yellow",
+                    MarkerIcon = "trader",
+                    MarkerCoverageRadius = 20
+                };
+            }
+
             public OrderedDictionary<string, OrderedDictionary<string, AutoMapMarkerSetting>> GetMapMarkerSettingCollection()
             {
                 if (_MapMarkerSettingsCollection == null)
@@ -293,9 +379,9 @@ namespace Egocarib.AutoMapMarkers.Settings
                                 { Lang.Get("item-fruit-blackcurrant"), AutoMapMarkers.OrganicMatter.BlackCurrant },
                                 { Lang.Get("item-fruit-redcurrant"), AutoMapMarkers.OrganicMatter.RedCurrant },
                                 { Lang.Get("item-fruit-whitecurrant"), AutoMapMarkers.OrganicMatter.WhiteCurrant },
-                                { Lang.GetMatching("block-mushroom-bolete-*"), AutoMapMarkers.OrganicMatter.MushroomBolete },
-                                { Lang.GetMatching("block-mushroom-fieldmushroom-*"), AutoMapMarkers.OrganicMatter.MushroomFieldMushroom },
-                                { Lang.GetMatching("block-mushroom-flyagaric-*"), AutoMapMarkers.OrganicMatter.MushroomFlyAgaric }
+                                { Lang.GetMatching("block-mushroom-bolete-normal-*"), AutoMapMarkers.OrganicMatter.MushroomBolete },
+                                { Lang.GetMatching("block-mushroom-fieldmushroom-normal-*"), AutoMapMarkers.OrganicMatter.MushroomFieldMushroom },
+                                { Lang.GetMatching("block-mushroom-flyagaric-normal-*"), AutoMapMarkers.OrganicMatter.MushroomFlyAgaric }
                             }
                         },
                         { Lang.Get("egocarib-mapmarkers:surface-ore"),
@@ -320,18 +406,38 @@ namespace Egocarib.AutoMapMarkers.Settings
                                 { Lang.GetMatching("block-looseores-sulfur-*"), AutoMapMarkers.SurfaceOre.LooseOreSulfur },
                                 { Lang.GetMatching("block-looseores-cassiterite-*"), AutoMapMarkers.SurfaceOre.LooseOreTin }
                             }
+                        },
+                        { Lang.Get("egocarib-mapmarkers:traders"),
+                            new OrderedDictionary<string, AutoMapMarkerSetting>
+                            {
+                                { Lang.Get("item-creature-humanoid-trader-artisan"), AutoMapMarkers.Traders.TraderArtisan },
+                                { Lang.Get("item-creature-humanoid-trader-buildmaterials"), AutoMapMarkers.Traders.TraderBuildingMaterials },
+                                { Lang.Get("item-creature-humanoid-trader-clothing"), AutoMapMarkers.Traders.TraderClothing },
+                                { Lang.Get("item-creature-humanoid-trader-commodities"), AutoMapMarkers.Traders.TraderCommodities },
+                                { Lang.Get("item-creature-humanoid-trader-foods"), AutoMapMarkers.Traders.TraderFoods },
+                                { Lang.Get("item-creature-humanoid-trader-furniture"), AutoMapMarkers.Traders.TraderFurniture },
+                                { Lang.Get("item-creature-humanoid-trader-luxuries"), AutoMapMarkers.Traders.TraderLuxuries },
+                                { Lang.Get("item-creature-humanoid-trader-survivalgoods"), AutoMapMarkers.Traders.TraderSurvivalGoods },
+                                { Lang.Get("item-creature-humanoid-trader-treasurehunter"), AutoMapMarkers.Traders.TraderTreasureHunter }
+                            }
                         }
                     };
                 }
                 return _MapMarkerSettingsCollection;
             }
 
+            [ProtoContract]
             public class AutoMapMarkerSetting
             {
+                [ProtoMember(1)]
                 public bool Enabled;
+                [ProtoMember(2)]
                 public string MarkerTitle;
+                [ProtoMember(3)]
                 public string MarkerColor;
+                [ProtoMember(4)]
                 public string MarkerIcon;
+                [ProtoMember(5)]
                 public int MarkerCoverageRadius;
 
                 [JsonIgnore]
@@ -358,6 +464,16 @@ namespace Egocarib.AutoMapMarkers.Settings
                         }
                         return parsedColor.ToArgb() | (255 << 24);
                     }
+                }
+
+                /// <summary>
+                /// Makes this AutoMapMarkerSetting's icon and color equal to another.
+                /// </summary>
+                /// <param name="sourceSetting">AutoMapMarkerSetting from which to copy values.</param>
+                public void CopyIconAndColorFrom(AutoMapMarkerSetting sourceSetting)
+                {
+                    MarkerColor = sourceSetting.MarkerColor;
+                    MarkerIcon = sourceSetting.MarkerIcon;
                 }
             }
         }
