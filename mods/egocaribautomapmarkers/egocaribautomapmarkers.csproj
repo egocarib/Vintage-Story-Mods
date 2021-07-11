@@ -82,6 +82,9 @@
     <Content Include="assets\automapmarkers\patches\mushroom.json" />
     <Content Include="assets\automapmarkers\patches\smallberrybush.json" />
     <Content Include="assets\automapmarkers\patches\trader-{type}.json" />
+    <Content Include="egocaribautomapmarkers.dll" />
+    <Content Include="egocaribautomapmarkers.pdb" />
+    <Content Include="modicon.png" />
     <Content Include="modinfo.json" />
     <Compile Include="src\GUI\MapMarkerGUISystem.cs" />
     <Compile Include="src\MapMarkerMod.cs" />
@@ -96,6 +99,10 @@
     <Compile Include="src\Settings\MapMarkerConfig.cs" />
     <Compile Include="src\Utilities\MessageUtil.cs" />
     <Compile Include="src\Utilities\WaypointUtil.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".ignore" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

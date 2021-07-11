@@ -15,5 +15,7 @@
   "egocarib-mapmarkers:gold-ore-bits": "Gold bits",
   "egocarib-mapmarkers:silver-ore-bits": "Silver bits",
   "egocarib-mapmarkers:ui": "UI",
-  "egocarib-mapmarkers:show-chat-message": "Show chat message when new waypoint is added"
+  "egocarib-mapmarkers:show-chat-message": "Show chat message when new waypoint is added",
+  "egocarib-mapmarkers:disable-mod": "Temporarily disable the Auto Map Markers mod",
+  "egocarib-mapmarkers:re-enable-mod": "Click to enable the Auto Map Markers mod"
 }

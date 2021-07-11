@@ -144,10 +144,10 @@ namespace Egocarib.AutoMapMarkers.GUI
             ElementBounds markerOptionNameInputBounds = ElementBounds.Fixed(xpos += nameLabelWidth, ypos, nameInputWidth, uiElementHeight);
 
             ElementBounds mainContentBounds = ElementBounds.Fixed(0, titleBarThickness + toggleBarHeight, dgWidth - dialogPadding * 2, opAreaHeight)
-                .WithFixedPadding(dialogPadding)
+                .WithFixedPadding(dialogPadding);
                 // Uncomment the following line to make each tab resize the GUI to fit its contents (decided I didn't like that)
                 //.WithSizing(horizontalSizing: ElementSizing.Fixed, verticalSizing: ElementSizing.FitToChildren)
-                .WithChildren(/*markerHeaderBounds,*/ markerOptionAreaBounds);
+                //.WithChildren(/*markerHeaderBounds,*/ markerOptionAreaBounds);
 
             ElementBounds bgBounds = ElementBounds.Fill
                 .WithChildren(mainContentBounds, toggleButtonBarBounds)
@@ -190,10 +190,32 @@ namespace Egocarib.AutoMapMarkers.GUI
                     bounds: ElementBounds.Fixed(0.0, 0.0, 80.0, 40.0).WithFixedPadding(4.0, 3.0).WithAlignment(EnumDialogArea.RightTop))
                 .EndChildElements() // end header bar toggle buttons
 
-                .BeginChildElements(mainContentBounds)
+                .BeginChildElements(mainContentBounds);
 
-                .BeginChildElements(markerOptionAreaBounds);
+            if (ModSettings.DisableAllModFeatures)
+            {
+                string enableLabel = Lang.Get("egocarib-mapmarkers:re-enable-mod");
+                SingleComposer
+                    .AddButton(
+                        text: enableLabel,
+                        onClick: () => 
+                        {
+                            ModSettings.DisableAllModFeatures = false;
+                            SetupDialog();
+                            return true;
+                        },
+                        bounds: ElementBounds
+                            .Fixed(0, 0, GetFontTextWidth(CairoFont.ButtonText(), enableLabel), 40)
+                            .WithFixedPadding(20, 5)
+                            .WithAlignment(EnumDialogArea.CenterMiddle)
+                            .WithFixedAlignmentOffset(0, -100))
+                    .EndChildElements() // mainContentBounds
+                    .EndChildElements() // bgBounds
+                    .Compose();
+                return;
+            }
 
+            SingleComposer.BeginChildElements(markerOptionAreaBounds);
 
             foreach (var settingGroup in AutoMapMarkerSettings)
             {
@@ -323,6 +345,7 @@ namespace Egocarib.AutoMapMarkers.GUI
 
                 SingleComposer.BeginChildElements(markerOptionRowBounds)
 
+                    // Chat messages enabled/disabled
                     .AddSwitch(
                         onToggle: isSelected => { ModSettings.ChatNotifyOnWaypointCreation = isSelected; },
                         bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
@@ -332,8 +355,23 @@ namespace Egocarib.AutoMapMarkers.GUI
                         font: CairoFont.WhiteSmallishText(),
                         bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
 
+                    // Master toggle to disable the mod
+                    .AddSwitch(
+                        onToggle: isSelected =>
+                        {
+                            ModSettings.DisableAllModFeatures = isSelected;
+                            SetupDialog();
+                        },
+                        bounds: uiToggleBounds.BelowCopy(),
+                        key: "toggle-disable-mod")
+                    .AddStaticText(
+                        text: Lang.Get("egocarib-mapmarkers:disable-mod"),
+                        font: CairoFont.WhiteSmallishText(),
+                        bounds: uiToggleLabelBounds.BelowCopy())
+
                 .EndChildElements();
                 SingleComposer.GetSwitch("toggle-show-chat-message").SetValue(ModSettings.ChatNotifyOnWaypointCreation);
+                SingleComposer.GetSwitch("toggle-disable-mod").SetValue(ModSettings.DisableAllModFeatures);
             }
             
             SingleComposer

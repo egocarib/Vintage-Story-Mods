@@ -23,7 +23,9 @@ namespace Egocarib.AutoMapMarkers.Settings
 
             public bool ChatNotifyOnWaypointCreation = false;
 
-            public double ConfigVersion = 1.0;
+            public bool DisableAllModFeatures = false;
+
+            public double ConfigVersion = 2.0;
 
             public MapMarkerSettingsGrouper AutoMapMarkers = new MapMarkerSettingsGrouper();
 

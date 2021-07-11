@@ -1,4 +1,5 @@
-﻿using Egocarib.AutoMapMarkers.Utilities;
+﻿using Egocarib.AutoMapMarkers.Settings;
+using Egocarib.AutoMapMarkers.Utilities;
 using ProtoBuf;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -89,6 +90,11 @@ namespace Egocarib.AutoMapMarkers.Network
             if (Side != EnumAppSide.Client)
             {
                 MessageUtil.LogError("New waypoint unexpectedly requested from server-side thread.");
+                return;
+            }
+            if (MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).DisableAllModFeatures)
+            {
+                MessageUtil.Log("Suppressed automatic waypoint creation - mod features are currently disabled.");
                 return;
             }
             var waypointRequest = new ClientWaypointRequest
