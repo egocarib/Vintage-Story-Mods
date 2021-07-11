@@ -8,6 +8,9 @@ using Vintagestory.API.Datastructures;
 
 namespace Egocarib.AutoMapMarkers.Settings
 {
+    /// <summary>
+    /// Settings and configuration methods for the Auto Map Markers mod.
+    /// </summary>
     public static class MapMarkerConfig
     {
         public const string ConfigFilename = "auto_map_markers_config.json";
@@ -467,7 +470,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 }
 
                 /// <summary>
-                /// Makes this AutoMapMarkerSetting's icon and color equal to another.
+                /// Makes this AutoMapMarkerSetting's icon and color equal to another's.
                 /// </summary>
                 /// <param name="sourceSetting">AutoMapMarkerSetting from which to copy values.</param>
                 public void CopyIconAndColorFrom(AutoMapMarkerSetting sourceSetting)

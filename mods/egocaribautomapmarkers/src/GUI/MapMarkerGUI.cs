@@ -1,68 +1,19 @@
-﻿using Cairo;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Vintagestory.API.Client;
-using Vintagestory.API.Common;
-using Vintagestory.API.Config;
-using Vintagestory.API.MathTools;
-using Vintagestory.API.Datastructures;
 using System.Linq;
+using Cairo;
+using Vintagestory.API.Client;
+using Vintagestory.API.Config;
+using Vintagestory.API.Datastructures;
+using Vintagestory.API.MathTools;
 using Egocarib.AutoMapMarkers.Settings;
-using System.Collections;
 using Egocarib.AutoMapMarkers.Utilities;
 
 namespace Egocarib.AutoMapMarkers.GUI
 {
-    using Color = System.Drawing.Color;
     using AutoMapMarkerSetting = MapMarkerConfig.Settings.AutoMapMarkerSetting;
-
-    /// <summary>
-    /// Mod system for our mod's settings GUI. Only loaded on the client side.
-    /// </summary>
-    public class MapMarkerGUISystem : ModSystem
-    {
-        ICoreClientAPI capi;
-        GuiDialog mapMarkerDialog;
-
-        public override bool ShouldLoad(EnumAppSide forSide)
-        {
-            return forSide == EnumAppSide.Client;
-        }
-
-        public override void StartClientSide(ICoreClientAPI api)
-        {
-            base.StartClientSide(api);
-
-            mapMarkerDialog = new MapMarkerGUI(api);
-
-            capi = api;
-            capi.Input.RegisterHotKey(
-                hotkeyCode: MapMarkerGUI.HotkeyCode,
-                name: Lang.Get("egocarib-mapmarkers:config-keybind-name"),
-                key: GlKeys.M,
-                type: HotkeyType.GUIOrOtherControls,
-                altPressed: false,
-                ctrlPressed: true,
-                shiftPressed: true);
-            capi.Input.SetHotKeyHandler(
-                hotkeyCode: MapMarkerGUI.HotkeyCode,
-                handler: ToggleGUI);
-        }
-
-        private bool ToggleGUI(KeyCombination comb)
-        {
-            if (mapMarkerDialog.IsOpened())
-            {
-                mapMarkerDialog.TryClose();
-            }
-            else
-            {
-                mapMarkerDialog.TryOpen();
-            }
-            return true;
-        }
-    }
+    using Color = System.Drawing.Color;
 
     /// <summary>
     /// The Auto Map Marker configuration menu
@@ -71,20 +22,28 @@ namespace Egocarib.AutoMapMarkers.GUI
     {
         public const string HotkeyCode = "egocarib_MapMarkerGUI";
         public const string DialogID = "egocarib-mapmarkers-config-menu";
-        public int DynamicDrawColor;
-        public override string ToggleKeyCombinationCode { get { return HotkeyCode; } }
-        public override bool DisableMouseGrab { get { return true; } }
-
         public MapMarkerConfig.Settings ModSettings;
         public OrderedDictionary<string, OrderedDictionary<string, AutoMapMarkerSetting>> AutoMapMarkerSettings;
         public readonly string ExtraSettingsTabName = Lang.Get("egocarib-mapmarkers:ui");
         public string CurrentTab;
+        public int DynamicDrawColor;
+
+        public override string ToggleKeyCombinationCode { get { return HotkeyCode; } }
+
+        public override bool DisableMouseGrab { get { return true; } }
 
         public MapMarkerGUI(ICoreClientAPI capi) : base(capi)
         {
-            //SetupDialog();
         }
 
+        public override bool CaptureAllInputs()
+        {
+            return IsOpened();
+        }
+
+        /// <summary>
+        /// Called when the GUI opens. Loads the player's current map marker settings and then calls SetupDialog() to compose the GUI.
+        /// </summary>
         public override void OnGuiOpened()
         {
             try
@@ -100,6 +59,9 @@ namespace Egocarib.AutoMapMarkers.GUI
             base.OnGuiOpened();
         }
 
+        /// <summary>
+        /// Composes or re-composes the GUI. Called each time the menu tab changes or an option is toggled off/on
+        /// </summary>
         private void SetupDialog()
         {
             // Icon info
@@ -112,17 +74,16 @@ namespace Egocarib.AutoMapMarkers.GUI
             disabledFont.Color[3] = 0.2;
 
             /*
-             *  General dialog structure (not including clipping/inset/scrolling elements):
+             *  Dialog bounds nesting structure:
              *  
-             * dialogBounds
-             *   bgBounds
-             *     markerHeaderBounds
-             *     markerOptionAreaBounds
-             *       markerOptionRowBounds [multiple copies]
-             *         markerOption*
-             *         markerOption*
-             *         ...etc...
-             *     dialogButtonBounds
+             *  dialogBounds
+             *    bgBounds
+             *      toggleButtonBarBounds
+             *        toggleButtonBounds [multiple]
+             *      mainContentBounds
+             *        markerOptionAreaBounds
+             *          markerOptionRowBounds [multiple]
+             *            markerOption* [multiple]
              */
 
             // Auto-sized dialog at the center of the screen
@@ -162,7 +123,7 @@ namespace Egocarib.AutoMapMarkers.GUI
             ElementBounds toggleButtonBounds = ElementBounds.Fixed(0, 0, 160, 40).WithFixedPadding(0, 3);
 
             ElementBounds markerHeaderBounds = ElementBounds.Fixed(0, yStart, dgWidth, headerHeight);
-            ElementBounds markerOptionAreaBounds = ElementBounds.Fixed(0, (int)(yStart /*+ headerHeight*/))
+            ElementBounds markerOptionAreaBounds = ElementBounds.Fixed(0, (int)(yStart))
                 .WithFixedPadding(rowIndent, 0)
                 .WithSizing(ElementSizing.FitToChildren);
 
@@ -182,7 +143,7 @@ namespace Egocarib.AutoMapMarkers.GUI
             ElementBounds markerOptionNameLabelBounds = ElementBounds.Fixed(xpos += colorPreviewWidth, ypos, nameLabelWidth, rowHeight);
             ElementBounds markerOptionNameInputBounds = ElementBounds.Fixed(xpos += nameLabelWidth, ypos, nameInputWidth, uiElementHeight);
 
-            ElementBounds mainContentBounds = ElementBounds.Fixed(0, titleBarThickness + toggleBarHeight, dgWidth - dialogPadding * 2, /*headerHeight +*/ opAreaHeight)
+            ElementBounds mainContentBounds = ElementBounds.Fixed(0, titleBarThickness + toggleBarHeight, dgWidth - dialogPadding * 2, opAreaHeight)
                 .WithFixedPadding(dialogPadding)
                 // Uncomment the following line to make each tab resize the GUI to fit its contents (decided I didn't like that)
                 //.WithSizing(horizontalSizing: ElementSizing.Fixed, verticalSizing: ElementSizing.FitToChildren)
@@ -192,15 +153,10 @@ namespace Egocarib.AutoMapMarkers.GUI
                 .WithChildren(mainContentBounds, toggleButtonBarBounds)
                 .WithSizing(ElementSizing.FitToChildren);
 
-
             SingleComposer = capi.Gui.CreateCompo(DialogID, dialogBounds)
-
-
                 .AddShadedDialogBG(bgBounds)
                 .AddDialogTitleBar(Lang.Get("egocarib-mapmarkers:config-menu-title"), OnTitleBarCloseClicked)
                 .BeginChildElements(bgBounds)
-
-                //.AddShadedDialogBG(toggleButtonBarBounds, withTitleBar: false)
                 .AddStaticCustomDraw(toggleButtonBarBounds, delegate (Context ctx, ImageSurface surface, ElementBounds bounds)
                 {
                     //This header design copied from Vintagestory.Client.NoObf.GuiCompositeSettings.ComposerHeader
@@ -208,7 +164,7 @@ namespace Egocarib.AutoMapMarkers.GUI
                     GuiElement.RoundRectangle(ctx, GuiElement.scaled(5.0) + bounds.bgDrawX, GuiElement.scaled(5.0) + bounds.bgDrawY, bounds.OuterWidth - GuiElement.scaled(10.0), GuiElement.scaled(75.0), 1.0);
                     ctx.Fill();
                 })
-                .BeginChildElements();
+                .BeginChildElements(); // start header bar toggle buttons
 
             foreach (var settingGroupName in AutoMapMarkerSettings.Keys.Concat(new [] { ExtraSettingsTabName }))
             {
@@ -232,11 +188,10 @@ namespace Egocarib.AutoMapMarkers.GUI
                 .AddButton(text: Lang.Get("general-save"),
                     onClick: OnSaveButton,
                     bounds: ElementBounds.Fixed(0.0, 0.0, 80.0, 40.0).WithFixedPadding(4.0, 3.0).WithAlignment(EnumDialogArea.RightTop))
-                .EndChildElements()
+                .EndChildElements() // end header bar toggle buttons
 
                 .BeginChildElements(mainContentBounds)
 
-                //.AddStaticText(Lang.Get("egocarib-mapmarkers:config-menu-section-header1"), headerFont, markerHeaderBounds)
                 .BeginChildElements(markerOptionAreaBounds);
 
 
@@ -246,7 +201,6 @@ namespace Egocarib.AutoMapMarkers.GUI
                 {
                     continue;
                 }
-                //TODO: add title text for group? (settingGroup.Key)
                 foreach (var setting in settingGroup.Value)
                 {
                     string markerSettingTitle = setting.Key;
@@ -330,6 +284,7 @@ namespace Egocarib.AutoMapMarkers.GUI
                 }
                 if (CurrentTab == Lang.Get("egocarib-mapmarkers:traders"))
                 {
+                    // Add special button for trader settings
                     string firstTraderSettingName = settingGroup.Value.Cast<KeyValuePair<string, AutoMapMarkerSetting>>().ElementAt(0).Key.ToString();
                     string buttonLabel = Lang.Get("egocarib-mapmarkers:copy-setting-to-all-traders", firstTraderSettingName);
                     SingleComposer.AddSmallButton(
@@ -356,11 +311,13 @@ namespace Egocarib.AutoMapMarkers.GUI
                             .WithParent(markerOptionAreaBounds)
                             .WithFixedPadding(12, 0)
                             .WithFixedAlignmentOffset(1, 10)
-                            .WithAlignment(EnumDialogArea.RightFixed));
+                            .WithAlignment(EnumDialogArea.RightFixed)
+                    );
                 }
             }
             if (CurrentTab == ExtraSettingsTabName)
             {
+                // Build "UI" tab with additional mod options
                 ElementBounds uiToggleBounds = ElementBounds.Fixed(0, 0, 60, rowHeight);
                 ElementBounds uiToggleLabelBounds = ElementBounds.Fixed(60, 2.5, 800, rowHeight);
 
@@ -388,6 +345,9 @@ namespace Egocarib.AutoMapMarkers.GUI
             OnMarkerColorChanged(); // Force color tiles to be redrawn with correct colors.
         }
 
+        /// <summary>
+        /// Calculates the dropdown index of an icon associated with a given setting.
+        /// </summary>
         private int GetIconIndex(string[] icons, AutoMapMarkerSetting setting)
         {
             int index = Array.FindIndex(icons, i => i.Equals(setting.MarkerIcon, StringComparison.OrdinalIgnoreCase));
@@ -400,13 +360,19 @@ namespace Egocarib.AutoMapMarkers.GUI
             return index;
         }
 
-        public void OnTabToggle(string tabName)
+        /// <summary>
+        /// Called when the selected menu tab changes. Recomposes the GUI to draw the new menu screen.
+        /// </summary>
+        private void OnTabToggle(string tabName)
         {
             CurrentTab = tabName;
             SetupDialog();
         }
 
-        public void OnMarkerToggleEnabled(bool isSelected)
+        /// <summary>
+        /// Called when a map marker option is toggled off/on. Enables or disables that option and recomposes the GUI.
+        /// </summary>
+        private void OnMarkerToggleEnabled(bool isSelected)
         {
             foreach (var settingGroup in AutoMapMarkerSettings)
             {
@@ -422,6 +388,9 @@ namespace Egocarib.AutoMapMarkers.GUI
             SetupDialog(); // Redraw GUI
         }
 
+        /// <summary>
+        /// Called when an icon dropdown choice changes. Updates the related map marker settings.
+        /// </summary>
         private void OnMarkerIconChanged(string iconName, bool selected)
         {
             foreach (var settingGroup in AutoMapMarkerSettings)
@@ -438,6 +407,9 @@ namespace Egocarib.AutoMapMarkers.GUI
             }
         }
 
+        /// <summary>
+        /// Called when the color input text changes. Updates the related map marker settings.
+        /// </summary>
         private void OnMarkerColorChanged(string colorstring = "")
         {
             int colorTransparent = Color.Transparent.ToArgb();
@@ -495,10 +467,12 @@ namespace Egocarib.AutoMapMarkers.GUI
                     }
                 }
             }
-
             SetSaveButtonState(saveEnabled);
         }
 
+        /// <summary>
+        /// Called when the name input text changes. Updates the related map marker settings.
+        /// </summary>
         private void OnMarkerNameChanged(string name)
         {
             bool saveEnabled = true;
@@ -525,10 +499,12 @@ namespace Egocarib.AutoMapMarkers.GUI
                     }
                 }
             }
-
             SetSaveButtonState(saveEnabled);
         }
 
+        /// <summary>
+        /// Draws the color preview tile.
+        /// </summary>
         private void OnDrawColorRect(Context ctx, ImageSurface surface, ElementBounds currentBounds)
         {
             ctx.Rectangle(0.0, 0.0, 25.0, 25.0);
@@ -538,6 +514,9 @@ namespace Egocarib.AutoMapMarkers.GUI
             ctx.Stroke();
         }
 
+        /// <summary>
+        /// Enables or disables the Save button. Disabled when a color input is invalid or if no Name is specified for an option.
+        /// </summary>
         private void SetSaveButtonState(bool enabled)
         {
             GuiElementTextButton saveButton = SingleComposer.GetButton("auto-markers-saveButton");
@@ -547,12 +526,26 @@ namespace Egocarib.AutoMapMarkers.GUI
             }
         }
 
-        public bool OnSaveButton()
+        /// <summary>
+        /// Closes the GUI, which will also trigger an attempt to save the settings.
+        /// </summary>
+        private bool OnSaveButton()
         {
             TryClose();
             return true;
         }
 
+        /// <summary>
+        /// Called when the title bar "X" button is clicked. Closes the GUI and attempts to save the settings.
+        /// </summary>
+        private void OnTitleBarCloseClicked()
+        {
+            TryClose();
+        }
+
+        /// <summary>
+        /// Called when the GUI is closed for any reason. Attempts to save the user's settings if they are valid.
+        /// </summary>
         public override void OnGuiClosed()
         {
             GuiElementTextButton saveButton = SingleComposer.GetButton("auto-markers-saveButton");
@@ -568,20 +561,14 @@ namespace Egocarib.AutoMapMarkers.GUI
             base.OnGuiClosed();
         }
 
+        /// <summary>
+        /// Measures the GUI width that will be consumed by a string of text in the specified font.
+        /// Can be used to help pre-determine the width needed for the text's enclosing GUI element.
+        /// </summary>
         private double GetFontTextWidth(CairoFont font, string text)
         {
             TextExtents textExtents = font.GetTextExtents(text);
             return textExtents.Width / (double)RuntimeEnv.GUIScale + 15.0;
-        }
-
-        public override bool CaptureAllInputs()
-        {
-            return IsOpened();
-        }
-
-        private void OnTitleBarCloseClicked()
-        {
-            TryClose();
         }
     }
 }

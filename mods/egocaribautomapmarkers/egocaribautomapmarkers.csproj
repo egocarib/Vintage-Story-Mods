@@ -83,7 +83,8 @@
     <Content Include="assets\automapmarkers\patches\smallberrybush.json" />
     <Content Include="assets\automapmarkers\patches\trader-{type}.json" />
     <Content Include="modinfo.json" />
-    <Compile Include="src\MapMarker.cs" />
+    <Compile Include="src\GUI\MapMarkerGUISystem.cs" />
+    <Compile Include="src\MapMarkerMod.cs" />
     <Compile Include="src\BlockBehavior\HarvestMarkerBehavior.cs" />
     <Compile Include="src\BlockBehavior\LooseOresMarkerBehavior.cs" />
     <Compile Include="src\BlockBehavior\MushroomMarkerBehavior.cs" />
