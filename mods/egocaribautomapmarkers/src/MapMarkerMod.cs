@@ -59,6 +59,7 @@ namespace Egocarib.AutoMapMarkers
             CoreAPI = null;
             CoreServerAPI = null;
             CoreClientAPI = null;
+            Network?.Dispose();
             Network = null;
         }
     }

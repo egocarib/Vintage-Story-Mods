@@ -33,7 +33,7 @@ namespace Egocarib.AutoMapMarkers.Patches
         /// </summary>
         public static void Deharmonize()
         {
-            harmonyInstance.UnpatchAll(harmonyID);
+            harmonyInstance?.UnpatchAll(harmonyID);
             harmonyInstance = null;
         }
     }
