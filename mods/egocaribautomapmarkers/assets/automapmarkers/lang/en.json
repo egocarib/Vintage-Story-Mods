@@ -17,5 +17,6 @@
   "egocarib-mapmarkers:ui": "UI",
   "egocarib-mapmarkers:show-chat-message": "Show chat message when new waypoint is added",
   "egocarib-mapmarkers:disable-mod": "Temporarily disable the Auto Map Markers mod",
-  "egocarib-mapmarkers:re-enable-mod": "Click to enable the Auto Map Markers mod"
+  "egocarib-mapmarkers:re-enable-mod": "Click to enable the Auto Map Markers mod",
+  "egocarib-mapmarkers:server-warning": "Auto Map Markers mod was unable to connect to the server, and may not work as expected. If you are on a multiplayer server, the mod needs to be installed on the server to function."
 }

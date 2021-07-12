@@ -1,8 +1,11 @@
 ﻿using Egocarib.AutoMapMarkers.Settings;
 using Egocarib.AutoMapMarkers.Utilities;
 using ProtoBuf;
+using System;
+using System.Timers;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using static Egocarib.AutoMapMarkers.Settings.MapMarkerConfig.Settings;
@@ -32,6 +35,8 @@ namespace Egocarib.AutoMapMarkers.Network
         public IServerNetworkChannel ServerNetworkChannel;
         public IClientNetworkChannel ClientNetworkChannel;
         public const string ChannelID = "Egocarib.AutoMapMarkers.Network.MapMarkerChannel";
+        private Timer ClientHandshakeTimer;
+        private int ConnectionCheckAttempts = 0;
 
         public MapMarkerNetwork(ICoreAPI api)
         {
@@ -43,12 +48,16 @@ namespace Egocarib.AutoMapMarkers.Network
             else
             {
                 ConfigureClient(api as ICoreClientAPI);
+                InitiateHandshakeWithServer();
             }
         }
 
         /// <summary>
         /// Configures the client side of the network channel.
         /// </summary>
+        /// <remarks>
+        /// Side: client only
+        /// </remarks>
         private void ConfigureClient(ICoreClientAPI clientAPI)
         {
             ClientNetworkChannel = clientAPI.Network
@@ -59,18 +68,24 @@ namespace Egocarib.AutoMapMarkers.Network
         /// <summary>
         /// Configures the server side of the network channel.
         /// </summary>
+        /// <remarks>
+        /// Side: server only
+        /// </remarks>
         private void ConfigureServer(ICoreServerAPI serverAPI)
         {
             ServerNetworkChannel = serverAPI.Network
                 .RegisterChannel(ChannelID)
                 .RegisterMessageType(typeof(ClientWaypointRequest))
-                .SetMessageHandler<ClientWaypointRequest>(OnClientMessage);
+                .SetMessageHandler<ClientWaypointRequest>(OnClientWaypointRequest);
         }
 
         /// <summary>
         /// Server-side handler - receives a waypoint creation request arriving from a client.
         /// </summary>
-        private void OnClientMessage(IPlayer fromPlayer, ClientWaypointRequest request)
+        /// <remarks>
+        /// Side: server only
+        /// </remarks>
+        private void OnClientWaypointRequest(IPlayer fromPlayer, ClientWaypointRequest request)
         {
             IServerPlayer serverPlayer = fromPlayer as IServerPlayer;
             if (serverPlayer == null)
@@ -85,6 +100,9 @@ namespace Egocarib.AutoMapMarkers.Network
         /// <summary>
         /// Method called by a client to request that the server create a waypoint on behalf of the client.
         /// </summary>
+        /// <remarks>
+        /// Side: client only
+        /// </remarks>
         public void RequestWaypointFromServer(Vec3d position, AutoMapMarkerSetting settings)
         {
             if (Side != EnumAppSide.Client)
@@ -97,6 +115,11 @@ namespace Egocarib.AutoMapMarkers.Network
                 MessageUtil.Log("Suppressed automatic waypoint creation - mod features are currently disabled.");
                 return;
             }
+            if (!ClientNetworkChannel.Connected)
+            {
+                MessageUtil.LogError("Not connected to mod instance on server - unable to request waypoint creation.");
+                return;
+            }
             var waypointRequest = new ClientWaypointRequest
             {
                 waypointPosition = position,
@@ -105,5 +128,58 @@ namespace Egocarib.AutoMapMarkers.Network
             ClientNetworkChannel.SendPacket(waypointRequest);
         }
 
+        /// <summary>
+        /// Initiates a handshake with the server to confirm that the mod is installed on the server.
+        /// </summary>
+        /// <remarks>
+        /// Side: client only
+        /// </remarks>
+        public void InitiateHandshakeWithServer()
+        {
+            if (Side != EnumAppSide.Client)
+            {
+                MessageUtil.LogError("Tried to initiate handshake from server-side thread.");
+                return;
+            }
+            ClientHandshakeTimer = new Timer(1000);
+            ClientHandshakeTimer.Elapsed += OnClientConnectivityCheck;
+            ClientHandshakeTimer.Start();
+        }
+
+        /// <summary>
+        /// Runs after the server acknowledges the handshake from the client, or after 10 seconds elapse.
+        /// </summary>
+        /// <remarks>
+        /// Side: client only
+        /// </remarks>
+        private void OnClientConnectivityCheck(Object source = null, ElapsedEventArgs e = null)
+        {
+            if (ClientNetworkChannel.Connected)
+            {
+                MessageUtil.Log("Successfully established connection with the server.");
+            }
+            else if (++ConnectionCheckAttempts > 9)
+            {
+                MessageUtil.Chat(Lang.Get("egocarib-mapmarkers:server-warning"));
+            }
+            else
+            {
+                return;
+            }
+            ClientHandshakeTimer?.Stop();
+            ClientHandshakeTimer?.Dispose();
+        }
+
+        /// <summary>
+        /// Clean up static variables.
+        /// </summary>
+        /// <remarks>
+        /// Side: client and server
+        /// </remarks>
+        public void Dispose()
+        {
+            ClientHandshakeTimer?.Stop();
+            ClientHandshakeTimer?.Dispose();
+        }
     }
 }
