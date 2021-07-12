@@ -15,29 +15,37 @@ namespace Egocarib.AutoMapMarkers.Settings
     {
         public const string ConfigFilename = "auto_map_markers_config.json";
 
+        [ProtoContract]
         public class Settings
         {
             private OrderedDictionary<string, OrderedDictionary<string, AutoMapMarkerSetting>> _MapMarkerSettingsCollection = null;
             public const string Icons = "circle,bee,cave,home,ladder,pick,rocks,ruins,spiral,star1,star2,trader,vessel";
             public const string IconsVTML = "<icon name=\"wpCircle\">,<icon name=\"wpBee\">,<icon name=\"wpCave\">,<icon name=\"wpHome\">,<icon name=\"wpLadder\">,<icon name=\"wpPick\">,<icon name=\"wpRocks\">,<icon name=\"wpRuins\">,<icon name=\"wpSpiral\">,<icon name=\"wpStar1\">,<icon name=\"wpStar2\">,<icon name=\"wpTrader\">,<icon name=\"wpVessel\">";
 
+            [ProtoMember(1)]
             public bool ChatNotifyOnWaypointCreation = false;
-
-            public bool DisableAllModFeatures = false;
-
+            [ProtoMember(2)]
+            public bool DisableAllModFeatures = true;
+            [ProtoMember(3)]
             public double ConfigVersion = 2.0;
-
+            [ProtoMember(4)]
             public MapMarkerSettingsGrouper AutoMapMarkers = new MapMarkerSettingsGrouper();
 
+            [ProtoContract]
             public class MapMarkerSettingsGrouper
             {
+                [ProtoMember(1)]
                 public MapMarkerSettings_OrganicMatter OrganicMatter = new MapMarkerSettings_OrganicMatter();
+                [ProtoMember(2)]
                 public MapMarkerSettings_Ore SurfaceOre = new MapMarkerSettings_Ore();
+                [ProtoMember(3)]
                 public MapMarkerSettings_Traders Traders = new MapMarkerSettings_Traders();
             }
 
+            [ProtoContract]
             public class MapMarkerSettings_OrganicMatter
             {
+                [ProtoMember(1)]
                 public AutoMapMarkerSetting Resin = new AutoMapMarkerSetting
                 {
                     Enabled = true,
@@ -47,6 +55,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 1
                 };
 
+                [ProtoMember(2)]
                 public AutoMapMarkerSetting Blueberry = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -56,6 +65,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 6
                 };
 
+                [ProtoMember(3)]
                 public AutoMapMarkerSetting Cranberry = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -65,6 +75,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 6
                 };
 
+                [ProtoMember(4)]
                 public AutoMapMarkerSetting BlackCurrant = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -74,6 +85,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 6
                 };
 
+                [ProtoMember(5)]
                 public AutoMapMarkerSetting RedCurrant = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -83,6 +95,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 6
                 };
 
+                [ProtoMember(6)]
                 public AutoMapMarkerSetting WhiteCurrant = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -91,7 +104,8 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerIcon = "circle",
                     MarkerCoverageRadius = 6
                 };
-                
+
+                [ProtoMember(7)]
                 public AutoMapMarkerSetting MushroomBolete = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -101,6 +115,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 6
                 };
 
+                [ProtoMember(8)]
                 public AutoMapMarkerSetting MushroomFieldMushroom = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -110,6 +125,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 6
                 };
 
+                [ProtoMember(9)]
                 public AutoMapMarkerSetting MushroomFlyAgaric = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -120,8 +136,10 @@ namespace Egocarib.AutoMapMarkers.Settings
                 };
             }
 
+            [ProtoContract]
             public class MapMarkerSettings_Ore
-            { 
+            {
+                [ProtoMember(1)]
                 public AutoMapMarkerSetting LooseOreAnthracite = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -131,6 +149,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 9
                 };
 
+                [ProtoMember(2)]
                 public AutoMapMarkerSetting LooseOreBlackCoal = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -140,6 +159,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 9
                 };
 
+                [ProtoMember(3)]
                 public AutoMapMarkerSetting LooseOreBorax = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -149,6 +169,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 9
                 };
 
+                [ProtoMember(4)]
                 public AutoMapMarkerSetting LooseOreBrownCoal = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -158,6 +179,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 9
                 };
 
+                [ProtoMember(5)]
                 public AutoMapMarkerSetting LooseOreCinnabar = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -167,6 +189,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 9
                 };
 
+                [ProtoMember(6)]
                 public AutoMapMarkerSetting LooseOreCopper = new AutoMapMarkerSetting
                 {
                     Enabled = true,
@@ -185,6 +208,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 //    MarkerCoverageRadius = 9
                 //};
 
+                [ProtoMember(7)]
                 public AutoMapMarkerSetting LooseOreGold = new AutoMapMarkerSetting
                 {
                     Enabled = true,
@@ -212,6 +236,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 //    MarkerCoverageRadius = 9
                 //};
 
+                [ProtoMember(8)]
                 public AutoMapMarkerSetting LooseOreLapisLazuli = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -221,6 +246,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 9
                 };
 
+                [ProtoMember(9)]
                 public AutoMapMarkerSetting LooseOreLead = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -230,6 +256,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 9
                 };
 
+                [ProtoMember(10)]
                 public AutoMapMarkerSetting LooseOreOlivine = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -248,6 +275,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 //    MarkerCoverageRadius = 9
                 //};
 
+                [ProtoMember(11)]
                 public AutoMapMarkerSetting LooseOreQuartz = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -257,6 +285,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 9
                 };
 
+                [ProtoMember(12)]
                 public AutoMapMarkerSetting LooseOreSilver = new AutoMapMarkerSetting
                 {
                     Enabled = true,
@@ -266,6 +295,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 9
                 };
 
+                [ProtoMember(13)]
                 public AutoMapMarkerSetting LooseOreSulfur = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -275,6 +305,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 9
                 };
 
+                [ProtoMember(14)]
                 public AutoMapMarkerSetting LooseOreTin = new AutoMapMarkerSetting
                 {
                     Enabled = false,
@@ -285,8 +316,10 @@ namespace Egocarib.AutoMapMarkers.Settings
                 };
             }
 
+            [ProtoContract]
             public class MapMarkerSettings_Traders
             {
+                [ProtoMember(1)]
                 public AutoMapMarkerSetting TraderArtisan = new AutoMapMarkerSetting
                 {
                     Enabled = true,
@@ -296,6 +329,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 20
                 };
 
+                [ProtoMember(2)]
                 public AutoMapMarkerSetting TraderBuildingMaterials = new AutoMapMarkerSetting
                 {
                     Enabled = true,
@@ -305,6 +339,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 20
                 };
 
+                [ProtoMember(3)]
                 public AutoMapMarkerSetting TraderClothing = new AutoMapMarkerSetting
                 {
                     Enabled = true,
@@ -314,6 +349,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 20
                 };
 
+                [ProtoMember(4)]
                 public AutoMapMarkerSetting TraderCommodities = new AutoMapMarkerSetting
                 {
                     Enabled = true,
@@ -323,6 +359,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 20
                 };
 
+                [ProtoMember(5)]
                 public AutoMapMarkerSetting TraderFoods = new AutoMapMarkerSetting
                 {
                     Enabled = true,
@@ -332,6 +369,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 20
                 };
 
+                [ProtoMember(6)]
                 public AutoMapMarkerSetting TraderFurniture = new AutoMapMarkerSetting
                 {
                     Enabled = true,
@@ -341,6 +379,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 20
                 };
 
+                [ProtoMember(7)]
                 public AutoMapMarkerSetting TraderLuxuries = new AutoMapMarkerSetting
                 {
                     Enabled = true,
@@ -350,6 +389,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 20
                 };
 
+                [ProtoMember(8)]
                 public AutoMapMarkerSetting TraderSurvivalGoods = new AutoMapMarkerSetting
                 {
                     Enabled = true,
@@ -359,6 +399,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     MarkerCoverageRadius = 20
                 };
 
+                [ProtoMember(9)]
                 public AutoMapMarkerSetting TraderTreasureHunter = new AutoMapMarkerSetting
                 {
                     Enabled = true,
