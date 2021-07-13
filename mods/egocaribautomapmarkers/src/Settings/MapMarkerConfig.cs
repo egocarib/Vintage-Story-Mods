@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Egocarib.AutoMapMarkers.Utilities;
+using Newtonsoft.Json;
 using ProtoBuf;
 using System;
 using System.Globalization;
+using System.IO;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
@@ -22,9 +24,9 @@ namespace Egocarib.AutoMapMarkers.Settings
             public const string Icons = "circle,bee,cave,home,ladder,pick,rocks,ruins,spiral,star1,star2,trader,vessel";
             public const string IconsVTML = "<icon name=\"wpCircle\">,<icon name=\"wpBee\">,<icon name=\"wpCave\">,<icon name=\"wpHome\">,<icon name=\"wpLadder\">,<icon name=\"wpPick\">,<icon name=\"wpRocks\">,<icon name=\"wpRuins\">,<icon name=\"wpSpiral\">,<icon name=\"wpStar1\">,<icon name=\"wpStar2\">,<icon name=\"wpTrader\">,<icon name=\"wpVessel\">";
 
-            [ProtoMember(1)]
+            [ProtoMember(1, IsRequired = true)]
             public bool ChatNotifyOnWaypointCreation = false;
-            [ProtoMember(2)]
+            [ProtoMember(2, IsRequired = true)]
             public bool DisableAllModFeatures = true;
             [ProtoMember(3)]
             public double ConfigVersion = 2.0;
@@ -46,368 +48,296 @@ namespace Egocarib.AutoMapMarkers.Settings
             public class MapMarkerSettings_OrganicMatter
             {
                 [ProtoMember(1)]
-                public AutoMapMarkerSetting Resin = new AutoMapMarkerSetting
-                {
-                    Enabled = true,
-                    MarkerTitle = Lang.Get("item-resin"),
-                    MarkerColor = "darkorange",
-                    MarkerIcon = "circle",
-                    MarkerCoverageRadius = 1
-                };
+                public AutoMapMarkerSetting Resin = new AutoMapMarkerSetting(
+                    enabled: true,
+                    markerTitle: Lang.Get("item-resin"),
+                    markerColor: "darkorange",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 1);
 
                 [ProtoMember(2)]
-                public AutoMapMarkerSetting Blueberry = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.Get("item-fruit-blueberry"),
-                    MarkerColor = "midnightblue",
-                    MarkerIcon = "circle",
-                    MarkerCoverageRadius = 6
-                };
+                public AutoMapMarkerSetting Blueberry = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.Get("item-fruit-blueberry"),
+                    markerColor: "midnightblue",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 6);
 
                 [ProtoMember(3)]
-                public AutoMapMarkerSetting Cranberry = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.Get("item-fruit-cranberry"),
-                    MarkerColor = "maroon",
-                    MarkerIcon = "circle",
-                    MarkerCoverageRadius = 6
-                };
+                public AutoMapMarkerSetting Cranberry = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.Get("item-fruit-cranberry"),
+                    markerColor: "maroon",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 6);
 
                 [ProtoMember(4)]
-                public AutoMapMarkerSetting BlackCurrant = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.Get("item-fruit-blackcurrant"),
-                    MarkerColor = "#291B1A",
-                    MarkerIcon = "circle",
-                    MarkerCoverageRadius = 6
-                };
+                public AutoMapMarkerSetting BlackCurrant = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.Get("item-fruit-blackcurrant"),
+                    markerColor: "#291B1A",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 6);
 
                 [ProtoMember(5)]
-                public AutoMapMarkerSetting RedCurrant = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.Get("item-fruit-redcurrant"),
-                    MarkerColor = "darkred",
-                    MarkerIcon = "circle",
-                    MarkerCoverageRadius = 6
-                };
+                public AutoMapMarkerSetting RedCurrant = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.Get("item-fruit-redcurrant"),
+                    markerColor: "darkred",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 6);
 
                 [ProtoMember(6)]
-                public AutoMapMarkerSetting WhiteCurrant = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.Get("item-fruit-whitecurrant"),
-                    MarkerColor = "ivory",
-                    MarkerIcon = "circle",
-                    MarkerCoverageRadius = 6
-                };
+                public AutoMapMarkerSetting WhiteCurrant = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.Get("item-fruit-whitecurrant"),
+                    markerColor: "ivory",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 6);
 
                 [ProtoMember(7)]
-                public AutoMapMarkerSetting MushroomBolete = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-mushroom-bolete-normal-*"),
-                    MarkerColor = "#503922",
-                    MarkerIcon = "circle",
-                    MarkerCoverageRadius = 6
-                };
+                public AutoMapMarkerSetting MushroomBolete = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.GetMatching("block-mushroom-bolete-normal-*"),
+                    markerColor: "#503922",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 6);
 
                 [ProtoMember(8)]
-                public AutoMapMarkerSetting MushroomFieldMushroom = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-mushroom-fieldmushroom-normal-*"),
-                    MarkerColor = "ghostwhite",
-                    MarkerIcon = "circle",
-                    MarkerCoverageRadius = 6
-                };
+                public AutoMapMarkerSetting MushroomFieldMushroom = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.GetMatching("block-mushroom-fieldmushroom-normal-*"),
+                    markerColor: "ghostwhite",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 6);
 
                 [ProtoMember(9)]
-                public AutoMapMarkerSetting MushroomFlyAgaric = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-mushroom-flyagaric-normal-*"),
-                    MarkerColor = "brown",
-                    MarkerIcon = "circle",
-                    MarkerCoverageRadius = 6
-                };
+                public AutoMapMarkerSetting MushroomFlyAgaric = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.GetMatching("block-mushroom-flyagaric-normal-*"),
+                    markerColor: "brown",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 6);
             }
 
             [ProtoContract]
             public class MapMarkerSettings_Ore
             {
                 [ProtoMember(1)]
-                public AutoMapMarkerSetting LooseOreAnthracite = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-looseores-anthracite-*"),
-                    MarkerColor = "black",
-                    MarkerIcon = "pick",
-                    MarkerCoverageRadius = 9
-                };
+                public AutoMapMarkerSetting LooseOreAnthracite = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.GetMatching("block-looseores-anthracite-*"),
+                    markerColor: "black",
+                    markerIcon: "pick",
+                    markerCoverageRadius: 9);
 
                 [ProtoMember(2)]
-                public AutoMapMarkerSetting LooseOreBlackCoal = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-looseores-bituminouscoal-*"),
-                    MarkerColor = "black",
-                    MarkerIcon = "pick",
-                    MarkerCoverageRadius = 9
-                };
+                public AutoMapMarkerSetting LooseOreBlackCoal = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.GetMatching("block-looseores-bituminouscoal-*"),
+                    markerColor: "black",
+                    markerIcon: "pick",
+                    markerCoverageRadius: 9);
 
                 [ProtoMember(3)]
-                public AutoMapMarkerSetting LooseOreBorax = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-looseores-borax-*"),
-                    MarkerColor = "ghostwhite",
-                    MarkerIcon = "pick",
-                    MarkerCoverageRadius = 9
-                };
+                public AutoMapMarkerSetting LooseOreBorax = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.GetMatching("block-looseores-borax-*"),
+                    markerColor: "ghostwhite",
+                    markerIcon: "pick",
+                    markerCoverageRadius: 9);
 
                 [ProtoMember(4)]
-                public AutoMapMarkerSetting LooseOreBrownCoal = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-looseores-lignite-*"),
-                    MarkerColor = "black",
-                    MarkerIcon = "pick",
-                    MarkerCoverageRadius = 9
-                };
+                public AutoMapMarkerSetting LooseOreBrownCoal = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.GetMatching("block-looseores-lignite-*"),
+                    markerColor: "black",
+                    markerIcon: "pick",
+                    markerCoverageRadius: 9);
 
                 [ProtoMember(5)]
-                public AutoMapMarkerSetting LooseOreCinnabar = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-looseores-cinnabar-*"),
-                    MarkerColor = "crimson",
-                    MarkerIcon = "pick",
-                    MarkerCoverageRadius = 9
-                };
+                public AutoMapMarkerSetting LooseOreCinnabar = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.GetMatching("block-looseores-cinnabar-*"),
+                    markerColor: "crimson",
+                    markerIcon: "pick",
+                    markerCoverageRadius: 9);
 
                 [ProtoMember(6)]
-                public AutoMapMarkerSetting LooseOreCopper = new AutoMapMarkerSetting
-                {
-                    Enabled = true,
-                    MarkerTitle = Lang.GetMatching("block-looseores-nativecopper-*"),
-                    MarkerColor = "darkorange",
-                    MarkerIcon = "pick",
-                    MarkerCoverageRadius = 9
-                };
+                public AutoMapMarkerSetting LooseOreCopper = new AutoMapMarkerSetting(
+                    enabled: true,
+                    markerTitle: Lang.GetMatching("block-looseores-nativecopper-*"),
+                    markerColor: "darkorange",
+                    markerIcon: "pick",
+                    markerCoverageRadius: 9);
 
-                //public AutoMapMarkerSetting LooseOreFluorite = new AutoMapMarkerSetting
-                //{
-                //    Enabled = false,
-                //    MarkerTitle = Lang.GetMatching("block-looseores-fluorite-*"),
-                //    MarkerColor = "black",
-                //    MarkerIcon = "pick",
-                //    MarkerCoverageRadius = 9
-                //};
+                //public AutoMapMarkerSetting LooseOreFluorite = new AutoMapMarkerSetting(
+                //        enabled: false,
+                //        markerTitle: Lang.GetMatching("block-looseores-fluorite-*"),
+                //        markerColor: "black",
+                //        markerIcon: "pick",
+                //        markerCoverageRadius: 9);
 
-                [ProtoMember(7)]
-                public AutoMapMarkerSetting LooseOreGold = new AutoMapMarkerSetting
-                {
-                    Enabled = true,
-                    MarkerTitle = Lang.GetMatching("block-looseores-quartz_nativegold-*"),
-                    MarkerColor = "gold",
-                    MarkerIcon = "pick",
-                    MarkerCoverageRadius = 9
-                };
+                    [ProtoMember(7)]
+                public AutoMapMarkerSetting LooseOreGold = new AutoMapMarkerSetting(
+                        enabled: true,
+                        markerTitle: Lang.GetMatching("block-looseores-quartz_nativegold-*"),
+                        markerColor: "gold",
+                        markerIcon: "pick",
+                        markerCoverageRadius: 9);
 
-                //public AutoMapMarkerSetting LooseOreGraphite = new AutoMapMarkerSetting
-                //{
-                //    Enabled = false,
-                //    MarkerTitle = Lang.GetMatching("block-looseores-graphite-*"),
-                //    MarkerColor = "black",
-                //    MarkerIcon = "pick",
-                //    MarkerCoverageRadius = 9
-                //};
+                //public AutoMapMarkerSetting LooseOreGraphite = new AutoMapMarkerSetting(
+                //        enabled: false,
+                //        markerTitle: Lang.GetMatching("block-looseores-graphite-*"),
+                //        markerColor: "black",
+                //        markerIcon: "pick",
+                //        markerCoverageRadius: 9);
 
-                //public AutoMapMarkerSetting LooseOreKernite = new AutoMapMarkerSetting
-                //{
-                //    Enabled = false,
-                //    MarkerTitle = Lang.GetMatching("block-looseores-kernite-*"),
-                //    MarkerColor = "black",
-                //    MarkerIcon = "pick",
-                //    MarkerCoverageRadius = 9
-                //};
+                //public AutoMapMarkerSetting LooseOreKernite = new AutoMapMarkerSetting(
+                //        enabled: false,
+                //        markerTitle: Lang.GetMatching("block-looseores-kernite-*"),
+                //        markerColor: "black",
+                //        markerIcon: "pick",
+                //        markerCoverageRadius: 9);
 
                 [ProtoMember(8)]
-                public AutoMapMarkerSetting LooseOreLapisLazuli = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-looseores-lapislazuli-*"),
-                    MarkerColor = "royalblue",
-                    MarkerIcon = "pick",
-                    MarkerCoverageRadius = 9
-                };
+                public AutoMapMarkerSetting LooseOreLapisLazuli = new AutoMapMarkerSetting(
+                        enabled: false,
+                        markerTitle: Lang.GetMatching("block-looseores-lapislazuli-*"),
+                        markerColor: "royalblue",
+                        markerIcon: "pick",
+                        markerCoverageRadius: 9);
 
                 [ProtoMember(9)]
-                public AutoMapMarkerSetting LooseOreLead = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-looseores-galena-*"),
-                    MarkerColor = "slategray",
-                    MarkerIcon = "pick",
-                    MarkerCoverageRadius = 9
-                };
+                public AutoMapMarkerSetting LooseOreLead = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.GetMatching("block-looseores-galena-*"),
+                    markerColor: "slategray",
+                    markerIcon: "pick",
+                    markerCoverageRadius: 9);
 
                 [ProtoMember(10)]
-                public AutoMapMarkerSetting LooseOreOlivine = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-looseores-olivine-peridotite-*"),
-                    MarkerColor = "olivedrab",
-                    MarkerIcon = "pick",
-                    MarkerCoverageRadius = 9
-                };
+                public AutoMapMarkerSetting LooseOreOlivine = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.GetMatching("block-looseores-olivine-peridotite-*"),
+                    markerColor: "olivedrab",
+                    markerIcon: "pick",
+                    markerCoverageRadius: 9);
 
-                //public AutoMapMarkerSetting LooseOrePhosporite = new AutoMapMarkerSetting
-                //{
-                //    Enabled = false,
-                //    MarkerTitle = Lang.GetMatching("block-looseores-phosphorite-*"),
-                //    MarkerColor = "black",
-                //    MarkerIcon = "pick",
-                //    MarkerCoverageRadius = 9
-                //};
+                //public AutoMapMarkerSetting LooseOrePhosporite = new AutoMapMarkerSetting(
+                //        enabled: false,
+                //        markerTitle: Lang.GetMatching("block-looseores-phosphorite-*"),
+                //        markerColor: "black",
+                //        markerIcon: "pick",
+                //        markerCoverageRadius: 9);
 
-                [ProtoMember(11)]
-                public AutoMapMarkerSetting LooseOreQuartz = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-looseores-quartz-*"),
-                    MarkerColor = "white",
-                    MarkerIcon = "pick",
-                    MarkerCoverageRadius = 9
-                };
+                    [ProtoMember(11)]
+                public AutoMapMarkerSetting LooseOreQuartz = new AutoMapMarkerSetting(
+                        enabled: false,
+                        markerTitle: Lang.GetMatching("block-looseores-quartz-*"),
+                        markerColor: "white",
+                        markerIcon: "pick",
+                        markerCoverageRadius: 9);
 
                 [ProtoMember(12)]
-                public AutoMapMarkerSetting LooseOreSilver = new AutoMapMarkerSetting
-                {
-                    Enabled = true,
-                    MarkerTitle = Lang.GetMatching("block-looseores-quartz_nativesilver-*"),
-                    MarkerColor = "silver",
-                    MarkerIcon = "pick",
-                    MarkerCoverageRadius = 9
-                };
+                public AutoMapMarkerSetting LooseOreSilver = new AutoMapMarkerSetting(
+                    enabled: true,
+                    markerTitle: Lang.GetMatching("block-looseores-quartz_nativesilver-*"),
+                    markerColor: "silver",
+                    markerIcon: "pick",
+                    markerCoverageRadius: 9);
 
                 [ProtoMember(13)]
-                public AutoMapMarkerSetting LooseOreSulfur = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-looseores-sulfur-*"),
-                    MarkerColor = "khaki",
-                    MarkerIcon = "pick",
-                    MarkerCoverageRadius = 9
-                };
+                public AutoMapMarkerSetting LooseOreSulfur = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.GetMatching("block-looseores-sulfur-*"),
+                    markerColor: "khaki",
+                    markerIcon: "pick",
+                    markerCoverageRadius: 9);
 
                 [ProtoMember(14)]
-                public AutoMapMarkerSetting LooseOreTin = new AutoMapMarkerSetting
-                {
-                    Enabled = false,
-                    MarkerTitle = Lang.GetMatching("block-looseores-cassiterite-*"),
-                    MarkerColor = "#3C1E05",
-                    MarkerIcon = "pick",
-                    MarkerCoverageRadius = 9
-                };
+                public AutoMapMarkerSetting LooseOreTin = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.GetMatching("block-looseores-cassiterite-*"),
+                    markerColor: "#3C1E05",
+                    markerIcon: "pick",
+                    markerCoverageRadius: 9);
             }
 
             [ProtoContract]
             public class MapMarkerSettings_Traders
             {
                 [ProtoMember(1)]
-                public AutoMapMarkerSetting TraderArtisan = new AutoMapMarkerSetting
-                {
-                    Enabled = true,
-                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-artisan"),
-                    MarkerColor = "yellow",
-                    MarkerIcon = "trader",
-                    MarkerCoverageRadius = 20
-                };
+                public AutoMapMarkerSetting TraderArtisan = new AutoMapMarkerSetting(
+                    enabled: true,
+                    markerTitle: Lang.Get("item-creature-humanoid-trader-artisan"),
+                    markerColor: "yellow",
+                    markerIcon: "trader",
+                    markerCoverageRadius: 20);
 
                 [ProtoMember(2)]
-                public AutoMapMarkerSetting TraderBuildingMaterials = new AutoMapMarkerSetting
-                {
-                    Enabled = true,
-                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-buildmaterials"),
-                    MarkerColor = "yellow",
-                    MarkerIcon = "trader",
-                    MarkerCoverageRadius = 20
-                };
+                public AutoMapMarkerSetting TraderBuildingMaterials = new AutoMapMarkerSetting(
+                    enabled: true,
+                    markerTitle: Lang.Get("item-creature-humanoid-trader-buildmaterials"),
+                    markerColor: "yellow",
+                    markerIcon: "trader",
+                    markerCoverageRadius: 20);
 
                 [ProtoMember(3)]
-                public AutoMapMarkerSetting TraderClothing = new AutoMapMarkerSetting
-                {
-                    Enabled = true,
-                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-clothing"),
-                    MarkerColor = "yellow",
-                    MarkerIcon = "trader",
-                    MarkerCoverageRadius = 20
-                };
+                public AutoMapMarkerSetting TraderClothing = new AutoMapMarkerSetting(
+                    enabled: true,
+                    markerTitle: Lang.Get("item-creature-humanoid-trader-clothing"),
+                    markerColor: "yellow",
+                    markerIcon: "trader",
+                    markerCoverageRadius: 20);
 
                 [ProtoMember(4)]
-                public AutoMapMarkerSetting TraderCommodities = new AutoMapMarkerSetting
-                {
-                    Enabled = true,
-                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-commodities"),
-                    MarkerColor = "yellow",
-                    MarkerIcon = "trader",
-                    MarkerCoverageRadius = 20
-                };
+                public AutoMapMarkerSetting TraderCommodities = new AutoMapMarkerSetting(
+                    enabled: true,
+                    markerTitle: Lang.Get("item-creature-humanoid-trader-commodities"),
+                    markerColor: "yellow",
+                    markerIcon: "trader",
+                    markerCoverageRadius: 20);
 
                 [ProtoMember(5)]
-                public AutoMapMarkerSetting TraderFoods = new AutoMapMarkerSetting
-                {
-                    Enabled = true,
-                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-foods"),
-                    MarkerColor = "yellow",
-                    MarkerIcon = "trader",
-                    MarkerCoverageRadius = 20
-                };
+                public AutoMapMarkerSetting TraderFoods = new AutoMapMarkerSetting(
+                    enabled: true,
+                    markerTitle: Lang.Get("item-creature-humanoid-trader-foods"),
+                    markerColor: "yellow",
+                    markerIcon: "trader",
+                    markerCoverageRadius: 20);
 
                 [ProtoMember(6)]
-                public AutoMapMarkerSetting TraderFurniture = new AutoMapMarkerSetting
-                {
-                    Enabled = true,
-                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-furniture"),
-                    MarkerColor = "yellow",
-                    MarkerIcon = "trader",
-                    MarkerCoverageRadius = 20
-                };
+                public AutoMapMarkerSetting TraderFurniture = new AutoMapMarkerSetting(
+                    enabled: true,
+                    markerTitle: Lang.Get("item-creature-humanoid-trader-furniture"),
+                    markerColor: "yellow",
+                    markerIcon: "trader",
+                    markerCoverageRadius: 20);
 
                 [ProtoMember(7)]
-                public AutoMapMarkerSetting TraderLuxuries = new AutoMapMarkerSetting
-                {
-                    Enabled = true,
-                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-luxuries"),
-                    MarkerColor = "yellow",
-                    MarkerIcon = "trader",
-                    MarkerCoverageRadius = 20
-                };
+                public AutoMapMarkerSetting TraderLuxuries = new AutoMapMarkerSetting(
+                    enabled: true,
+                    markerTitle: Lang.Get("item-creature-humanoid-trader-luxuries"),
+                    markerColor: "yellow",
+                    markerIcon: "trader",
+                    markerCoverageRadius: 20);
 
                 [ProtoMember(8)]
-                public AutoMapMarkerSetting TraderSurvivalGoods = new AutoMapMarkerSetting
-                {
-                    Enabled = true,
-                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-survivalgoods"),
-                    MarkerColor = "yellow",
-                    MarkerIcon = "trader",
-                    MarkerCoverageRadius = 20
-                };
+                public AutoMapMarkerSetting TraderSurvivalGoods = new AutoMapMarkerSetting(
+                    enabled: true,
+                    markerTitle: Lang.Get("item-creature-humanoid-trader-survivalgoods"),
+                    markerColor: "yellow",
+                    markerIcon: "trader",
+                    markerCoverageRadius: 20);
 
                 [ProtoMember(9)]
-                public AutoMapMarkerSetting TraderTreasureHunter = new AutoMapMarkerSetting
-                {
-                    Enabled = true,
-                    MarkerTitle = Lang.Get("item-creature-humanoid-trader-treasurehunter"),
-                    MarkerColor = "yellow",
-                    MarkerIcon = "trader",
-                    MarkerCoverageRadius = 20
-                };
+                public AutoMapMarkerSetting TraderTreasureHunter = new AutoMapMarkerSetting(
+                    enabled: true,
+                    markerTitle: Lang.Get("item-creature-humanoid-trader-treasurehunter"),
+                    markerColor: "yellow",
+                    markerIcon: "trader",
+                    markerCoverageRadius: 20);
             }
 
             public OrderedDictionary<string, OrderedDictionary<string, AutoMapMarkerSetting>> GetMapMarkerSettingCollection()
@@ -415,59 +345,59 @@ namespace Egocarib.AutoMapMarkers.Settings
                 if (_MapMarkerSettingsCollection == null)
                 {
                     _MapMarkerSettingsCollection = new OrderedDictionary<string, OrderedDictionary<string, AutoMapMarkerSetting>>
-                    {
-                        { Lang.Get("egocarib-mapmarkers:organic-matter"),
-                            new OrderedDictionary<string, AutoMapMarkerSetting>
-                            {
-                                { Lang.Get("item-resin"), AutoMapMarkers.OrganicMatter.Resin },
-                                { Lang.Get("item-fruit-blueberry"), AutoMapMarkers.OrganicMatter.Blueberry },
-                                { Lang.Get("item-fruit-cranberry"), AutoMapMarkers.OrganicMatter.Cranberry },
-                                { Lang.Get("item-fruit-blackcurrant"), AutoMapMarkers.OrganicMatter.BlackCurrant },
-                                { Lang.Get("item-fruit-redcurrant"), AutoMapMarkers.OrganicMatter.RedCurrant },
-                                { Lang.Get("item-fruit-whitecurrant"), AutoMapMarkers.OrganicMatter.WhiteCurrant },
-                                { Lang.GetMatching("block-mushroom-bolete-normal-*"), AutoMapMarkers.OrganicMatter.MushroomBolete },
-                                { Lang.GetMatching("block-mushroom-fieldmushroom-normal-*"), AutoMapMarkers.OrganicMatter.MushroomFieldMushroom },
-                                { Lang.GetMatching("block-mushroom-flyagaric-normal-*"), AutoMapMarkers.OrganicMatter.MushroomFlyAgaric }
+                        {
+                            { Lang.Get("egocarib-mapmarkers:organic-matter"),
+                                new OrderedDictionary<string, AutoMapMarkerSetting>
+                                {
+                                    { Lang.Get("item-resin"), AutoMapMarkers.OrganicMatter.Resin },
+                                    { Lang.Get("item-fruit-blueberry"), AutoMapMarkers.OrganicMatter.Blueberry },
+                                    { Lang.Get("item-fruit-cranberry"), AutoMapMarkers.OrganicMatter.Cranberry },
+                                    { Lang.Get("item-fruit-blackcurrant"), AutoMapMarkers.OrganicMatter.BlackCurrant },
+                                    { Lang.Get("item-fruit-redcurrant"), AutoMapMarkers.OrganicMatter.RedCurrant },
+                                    { Lang.Get("item-fruit-whitecurrant"), AutoMapMarkers.OrganicMatter.WhiteCurrant },
+                                    { Lang.GetMatching("block-mushroom-bolete-normal-*"), AutoMapMarkers.OrganicMatter.MushroomBolete },
+                                    { Lang.GetMatching("block-mushroom-fieldmushroom-normal-*"), AutoMapMarkers.OrganicMatter.MushroomFieldMushroom },
+                                    { Lang.GetMatching("block-mushroom-flyagaric-normal-*"), AutoMapMarkers.OrganicMatter.MushroomFlyAgaric }
+                                }
+                            },
+                            { Lang.Get("egocarib-mapmarkers:surface-ore"),
+                                new OrderedDictionary<string, AutoMapMarkerSetting>
+                                {
+                                    { Lang.GetMatching("block-looseores-anthracite-*"), AutoMapMarkers.SurfaceOre.LooseOreAnthracite },
+                                    { Lang.GetMatching("block-looseores-bituminouscoal-*"), AutoMapMarkers.SurfaceOre.LooseOreBlackCoal },
+                                    { Lang.GetMatching("block-looseores-borax-*"), AutoMapMarkers.SurfaceOre.LooseOreBorax },
+                                    { Lang.GetMatching("block-looseores-lignite-*"), AutoMapMarkers.SurfaceOre.LooseOreBrownCoal },
+                                    { Lang.GetMatching("block-looseores-cinnabar-*"), AutoMapMarkers.SurfaceOre.LooseOreCinnabar },
+                                    { Lang.Get("egocarib-mapmarkers:copper-ore-bits"), AutoMapMarkers.SurfaceOre.LooseOreCopper },
+                                    //{ Lang.GetMatching("block-looseores-fluorite-*"), AutoMapMarkers.SurfaceOre.LooseOreFluorite },
+                                    { Lang.Get("egocarib-mapmarkers:gold-ore-bits"), AutoMapMarkers.SurfaceOre.LooseOreGold },
+                                    //{ Lang.GetMatching("block-looseores-graphite-*"), AutoMapMarkers.SurfaceOre.LooseOreGraphite },
+                                    //{ Lang.GetMatching("block-looseores-kernite-*"), AutoMapMarkers.SurfaceOre.LooseOreKernite },
+                                    { Lang.GetMatching("block-looseores-lapislazuli-*"), AutoMapMarkers.SurfaceOre.LooseOreLapisLazuli },
+                                    { Lang.GetMatching("block-looseores-galena-*"), AutoMapMarkers.SurfaceOre.LooseOreLead },
+                                    { Lang.GetMatching("block-looseores-olivine-peridotite-*"), AutoMapMarkers.SurfaceOre.LooseOreOlivine },
+                                    //{ Lang.GetMatching("block-looseores-phosphorite-*"), AutoMapMarkers.SurfaceOre.LooseOrePhosporite },
+                                    { Lang.GetMatching("block-looseores-quartz-*"), AutoMapMarkers.SurfaceOre.LooseOreQuartz },
+                                    { Lang.Get("egocarib-mapmarkers:silver-ore-bits"), AutoMapMarkers.SurfaceOre.LooseOreSilver },
+                                    { Lang.GetMatching("block-looseores-sulfur-*"), AutoMapMarkers.SurfaceOre.LooseOreSulfur },
+                                    { Lang.GetMatching("block-looseores-cassiterite-*"), AutoMapMarkers.SurfaceOre.LooseOreTin }
+                                }
+                            },
+                            { Lang.Get("egocarib-mapmarkers:traders"),
+                                new OrderedDictionary<string, AutoMapMarkerSetting>
+                                {
+                                    { Lang.Get("item-creature-humanoid-trader-artisan"), AutoMapMarkers.Traders.TraderArtisan },
+                                    { Lang.Get("item-creature-humanoid-trader-buildmaterials"), AutoMapMarkers.Traders.TraderBuildingMaterials },
+                                    { Lang.Get("item-creature-humanoid-trader-clothing"), AutoMapMarkers.Traders.TraderClothing },
+                                    { Lang.Get("item-creature-humanoid-trader-commodities"), AutoMapMarkers.Traders.TraderCommodities },
+                                    { Lang.Get("item-creature-humanoid-trader-foods"), AutoMapMarkers.Traders.TraderFoods },
+                                    { Lang.Get("item-creature-humanoid-trader-furniture"), AutoMapMarkers.Traders.TraderFurniture },
+                                    { Lang.Get("item-creature-humanoid-trader-luxuries"), AutoMapMarkers.Traders.TraderLuxuries },
+                                    { Lang.Get("item-creature-humanoid-trader-survivalgoods"), AutoMapMarkers.Traders.TraderSurvivalGoods },
+                                    { Lang.Get("item-creature-humanoid-trader-treasurehunter"), AutoMapMarkers.Traders.TraderTreasureHunter }
+                                }
                             }
-                        },
-                        { Lang.Get("egocarib-mapmarkers:surface-ore"),
-                            new OrderedDictionary<string, AutoMapMarkerSetting>
-                            {
-                                { Lang.GetMatching("block-looseores-anthracite-*"), AutoMapMarkers.SurfaceOre.LooseOreAnthracite },
-                                { Lang.GetMatching("block-looseores-bituminouscoal-*"), AutoMapMarkers.SurfaceOre.LooseOreBlackCoal },
-                                { Lang.GetMatching("block-looseores-borax-*"), AutoMapMarkers.SurfaceOre.LooseOreBorax },
-                                { Lang.GetMatching("block-looseores-lignite-*"), AutoMapMarkers.SurfaceOre.LooseOreBrownCoal },
-                                { Lang.GetMatching("block-looseores-cinnabar-*"), AutoMapMarkers.SurfaceOre.LooseOreCinnabar },
-                                { Lang.Get("egocarib-mapmarkers:copper-ore-bits"), AutoMapMarkers.SurfaceOre.LooseOreCopper },
-                                //{ Lang.GetMatching("block-looseores-fluorite-*"), AutoMapMarkers.SurfaceOre.LooseOreFluorite },
-                                { Lang.Get("egocarib-mapmarkers:gold-ore-bits"), AutoMapMarkers.SurfaceOre.LooseOreGold },
-                                //{ Lang.GetMatching("block-looseores-graphite-*"), AutoMapMarkers.SurfaceOre.LooseOreGraphite },
-                                //{ Lang.GetMatching("block-looseores-kernite-*"), AutoMapMarkers.SurfaceOre.LooseOreKernite },
-                                { Lang.GetMatching("block-looseores-lapislazuli-*"), AutoMapMarkers.SurfaceOre.LooseOreLapisLazuli },
-                                { Lang.GetMatching("block-looseores-galena-*"), AutoMapMarkers.SurfaceOre.LooseOreLead },
-                                { Lang.GetMatching("block-looseores-olivine-peridotite-*"), AutoMapMarkers.SurfaceOre.LooseOreOlivine },
-                                //{ Lang.GetMatching("block-looseores-phosphorite-*"), AutoMapMarkers.SurfaceOre.LooseOrePhosporite },
-                                { Lang.GetMatching("block-looseores-quartz-*"), AutoMapMarkers.SurfaceOre.LooseOreQuartz },
-                                { Lang.Get("egocarib-mapmarkers:silver-ore-bits"), AutoMapMarkers.SurfaceOre.LooseOreSilver },
-                                { Lang.GetMatching("block-looseores-sulfur-*"), AutoMapMarkers.SurfaceOre.LooseOreSulfur },
-                                { Lang.GetMatching("block-looseores-cassiterite-*"), AutoMapMarkers.SurfaceOre.LooseOreTin }
-                            }
-                        },
-                        { Lang.Get("egocarib-mapmarkers:traders"),
-                            new OrderedDictionary<string, AutoMapMarkerSetting>
-                            {
-                                { Lang.Get("item-creature-humanoid-trader-artisan"), AutoMapMarkers.Traders.TraderArtisan },
-                                { Lang.Get("item-creature-humanoid-trader-buildmaterials"), AutoMapMarkers.Traders.TraderBuildingMaterials },
-                                { Lang.Get("item-creature-humanoid-trader-clothing"), AutoMapMarkers.Traders.TraderClothing },
-                                { Lang.Get("item-creature-humanoid-trader-commodities"), AutoMapMarkers.Traders.TraderCommodities },
-                                { Lang.Get("item-creature-humanoid-trader-foods"), AutoMapMarkers.Traders.TraderFoods },
-                                { Lang.Get("item-creature-humanoid-trader-furniture"), AutoMapMarkers.Traders.TraderFurniture },
-                                { Lang.Get("item-creature-humanoid-trader-luxuries"), AutoMapMarkers.Traders.TraderLuxuries },
-                                { Lang.Get("item-creature-humanoid-trader-survivalgoods"), AutoMapMarkers.Traders.TraderSurvivalGoods },
-                                { Lang.Get("item-creature-humanoid-trader-treasurehunter"), AutoMapMarkers.Traders.TraderTreasureHunter }
-                            }
-                        }
-                    };
+                        };
                 }
                 return _MapMarkerSettingsCollection;
             }
@@ -475,16 +405,30 @@ namespace Egocarib.AutoMapMarkers.Settings
             [ProtoContract]
             public class AutoMapMarkerSetting
             {
-                [ProtoMember(1)]
+                // IsRequired is needed to prevent ProtoBuf trying to optimize the fields to "default" values
+                // and ultimately ignoring what was actually sent across the network.
+                [ProtoMember(1, IsRequired = true)] 
                 public bool Enabled;
-                [ProtoMember(2)]
+                [ProtoMember(2, IsRequired = true)]
                 public string MarkerTitle;
-                [ProtoMember(3)]
+                [ProtoMember(3, IsRequired = true)]
                 public string MarkerColor;
-                [ProtoMember(4)]
+                [ProtoMember(4, IsRequired = true)]
                 public string MarkerIcon;
-                [ProtoMember(5)]
+                [ProtoMember(5, IsRequired = true)]
                 public int MarkerCoverageRadius;
+
+                public AutoMapMarkerSetting() { /* paramaterless constructor required by proto-buf */ }
+
+                [JsonConstructor]
+                public AutoMapMarkerSetting(bool enabled, string markerTitle, string markerColor, string markerIcon, int markerCoverageRadius)
+                {
+                    Enabled = enabled;
+                    MarkerTitle = markerTitle;
+                    MarkerColor = markerColor;
+                    MarkerIcon = markerIcon;
+                    MarkerCoverageRadius = markerCoverageRadius;
+                }
 
                 [JsonIgnore]
                 public int? MarkerColorInteger
@@ -524,8 +468,13 @@ namespace Egocarib.AutoMapMarkers.Settings
             }
         }
 
-        public static Settings GetSettings(ICoreAPI api)
+        public static Settings GetSettings(ICoreAPI api, bool allowServerThread = false)
         {
+            if (!allowServerThread && api.Side == EnumAppSide.Server)
+            {
+                MessageUtil.LogError("Unexpected attempt to retrieve settings from server side thread (should typically only occur on Client thread).");
+                throw new InvalidOperationException();
+            }
             Settings settings = null;
             try
             {
@@ -533,20 +482,41 @@ namespace Egocarib.AutoMapMarkers.Settings
             }
             catch
             {
-                api.Logger.Warning("Auto Map Markers Mod: Error attempting to load your mod configuration file "
-                    + "(" + ConfigFilename + "). There may have been a syntax error in the file.");
+                MessageUtil.LogError("Unable to load your mod configuration file "
+                    + "(" + ConfigFilename + "). There may have been a syntax error in the file."
+                    + "A new default settings file will be generated.");
             }
             if (settings == null)
             {
                 settings = new Settings();
-                SaveSettings(api, settings); //Create a default settings file if one didn't already exist.
+                SaveSettings(api, settings, allowServerThread); //Create a default settings file if one didn't already exist.
             }
             return settings;
         }
 
-        public static void SaveSettings(ICoreAPI api, Settings settings)
+        public static void SaveSettings(ICoreAPI api, Settings settings, bool allowServerThread = false)
         {
+            if (!allowServerThread && api.Side == EnumAppSide.Server)
+            {
+                MessageUtil.LogError("Unexpected attempt to save settings on server side thread (should typically only occur on Client thread).");
+                throw new InvalidOperationException();
+            }
             api.StoreModConfig<Settings>(settings, ConfigFilename);
+        }
+
+        /// <summary>
+        /// This is a hacky method that shouldn't exist, but there is currently no way to check if a mod config
+        /// file exists using the default API - it just returns you a default object if the file didn't already exist.
+        /// I left a suggestion here: https://discord.com/channels/302152934249070593/622506175467880449/864258519066607626
+        /// </summary>
+        public static bool CheckIfSettingsExist()
+        {
+            string path = Path.Combine(GamePaths.ModConfig, ConfigFilename);
+            if (File.Exists(path))
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
