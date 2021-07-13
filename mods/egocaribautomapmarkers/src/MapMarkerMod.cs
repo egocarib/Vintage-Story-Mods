@@ -35,7 +35,7 @@ namespace Egocarib.AutoMapMarkers
         public override void StartServerSide(ICoreServerAPI api)
         {
             CoreServerAPI = api;
-            MapMarkerConfig.GetSettings(api); //Ensure config file is generated at startup if one does not exist yet.
+            MapMarkerConfig.GetSettings(api, true); //Ensure config file is generated at startup if one does not exist yet.
             Network = new MapMarkerNetwork(CoreServerAPI);
         }
 
@@ -45,8 +45,6 @@ namespace Egocarib.AutoMapMarkers
         public override void StartClientSide(ICoreClientAPI api)
         {
             CoreClientAPI = api;
-            MapMarkerConfig.GetSettings(api); //Ensure config file is generated
-            //TODO: make config loading more consistent (Client-side only?)
             Network = new MapMarkerNetwork(CoreClientAPI);
         }
 

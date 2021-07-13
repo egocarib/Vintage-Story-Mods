@@ -22,6 +22,14 @@ namespace Egocarib.AutoMapMarkers.Network
         public Vec3d waypointPosition;
         [ProtoMember(2)]
         public AutoMapMarkerSetting waypointSettings;
+        [ProtoMember(3)]
+        public bool sendChatMessageToPlayer;
+    }
+
+    [ProtoContract]
+    public class ClientDefaultSettingsRequest
+    {
+        //Stub class used only for making an identifiable request to the server
     }
 
     /// <summary>
@@ -32,6 +40,7 @@ namespace Egocarib.AutoMapMarkers.Network
     public class MapMarkerNetwork
     {
         public EnumAppSide Side;
+        public ICoreAPI CoreAPI;
         public IServerNetworkChannel ServerNetworkChannel;
         public IClientNetworkChannel ClientNetworkChannel;
         public const string ChannelID = "Egocarib.AutoMapMarkers.Network.MapMarkerChannel";
@@ -41,6 +50,7 @@ namespace Egocarib.AutoMapMarkers.Network
         public MapMarkerNetwork(ICoreAPI api)
         {
             Side = api.Side;
+            CoreAPI = api;
             if (Side == EnumAppSide.Server)
             {
                 ConfigureServer(api as ICoreServerAPI);
@@ -62,7 +72,10 @@ namespace Egocarib.AutoMapMarkers.Network
         {
             ClientNetworkChannel = clientAPI.Network
                 .RegisterChannel(ChannelID)
-                .RegisterMessageType(typeof(ClientWaypointRequest));
+                .RegisterMessageType(typeof(ClientDefaultSettingsRequest))
+                .RegisterMessageType(typeof(MapMarkerConfig.Settings))
+                .RegisterMessageType(typeof(ClientWaypointRequest))
+                .SetMessageHandler<MapMarkerConfig.Settings>(OnReceiveDefaultSettingsFromServer);
         }
 
         /// <summary>
@@ -75,7 +88,10 @@ namespace Egocarib.AutoMapMarkers.Network
         {
             ServerNetworkChannel = serverAPI.Network
                 .RegisterChannel(ChannelID)
+                .RegisterMessageType(typeof(ClientDefaultSettingsRequest))
+                .RegisterMessageType(typeof(MapMarkerConfig.Settings))
                 .RegisterMessageType(typeof(ClientWaypointRequest))
+                .SetMessageHandler<ClientDefaultSettingsRequest>(OnClientDefaultSettingsRequest)
                 .SetMessageHandler<ClientWaypointRequest>(OnClientWaypointRequest);
         }
 
@@ -94,7 +110,30 @@ namespace Egocarib.AutoMapMarkers.Network
                 return;
             }
             WaypointUtil waypointUtil = new WaypointUtil(serverPlayer);
-            waypointUtil.AddWaypoint(request.waypointPosition, request.waypointSettings);
+            waypointUtil.AddWaypoint(request.waypointPosition, request.waypointSettings, request.sendChatMessageToPlayer);
+        }
+
+        /// <summary>
+        /// Server-side handler - If the client does not already have Auto Map Marker settings saved, they will
+        /// make this request to the server to download the server's default settings for Auto Map Marker mod.
+        /// </summary>
+        /// <remarks>
+        /// Side: server only
+        /// </remarks>
+        private void OnClientDefaultSettingsRequest(IPlayer fromPlayer, ClientDefaultSettingsRequest request)
+        {
+            ServerNetworkChannel.SendPacket(MapMarkerConfig.GetSettings(CoreAPI, true), new[] { fromPlayer as IServerPlayer });
+        }
+
+        /// <summary>
+        /// Client-side handler - Accepts default Auto Map Marker settings from the server.
+        /// </summary>
+        /// <remarks>
+        /// Side: client only
+        /// </remarks>
+        private void OnReceiveDefaultSettingsFromServer(MapMarkerConfig.Settings response)
+        {
+            MapMarkerConfig.SaveSettings(CoreAPI, response);
         }
 
         /// <summary>
@@ -103,7 +142,7 @@ namespace Egocarib.AutoMapMarkers.Network
         /// <remarks>
         /// Side: client only
         /// </remarks>
-        public void RequestWaypointFromServer(Vec3d position, AutoMapMarkerSetting settings)
+        public void RequestWaypointFromServer(Vec3d position, AutoMapMarkerSetting settings, bool sendChatMessage)
         {
             if (Side != EnumAppSide.Client)
             {
@@ -123,7 +162,8 @@ namespace Egocarib.AutoMapMarkers.Network
             var waypointRequest = new ClientWaypointRequest
             {
                 waypointPosition = position,
-                waypointSettings = settings
+                waypointSettings = settings,
+                sendChatMessageToPlayer = sendChatMessage
             };
             ClientNetworkChannel.SendPacket(waypointRequest);
         }
@@ -142,7 +182,7 @@ namespace Egocarib.AutoMapMarkers.Network
                 return;
             }
             ClientHandshakeTimer = new Timer(1000);
-            ClientHandshakeTimer.Elapsed += OnClientConnectivityCheck;
+            ClientHandshakeTimer.Elapsed += ClientConnectivityCheck;
             ClientHandshakeTimer.Start();
         }
 
@@ -152,15 +192,21 @@ namespace Egocarib.AutoMapMarkers.Network
         /// <remarks>
         /// Side: client only
         /// </remarks>
-        private void OnClientConnectivityCheck(Object source = null, ElapsedEventArgs e = null)
+        private void ClientConnectivityCheck(Object source = null, ElapsedEventArgs e = null)
         {
             if (ClientNetworkChannel.Connected)
             {
                 MessageUtil.Log("Successfully established connection with the server.");
+                if (!MapMarkerConfig.CheckIfSettingsExist())
+                {
+                    MessageUtil.Log("No existing config file detected for Auto Map Marker mod. Downloading the server's default settings for Auto Map Markers.");
+                    ClientNetworkChannel.SendPacket(new ClientDefaultSettingsRequest());
+                }
             }
             else if (++ConnectionCheckAttempts > 9)
             {
                 MessageUtil.Chat(Lang.Get("egocarib-mapmarkers:server-warning"));
+                MapMarkerConfig.GetSettings(CoreAPI); //Ensure that a config file is generated
             }
             else
             {

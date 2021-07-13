@@ -7,3 +7,5 @@
 
 # Ignore user files anywhere inside the "mods" directory.
 mods/**/*.user
+mods/**/bin/*
+mods/**/obj/*
