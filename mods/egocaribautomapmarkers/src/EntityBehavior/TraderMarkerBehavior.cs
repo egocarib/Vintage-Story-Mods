@@ -44,9 +44,8 @@ namespace Egocarib.AutoMapMarkers.EntityBehavior
                     if (byPlayer != null)
                     {
                         Vec3d traderPos = new Vec3d(entity.Pos.X, entity.Pos.Y, entity.Pos.Z);
-                        //WaypointUtil waypointUtil = new WaypointUtil(byPlayer as IServerPlayer);
-                        //waypointUtil.AddWaypoint(traderPos, GetTraderSettings());
-                        MapMarkerMod.Network.RequestWaypointFromServer(traderPos, GetTraderSettings());
+                        MapMarkerConfig.Settings.AutoMapMarkerSetting settingData = GetTraderSettings(out bool shouldChat);
+                        MapMarkerMod.Network.RequestWaypointFromServer(traderPos, settingData, shouldChat);
                     }
                 }
             }
@@ -56,43 +55,45 @@ namespace Egocarib.AutoMapMarkers.EntityBehavior
         /// <summary>
         /// Gets the map marker settings for the block this behavior is attached to.
         /// </summary>
-        private MapMarkerConfig.Settings.AutoMapMarkerSetting GetTraderSettings()
+        private MapMarkerConfig.Settings.AutoMapMarkerSetting GetTraderSettings(out bool shouldChat)
         {
+            MapMarkerConfig.Settings settings = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
+            shouldChat = settings.ChatNotifyOnWaypointCreation;
             if (IsArtisan)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.Traders.TraderArtisan;
+                return settings.AutoMapMarkers.Traders.TraderArtisan;
             }
             if (IsBuildingMaterials)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.Traders.TraderBuildingMaterials;
+                return settings.AutoMapMarkers.Traders.TraderBuildingMaterials;
             }
             if (IsClothing)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.Traders.TraderClothing;
+                return settings.AutoMapMarkers.Traders.TraderClothing;
             }
             if (IsCommodities)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.Traders.TraderCommodities;
+                return settings.AutoMapMarkers.Traders.TraderCommodities;
             }
             if (IsFoods)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.Traders.TraderFoods;
+                return settings.AutoMapMarkers.Traders.TraderFoods;
             }
             if (IsFurniture)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.Traders.TraderFurniture;
+                return settings.AutoMapMarkers.Traders.TraderFurniture;
             }
             if (IsLuxuries)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.Traders.TraderLuxuries;
+                return settings.AutoMapMarkers.Traders.TraderLuxuries;
             }
             if (IsSurvivalGoods)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.Traders.TraderSurvivalGoods;
+                return settings.AutoMapMarkers.Traders.TraderSurvivalGoods;
             }
             if (IsTreasureHunter)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.Traders.TraderTreasureHunter;
+                return settings.AutoMapMarkers.Traders.TraderTreasureHunter;
             }
             return null;
         }

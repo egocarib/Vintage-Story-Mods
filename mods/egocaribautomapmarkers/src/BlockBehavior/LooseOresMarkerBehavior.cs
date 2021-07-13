@@ -60,11 +60,11 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
         {
             if (pos != null && byPlayer != null)
             {
-                var looseOreSettings = GetLooseOreSettings();
+                var looseOreSettings = GetLooseOreSettings(out bool shouldChat);
                 if (looseOreSettings != null)
                 {
                     Vec3d looseOreBlockPosition = new Vec3d(pos.X, pos.Y, pos.Z);
-                    MapMarkerMod.Network.RequestWaypointFromServer(looseOreBlockPosition, looseOreSettings);
+                    MapMarkerMod.Network.RequestWaypointFromServer(looseOreBlockPosition, looseOreSettings, shouldChat);
                 }
             }
         }
@@ -72,84 +72,86 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
         /// <summary>
         /// Gets the map marker settings for the block this behavior is attached to.
         /// </summary>
-        private MapMarkerConfig.Settings.AutoMapMarkerSetting GetLooseOreSettings()
+        private MapMarkerConfig.Settings.AutoMapMarkerSetting GetLooseOreSettings(out bool shouldChat)
         {
+            MapMarkerConfig.Settings settings = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
+            shouldChat = settings.ChatNotifyOnWaypointCreation;
             if (IsAnthracite)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreAnthracite;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreAnthracite;
             }
             if (IsBlackCoal)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreBlackCoal;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreBlackCoal;
             }
             if (IsBorax)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreBorax;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreBorax;
             }
             if (IsBrownCoal)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreBrownCoal;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreBrownCoal;
             }
             if (IsCinnabar)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreCinnabar;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreCinnabar;
             }
             //if (IsFluorite)
             //{
-            //    return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreFluorite;
+            //    return settings.AutoMapMarkers.SurfaceOre.LooseOreFluorite;
             //}
             if (IsGold)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreGold;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreGold;
             }
             //if (IsGraphite)
             //{
-            //    return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreGraphite;
+            //    return settings.AutoMapMarkers.SurfaceOre.LooseOreGraphite;
             //}
             //if (IsKernite)
             //{
-            //    return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreKernite;
+            //    return settings.AutoMapMarkers.SurfaceOre.LooseOreKernite;
             //}
             if (IsLapisLazuli)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreLapisLazuli;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreLapisLazuli;
             }
             if (IsLead)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreLead;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreLead;
             }
             if (IsMalachiteCopper)
             {
                 //Shares settings with native copper
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreCopper;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreCopper;
             }
             if (IsNativeCopper)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreCopper;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreCopper;
             }
             if (IsOlivine)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreOlivine;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreOlivine;
             }
             //if (IsPhosporite)
             //{
-            //    return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.LooseOrePhosporite;
+            //    return settings.AutoMapMarkers.LooseOrePhosporite;
             //}
             if (IsQuartz)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreQuartz;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreQuartz;
             }
             if (IsSilver)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreSilver;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreSilver;
             }
             if (IsSulfur)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreSulfur;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreSulfur;
             }
             if (IsTin)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.SurfaceOre.LooseOreTin;
+                return settings.AutoMapMarkers.SurfaceOre.LooseOreTin;
             }
             return null;
         }

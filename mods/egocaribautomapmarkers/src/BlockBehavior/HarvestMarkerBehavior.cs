@@ -41,7 +41,8 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
                 if (blockSel != null && blockSel.Position != null && byPlayer != null)
                 {
                     Vec3d harvestBlockPosition = new Vec3d(blockSel.Position.X, blockSel.Position.Y, blockSel.Position.Z);
-                    MapMarkerMod.Network.RequestWaypointFromServer(harvestBlockPosition, GetHarvestableObjectSettings());
+                    MapMarkerConfig.Settings.AutoMapMarkerSetting settingData = GetHarvestableObjectSettings(out bool shouldChat);
+                    MapMarkerMod.Network.RequestWaypointFromServer(harvestBlockPosition, settingData, shouldChat);
                 }
             }
             return base.OnBlockInteractStart(world, byPlayer, blockSel, ref handling);
@@ -50,31 +51,33 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
         /// <summary>
         /// Gets the map marker settings for the block this behavior is attached to.
         /// </summary>
-        private MapMarkerConfig.Settings.AutoMapMarkerSetting GetHarvestableObjectSettings()
+        private MapMarkerConfig.Settings.AutoMapMarkerSetting GetHarvestableObjectSettings(out bool shouldChat)
         {
+            MapMarkerConfig.Settings settings = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
+            shouldChat = settings.ChatNotifyOnWaypointCreation;
             if (IsResin)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.OrganicMatter.Resin;
+                return settings.AutoMapMarkers.OrganicMatter.Resin;
             }
             if (IsBlueberry)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.OrganicMatter.Blueberry;
+                return settings.AutoMapMarkers.OrganicMatter.Blueberry;
             }
             if (IsCranberry)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.OrganicMatter.Cranberry;
+                return settings.AutoMapMarkers.OrganicMatter.Cranberry;
             }
             if (IsCurrantBlack)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.OrganicMatter.BlackCurrant;
+                return settings.AutoMapMarkers.OrganicMatter.BlackCurrant;
             }
             if (IsCurrantRed)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.OrganicMatter.RedCurrant;
+                return settings.AutoMapMarkers.OrganicMatter.RedCurrant;
             }
             if (IsCurrantWhite)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.OrganicMatter.WhiteCurrant;
+                return settings.AutoMapMarkers.OrganicMatter.WhiteCurrant;
             }
             return null;
         }

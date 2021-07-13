@@ -33,7 +33,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
         /// at the specified coordinates based on those settings. Then creates the waypoint and syncs it
         /// back to the client.
         /// </summary>
-        public void AddWaypoint(Vec3d position, MapMarkerConfig.Settings.AutoMapMarkerSetting settings)
+        public void AddWaypoint(Vec3d position, MapMarkerConfig.Settings.AutoMapMarkerSetting settings, bool sendChatMessageToPlayer)
         {
             if (!Valid)
             {
@@ -69,13 +69,13 @@ namespace Egocarib.AutoMapMarkers.Utilities
                 }
             }
 
-            AddWaypointToMap(position, settings.MarkerTitle, settings.MarkerIcon, settings.MarkerColorInteger);
+            AddWaypointToMap(position, settings.MarkerTitle, settings.MarkerIcon, settings.MarkerColorInteger, sendChatMessageToPlayer);
         }
 
         /// <summary>
         /// Adds a waypoint marker to the map at the specified position, using the specified parameters, and syncs it back to the client.
         /// </summary>
-        private void AddWaypointToMap(Vec3d pos, string title, string icon, int? color, bool pinned = false)
+        private void AddWaypointToMap(Vec3d pos, string title, string icon, int? color, bool sendChatMessageToPlayer, bool pinned = false)
         {
             if (!Valid)
             {
@@ -104,7 +104,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
 
             WaypointMapLayer.Waypoints.Add(waypoint);
 
-            if (MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).ChatNotifyOnWaypointCreation)
+            if (sendChatMessageToPlayer)
             {
                 Waypoint[] ownwpaypoints = WaypointMapLayer.Waypoints.Where((p) => p.OwningPlayerUid == ServerPlayer.PlayerUID).ToArray();
                 MessageUtil.Chat(Lang.Get("Ok, waypoint nr. {0} added", ownwpaypoints.Length - 1), ServerPlayer);

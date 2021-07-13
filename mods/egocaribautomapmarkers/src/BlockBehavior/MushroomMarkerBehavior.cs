@@ -35,9 +35,8 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
                     {
                         //set map marker
                         Vec3d mushroomBlockPosition = new Vec3d(pos.X, pos.Y, pos.Z);
-                        //WaypointUtil waypointUtil = new WaypointUtil(byPlayer as IServerPlayer);
-                        //waypointUtil.AddWaypoint(mushroomBlockPosition, GetMushroomSettings());
-                        MapMarkerMod.Network.RequestWaypointFromServer(mushroomBlockPosition, GetMushroomSettings());
+                        MapMarkerConfig.Settings.AutoMapMarkerSetting settingData = GetMushroomSettings(out bool shouldChat);
+                        MapMarkerMod.Network.RequestWaypointFromServer(mushroomBlockPosition, settingData, shouldChat);
                     }
                 }
             }
@@ -47,19 +46,21 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
         /// <summary>
         /// Gets the map marker settings for the block this behavior is attached to.
         /// </summary>
-        private MapMarkerConfig.Settings.AutoMapMarkerSetting GetMushroomSettings()
+        private MapMarkerConfig.Settings.AutoMapMarkerSetting GetMushroomSettings(out bool shouldChat)
         {
+            MapMarkerConfig.Settings settings = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
+            shouldChat = settings.ChatNotifyOnWaypointCreation;
             if (IsBolete)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.OrganicMatter.MushroomBolete;
+                return settings.AutoMapMarkers.OrganicMatter.MushroomBolete;
             }
             if (IsFieldMushroom)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.OrganicMatter.MushroomFieldMushroom;
+                return settings.AutoMapMarkers.OrganicMatter.MushroomFieldMushroom;
             }
             if (IsFlyAgaric)
             {
-                return MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).AutoMapMarkers.OrganicMatter.MushroomFlyAgaric;
+                return settings.AutoMapMarkers.OrganicMatter.MushroomFlyAgaric;
             }
             return null;
         }
