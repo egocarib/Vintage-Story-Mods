@@ -52,6 +52,7 @@
     </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\..\..\..\..\..\..\..\Program Files\Vintagestory\Lib\protobuf-net.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
