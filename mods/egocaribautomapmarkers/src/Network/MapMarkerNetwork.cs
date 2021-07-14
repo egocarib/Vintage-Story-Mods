@@ -32,6 +32,13 @@ namespace Egocarib.AutoMapMarkers.Network
         //Stub class used only for making an identifiable request to the server
     }
 
+    [ProtoContract]
+    public class ClientWaypointDeleteRequest
+    {
+        [ProtoMember(1)]
+        public bool sendChatMessageToPlayer;
+    }
+
     /// <summary>
     /// Network handler for Auto Map Markers mod. Facilitates communication between the
     /// client, which may request that a waypoint be created, and the server, which creates 
@@ -75,6 +82,7 @@ namespace Egocarib.AutoMapMarkers.Network
                 .RegisterMessageType(typeof(ClientDefaultSettingsRequest))
                 .RegisterMessageType(typeof(MapMarkerConfig.Settings))
                 .RegisterMessageType(typeof(ClientWaypointRequest))
+                .RegisterMessageType(typeof(ClientWaypointDeleteRequest))
                 .SetMessageHandler<MapMarkerConfig.Settings>(OnReceiveDefaultSettingsFromServer);
         }
 
@@ -91,7 +99,9 @@ namespace Egocarib.AutoMapMarkers.Network
                 .RegisterMessageType(typeof(ClientDefaultSettingsRequest))
                 .RegisterMessageType(typeof(MapMarkerConfig.Settings))
                 .RegisterMessageType(typeof(ClientWaypointRequest))
+                .RegisterMessageType(typeof(ClientWaypointDeleteRequest))
                 .SetMessageHandler<ClientDefaultSettingsRequest>(OnClientDefaultSettingsRequest)
+                .SetMessageHandler<ClientWaypointDeleteRequest>(OnClientWaypointDeleteRequest)
                 .SetMessageHandler<ClientWaypointRequest>(OnClientWaypointRequest);
         }
 
@@ -106,11 +116,29 @@ namespace Egocarib.AutoMapMarkers.Network
             IServerPlayer serverPlayer = fromPlayer as IServerPlayer;
             if (serverPlayer == null)
             {
-                MessageUtil.LogError("Couldn't create waypoint - unable to resolve ServerPlayer associated with request.");
+                MessageUtil.LogError("Couldn't fulfill map marker creation request - unable to resolve ServerPlayer associated with request.");
                 return;
             }
             WaypointUtil waypointUtil = new WaypointUtil(serverPlayer);
             waypointUtil.AddWaypoint(request.waypointPosition, request.waypointSettings, request.sendChatMessageToPlayer);
+        }
+
+        /// <summary>
+        /// Server-side handler - receives a waypoint deletion request arriving from a client.
+        /// </summary>
+        /// <remarks>
+        /// Side: server only
+        /// </remarks>
+        private void OnClientWaypointDeleteRequest(IPlayer fromPlayer, ClientWaypointDeleteRequest request)
+        {
+            IServerPlayer serverPlayer = fromPlayer as IServerPlayer;
+            if (serverPlayer == null)
+            {
+                MessageUtil.LogError("Couldn't fulfill map marker deletion request - unable to resolve ServerPlayer associated with request.");
+                return;
+            }
+            WaypointUtil waypointUtil = new WaypointUtil(serverPlayer);
+            waypointUtil.DeleteNearestWaypoint(request.sendChatMessageToPlayer);
         }
 
         /// <summary>
@@ -146,23 +174,53 @@ namespace Egocarib.AutoMapMarkers.Network
         {
             if (Side != EnumAppSide.Client)
             {
-                MessageUtil.LogError("New waypoint unexpectedly requested from server-side thread.");
+                MessageUtil.LogError("New map marker unexpectedly requested from server-side thread.");
                 return;
             }
             if (MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).DisableAllModFeatures)
             {
-                MessageUtil.Log("Suppressed automatic waypoint creation - mod features are currently disabled.");
+                MessageUtil.Log("Suppressed automatic map marker creation - mod features are currently disabled.");
                 return;
             }
             if (!ClientNetworkChannel.Connected)
             {
-                MessageUtil.LogError("Not connected to mod instance on server - unable to request waypoint creation.");
+                MessageUtil.LogError("Not connected to mod instance on server - unable to request map marker creation.");
                 return;
             }
             var waypointRequest = new ClientWaypointRequest
             {
                 waypointPosition = position,
                 waypointSettings = settings,
+                sendChatMessageToPlayer = sendChatMessage
+            };
+            ClientNetworkChannel.SendPacket(waypointRequest);
+        }
+
+        /// <summary>
+        /// Method called by a client to request that the server delete a waypoint on behalf of the client.
+        /// </summary>
+        /// <remarks>
+        /// Side: client only
+        /// </remarks>
+        public void RequestNearestWaypointDeletionFromServer(bool sendChatMessage)
+        {
+            if (Side != EnumAppSide.Client)
+            {
+                MessageUtil.LogError("Waypoint deletion unexpectedly requested from server-side thread.");
+                return;
+            }
+            if (MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).DisableAllModFeatures)
+            {
+                MessageUtil.Log("Suppressed map marker deletion request - mod features are currently disabled.");
+                return;
+            }
+            if (!ClientNetworkChannel.Connected)
+            {
+                MessageUtil.LogError("Not connected to mod instance on server - unable to request map marker deletion.");
+                return;
+            }
+            var waypointRequest = new ClientWaypointDeleteRequest
+            {
                 sendChatMessageToPlayer = sendChatMessage
             };
             ClientNetworkChannel.SendPacket(waypointRequest);
@@ -197,7 +255,7 @@ namespace Egocarib.AutoMapMarkers.Network
             if (ClientNetworkChannel.Connected)
             {
                 MessageUtil.Log("Successfully established connection with the server.");
-                if (!MapMarkerConfig.CheckIfSettingsExist())
+                if (!MapMarkerConfig.CheckIfSettingsExist(CoreAPI))
                 {
                     MessageUtil.Log("No existing config file detected for Auto Map Marker mod. Downloading the server's default settings for Auto Map Markers.");
                     ClientNetworkChannel.SendPacket(new ClientDefaultSettingsRequest());
@@ -205,8 +263,12 @@ namespace Egocarib.AutoMapMarkers.Network
             }
             else if (++ConnectionCheckAttempts > 9)
             {
-                MessageUtil.Chat(Lang.Get("egocarib-mapmarkers:server-warning"));
-                MapMarkerConfig.GetSettings(CoreAPI); //Ensure that a config file is generated
+                var clientAPI = CoreAPI as ICoreClientAPI;
+                if (clientAPI == null || clientAPI.IsSinglePlayer == false)
+                {
+                    MessageUtil.Chat(Lang.Get("egocarib-mapmarkers:server-warning"));
+                    MapMarkerConfig.GetSettings(CoreAPI); //Ensure that a config file is generated
+                }
             }
             else
             {

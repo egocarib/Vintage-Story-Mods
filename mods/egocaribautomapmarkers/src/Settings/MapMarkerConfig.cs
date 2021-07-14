@@ -26,10 +26,16 @@ namespace Egocarib.AutoMapMarkers.Settings
 
             [ProtoMember(1, IsRequired = true)]
             public bool ChatNotifyOnWaypointCreation = false;
+            [ProtoMember(5, IsRequired = true)]
+            public bool EnableWaypointDeletionHotkey = false;
+            [ProtoMember(6, IsRequired = true)]
+            public bool ChatNotifyOnWaypointDeletion = true;
+            [ProtoMember(7, IsRequired = true)]
+            public bool EnableCustomHotkeys = false;
             [ProtoMember(2, IsRequired = true)]
             public bool DisableAllModFeatures = true;
             [ProtoMember(3)]
-            public double ConfigVersion = 2.0;
+            public double ConfigVersion = 2.01;
             [ProtoMember(4)]
             public MapMarkerSettingsGrouper AutoMapMarkers = new MapMarkerSettingsGrouper();
 
@@ -42,6 +48,8 @@ namespace Egocarib.AutoMapMarkers.Settings
                 public MapMarkerSettings_Ore SurfaceOre = new MapMarkerSettings_Ore();
                 [ProtoMember(3)]
                 public MapMarkerSettings_Traders Traders = new MapMarkerSettings_Traders();
+                [ProtoMember(4)]
+                public MapMarkerSettings_Custom Custom = new MapMarkerSettings_Custom();
             }
 
             [ProtoContract]
@@ -340,6 +348,39 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerCoverageRadius: 20);
             }
 
+            [ProtoContract]
+            public class MapMarkerSettings_Custom
+            {
+                [ProtoMember(1)]
+                public AutoMapMarkerSetting CustomMarker1 = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.Get("egocarib-mapmarkers:custom-marker-1"),
+                    markerColor: "black",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 1);
+
+                [ProtoMember(2)]
+                public AutoMapMarkerSetting CustomMarker2 = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.Get("egocarib-mapmarkers:custom-marker-2"),
+                    markerColor: "black",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 1);
+
+                [ProtoMember(3)]
+                public AutoMapMarkerSetting CustomMarker3 = new AutoMapMarkerSetting(
+                    enabled: false,
+                    markerTitle: Lang.Get("egocarib-mapmarkers:custom-marker-3"),
+                    markerColor: "black",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 1);
+
+                public AutoMapMarkerSetting SettingByIndex(int index)
+                {
+                    return index == 3 ? CustomMarker3 : (index == 2 ? CustomMarker2 : CustomMarker1);
+                }
+            }
+
             public OrderedDictionary<string, OrderedDictionary<string, AutoMapMarkerSetting>> GetMapMarkerSettingCollection()
             {
                 if (_MapMarkerSettingsCollection == null)
@@ -395,6 +436,14 @@ namespace Egocarib.AutoMapMarkers.Settings
                                     { Lang.Get("item-creature-humanoid-trader-luxuries"), AutoMapMarkers.Traders.TraderLuxuries },
                                     { Lang.Get("item-creature-humanoid-trader-survivalgoods"), AutoMapMarkers.Traders.TraderSurvivalGoods },
                                     { Lang.Get("item-creature-humanoid-trader-treasurehunter"), AutoMapMarkers.Traders.TraderTreasureHunter }
+                                }
+                            },
+                            { Lang.Get("egocarib-mapmarkers:custom"),
+                                new OrderedDictionary<string, AutoMapMarkerSetting>
+                                {
+                                    { Lang.Get("egocarib-mapmarkers:custom-marker-1"), AutoMapMarkers.Custom.CustomMarker1 },
+                                    { Lang.Get("egocarib-mapmarkers:custom-marker-2"), AutoMapMarkers.Custom.CustomMarker2 },
+                                    { Lang.Get("egocarib-mapmarkers:custom-marker-3"), AutoMapMarkers.Custom.CustomMarker3 }
                                 }
                             }
                         };
@@ -468,7 +517,7 @@ namespace Egocarib.AutoMapMarkers.Settings
             }
         }
 
-        public static Settings GetSettings(ICoreAPI api, bool allowServerThread = false)
+        public static Settings GetSettings(ICoreAPI api, bool allowServerThread = false, bool returnDefaults = true)
         {
             if (!allowServerThread && api.Side == EnumAppSide.Server)
             {
@@ -486,7 +535,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     + "(" + ConfigFilename + "). There may have been a syntax error in the file."
                     + "A new default settings file will be generated.");
             }
-            if (settings == null)
+            if (settings == null && returnDefaults)
             {
                 settings = new Settings();
                 SaveSettings(api, settings, allowServerThread); //Create a default settings file if one didn't already exist.
@@ -505,14 +554,12 @@ namespace Egocarib.AutoMapMarkers.Settings
         }
 
         /// <summary>
-        /// This is a hacky method that shouldn't exist, but there is currently no way to check if a mod config
-        /// file exists using the default API - it just returns you a default object if the file didn't already exist.
-        /// I left a suggestion here: https://discord.com/channels/302152934249070593/622506175467880449/864258519066607626
+        /// Checks if a settings file already exists
         /// </summary>
-        public static bool CheckIfSettingsExist()
+        public static bool CheckIfSettingsExist(ICoreAPI api)
         {
-            string path = Path.Combine(GamePaths.ModConfig, ConfigFilename);
-            if (File.Exists(path))
+            Settings settings = GetSettings(api, true, false);
+            if (settings != null)
             {
                 return true;
             }

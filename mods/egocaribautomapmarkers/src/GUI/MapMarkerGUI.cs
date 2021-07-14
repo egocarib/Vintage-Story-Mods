@@ -27,13 +27,17 @@ namespace Egocarib.AutoMapMarkers.GUI
         public readonly string ExtraSettingsTabName = Lang.Get("egocarib-mapmarkers:ui");
         public string CurrentTab;
         public int DynamicDrawColor;
+        private Action RegisterCustomHotkeys;
+        private Action RegisterDeleteHotkey;
 
         public override string ToggleKeyCombinationCode { get { return HotkeyCode; } }
 
         public override bool DisableMouseGrab { get { return true; } }
 
-        public MapMarkerGUI(ICoreClientAPI capi) : base(capi)
+        public MapMarkerGUI(ICoreClientAPI capi, Action onRegisterCustomHotkeys, Action onRegisterDeleteHotkey) : base(capi)
         {
+            RegisterCustomHotkeys = onRegisterCustomHotkeys;
+            RegisterDeleteHotkey = onRegisterDeleteHotkey;
         }
 
         public override bool CaptureAllInputs()
@@ -72,6 +76,8 @@ namespace Egocarib.AutoMapMarkers.GUI
             headerFont.Color[3] = 0.6; // Adjust transparency
             CairoFont disabledFont = CairoFont.WhiteSmallishText().Clone().WithSlant(FontSlant.Italic);
             disabledFont.Color[3] = 0.2;
+
+            string customTabName = Lang.Get("egocarib-mapmarkers:custom");
 
             /*
              *  Dialog bounds nesting structure:
@@ -113,8 +119,9 @@ namespace Egocarib.AutoMapMarkers.GUI
             double nameLabelWidth = 62;
             double nameInputWidth = 140;
             double titleBarThickness = 31;
-            double dgWidth = opPromptWidth + toggleWidth + iconLabelWidth + iconDropdownWidth + iconDropdownAfter + colorLabelWidth + colorInputWidth
-                + colorInputAfter + colorPreviewWidth + nameLabelWidth + nameInputWidth + rowIndent * 2 + dialogPadding * 2;
+            double dgInnerWidth = opPromptWidth + toggleWidth + iconLabelWidth + iconDropdownWidth + iconDropdownAfter + colorLabelWidth + colorInputWidth
+                + colorInputAfter + colorPreviewWidth + nameLabelWidth + nameInputWidth;
+            double dgWidth = dgInnerWidth + rowIndent * 2 + dialogPadding * 2;
 
             ElementBounds toggleButtonBarBounds = ElementBounds
                 .Fixed(0, titleBarThickness, dgWidth, toggleBarHeight)
@@ -168,6 +175,10 @@ namespace Egocarib.AutoMapMarkers.GUI
 
             foreach (var settingGroupName in AutoMapMarkerSettings.Keys.Concat(new [] { ExtraSettingsTabName }))
             {
+                if (settingGroupName == customTabName && !ModSettings.EnableCustomHotkeys)
+                {
+                    continue;
+                }
                 if (string.IsNullOrEmpty(CurrentTab))
                 {
                     CurrentTab = settingGroupName;
@@ -222,6 +233,20 @@ namespace Egocarib.AutoMapMarkers.GUI
                 if (settingGroup.Key != CurrentTab)
                 {
                     continue;
+                }
+                if (CurrentTab == customTabName)
+                {
+                    if (!ModSettings.EnableCustomHotkeys)
+                    {
+                        continue;
+                    }
+                    SingleComposer.BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.FlatCopy().WithFixedHeight(rowHeight * 1.5))
+                    .AddStaticText(
+                        text: Lang.Get("egocarib-mapmarkers:custom-gui-description"),
+                        font: CairoFont.WhiteSmallishText(),
+                        bounds: ElementBounds.Fixed(0, 0, dgInnerWidth, rowHeight * 1.5))
+                    .EndChildElements();
+                    markerOptionRowBounds = markerOptionRowBounds.BelowCopy().WithFixedHeight(rowHeight);
                 }
                 foreach (var setting in settingGroup.Value)
                 {
@@ -342,18 +367,90 @@ namespace Egocarib.AutoMapMarkers.GUI
                 // Build "UI" tab with additional mod options
                 ElementBounds uiToggleBounds = ElementBounds.Fixed(0, 0, 60, rowHeight);
                 ElementBounds uiToggleLabelBounds = ElementBounds.Fixed(60, 2.5, 800, rowHeight);
+                int hotkeyTooltipWidth = (int)(GetFontTextWidth(CairoFont.WhiteSmallText(), Lang.Get("egocarib-mapmarkers:show-chat-message-hotkey-tooltip")) / 2 + 25);
+                string hotkeyTooltipText = Lang.Get("egocarib-mapmarkers:show-chat-message-hotkey-tooltip").Replace(">", "&gt;");
 
                 SingleComposer.BeginChildElements(markerOptionRowBounds)
 
-                    // Chat messages enabled/disabled
+                    // Chat messages for waypoint creation enabled/disabled
                     .AddSwitch(
                         onToggle: isSelected => { ModSettings.ChatNotifyOnWaypointCreation = isSelected; },
                         bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        key: "toggle-show-chat-message")
+                        key: "toggle-show-create-chat-message")
                     .AddStaticText(
                         text: Lang.Get("egocarib-mapmarkers:show-chat-message"),
                         font: CairoFont.WhiteSmallishText(),
                         bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+                .EndChildElements()
+                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
+                    // Custom waypoint hotkeys enabled/disabled
+                    .AddSwitch(
+                        onToggle: isSelected =>
+                        {
+                            ModSettings.EnableCustomHotkeys = isSelected;
+                            RegisterCustomHotkeys();
+                            SetupDialog();
+                        },
+                        bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                        key: "toggle-enable-custom-hotkeys")
+                    .AddStaticText(
+                        text: Lang.Get("egocarib-mapmarkers:enable-custom-hotkeys"),
+                        font: CairoFont.WhiteSmallishText(),
+                        bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+                    .AddHoverText(
+                        text: hotkeyTooltipText,
+                        font: CairoFont.WhiteSmallText(),
+                        width: hotkeyTooltipWidth,
+                        bounds: uiToggleLabelBounds.FlatCopy())
+
+                .EndChildElements()
+                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
+                    // Waypoint deletion enabled/disabled
+                    .AddSwitch(
+                        onToggle: isSelected =>
+                        {
+                            ModSettings.EnableWaypointDeletionHotkey = isSelected;
+                            RegisterDeleteHotkey();
+                            SetupDialog();
+                        },
+                        bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                        key: "toggle-enable-delete-hotkey")
+                    .AddStaticText(
+                        text: Lang.Get("egocarib-mapmarkers:enable-delete-hotkey"),
+                        font: CairoFont.WhiteSmallishText(),
+                        bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+                    .AddHoverText(
+                        text: hotkeyTooltipText,
+                        font: CairoFont.WhiteSmallText(),
+                        width: hotkeyTooltipWidth,
+                        bounds: uiToggleLabelBounds.FlatCopy())
+
+                .EndChildElements();
+
+                if (ModSettings.EnableWaypointDeletionHotkey)
+                {
+                    SingleComposer
+                    .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy().WithFixedOffset(60, 0))
+
+                        // Chat messages for waypoint deletion enabled/disabled
+                        .AddSwitch(
+                            onToggle: isSelected => { ModSettings.ChatNotifyOnWaypointDeletion = isSelected; },
+                            bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                            key: "toggle-show-delete-chat-message")
+                        .AddStaticText(
+                            text: Lang.Get("egocarib-mapmarkers:show-chat-message-on-delete"),
+                            font: CairoFont.WhiteSmallishText(),
+                            bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+                    .EndChildElements();
+                    markerOptionRowBounds = markerOptionRowBounds.FlatCopy().WithFixedOffset(-60, 0);
+                }
+
+                SingleComposer
+                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
 
                     // Master toggle to disable the mod
                     .AddSwitch(
@@ -362,15 +459,19 @@ namespace Egocarib.AutoMapMarkers.GUI
                             ModSettings.DisableAllModFeatures = isSelected;
                             SetupDialog();
                         },
-                        bounds: uiToggleBounds.BelowCopy(),
+                        bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
                         key: "toggle-disable-mod")
                     .AddStaticText(
                         text: Lang.Get("egocarib-mapmarkers:disable-mod"),
                         font: CairoFont.WhiteSmallishText(),
-                        bounds: uiToggleLabelBounds.BelowCopy())
+                        bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
 
                 .EndChildElements();
-                SingleComposer.GetSwitch("toggle-show-chat-message").SetValue(ModSettings.ChatNotifyOnWaypointCreation);
+
+                SingleComposer.GetSwitch("toggle-show-create-chat-message").SetValue(ModSettings.ChatNotifyOnWaypointCreation);
+                SingleComposer.GetSwitch("toggle-enable-custom-hotkeys").SetValue(ModSettings.EnableCustomHotkeys);
+                SingleComposer.GetSwitch("toggle-enable-delete-hotkey").SetValue(ModSettings.EnableWaypointDeletionHotkey);
+                SingleComposer.GetSwitch("toggle-show-delete-chat-message")?.SetValue(ModSettings.ChatNotifyOnWaypointDeletion);
                 SingleComposer.GetSwitch("toggle-disable-mod").SetValue(ModSettings.DisableAllModFeatures);
             }
             

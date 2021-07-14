@@ -15,8 +15,13 @@ namespace Egocarib.AutoMapMarkers.Utilities
         private readonly IServerPlayer ServerPlayer;
         private static readonly MethodInfo ResendWaypointsMethod =
             typeof(WaypointMapLayer).GetMethod("ResendWaypoints", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly MethodInfo RebuildMapComponentsMethod =
+            typeof(WaypointMapLayer).GetMethod("RebuildMapComponents", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        private bool Valid { get { return ServerPlayer != null && WaypointMapLayer != null && ResendWaypointsMethod != null; } }
+        private bool Valid => ServerPlayer != null && WaypointMapLayer != null 
+            && ResendWaypointsMethod != null && RebuildMapComponentsMethod != null;
+
+        private string PlayerInfo => ServerPlayer != null ? $"{ServerPlayer.PlayerName} [{ServerPlayer.PlayerUID}]" : "NULL";
 
         /// <summary>
         /// Waypoint generator. To be instantiated and used only on the Server thread.
@@ -37,12 +42,12 @@ namespace Egocarib.AutoMapMarkers.Utilities
         {
             if (!Valid)
             {
-                MessageUtil.LogError("Unable to create waypoint - ServerPlayer or WaypointMapLayer is inaccessible.");
+                MessageUtil.LogError($"Unable to fulfill waypoint create request from player {PlayerInfo} - ServerPlayer, WaypointMapLayer, or Reflected method is inaccessible.");
                 return;
             }
             if (position == null || settings == null)
             {
-                MessageUtil.LogError("Unable to create waypoint - missing position or settings data.");
+                MessageUtil.LogError($"Unable to fulfill waypoint create request from player {PlayerInfo} - missing position or settings data.");
                 return;
             }
             if (!settings.Enabled)
@@ -50,7 +55,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
                 return;
             }
 
-            foreach (Waypoint waypoint in WaypointMapLayer.Waypoints)
+            foreach (Waypoint waypoint in WaypointMapLayer.Waypoints.Where(w => w.OwningPlayerUid == ServerPlayer.PlayerUID))
             {
                 double xDiff = Math.Abs(waypoint.Position.X - position.X);
                 double zDiff = Math.Abs(waypoint.Position.Z - position.Z);
@@ -83,12 +88,12 @@ namespace Egocarib.AutoMapMarkers.Utilities
             }
             if (pos == null || string.IsNullOrEmpty(title) || string.IsNullOrEmpty(icon))
             {
-                MapMarkerMod.CoreAPI.Logger.Error("Map Marker Mod: Unable to create waypoint - missing position, title, or icon.");
+                MessageUtil.LogError("Unable to create map marker - missing position, title, or icon.");
                 return;
             }
             if (color == null)
             {
-                MapMarkerMod.CoreAPI.Logger.Error("Map Marker Mod: Unable to create waypoint - invalid color.");
+                MessageUtil.LogError("Unable to create map marker - invalid color.");
                 return;
             }
 
@@ -106,10 +111,49 @@ namespace Egocarib.AutoMapMarkers.Utilities
 
             if (sendChatMessageToPlayer)
             {
-                Waypoint[] ownwpaypoints = WaypointMapLayer.Waypoints.Where((p) => p.OwningPlayerUid == ServerPlayer.PlayerUID).ToArray();
-                MessageUtil.Chat(Lang.Get("Ok, waypoint nr. {0} added", ownwpaypoints.Length - 1), ServerPlayer);
+                int waypointIndex = WaypointMapLayer.Waypoints.Count(p => p.OwningPlayerUid == ServerPlayer.PlayerUID) - 1;
+                MessageUtil.Chat(Lang.Get("Ok, waypoint nr. {0} added", waypointIndex), ServerPlayer);
             }
             ResendWaypoints();
+        }
+
+        /// <summary>
+        /// Finds the waypoint nearest to the player's current location. Then deletes the waypoint and syncs data back to the client.
+        /// </summary>
+        public void DeleteNearestWaypoint(bool sendChatMessageToPlayer)
+        {
+            if (!Valid)
+            {
+                MessageUtil.LogError($"Unable to fulfill map marker delete request from player {PlayerInfo} - ServerPlayer, WaypointMapLayer, or Reflected method is inaccessible.");
+                return;
+            }
+
+            double closestWpDistance = double.MaxValue;
+            Waypoint closestWp = null;
+
+            foreach (Waypoint wp in WaypointMapLayer.Waypoints.Where(w => w.OwningPlayerUid == ServerPlayer.PlayerUID))
+            {
+                double thisDist = ServerPlayer.Entity.Pos.DistanceTo(wp.Position);
+                if (thisDist < closestWpDistance)
+                {
+                    closestWpDistance = thisDist;
+                    closestWp = wp;
+                }
+            }
+            if (closestWp != null)
+            {
+                WaypointMapLayer.Waypoints.Remove(closestWp);
+                RebuildMapComponents();
+                ResendWaypoints();
+                if (sendChatMessageToPlayer)
+                {
+                    MessageUtil.Chat(Lang.Get("Ok, deleted waypoint."), ServerPlayer);
+                }
+            }
+            else
+            {
+                MessageUtil.Log($"Player {PlayerInfo} tried to delete their nearest waypoint, but no waypoints owned by that player were found.");
+            }
         }
 
         /// <summary>
@@ -122,5 +166,17 @@ namespace Egocarib.AutoMapMarkers.Utilities
                 ResendWaypointsMethod.Invoke(WaypointMapLayer, new object[] { (ServerPlayer as IServerPlayer) });
             }
         }
+
+        /// <summary>
+        /// Rebuilds waypoint map components.
+        /// </summary>
+        private void RebuildMapComponents()
+        {
+            if (Valid)
+            {
+                RebuildMapComponentsMethod.Invoke(WaypointMapLayer, null);
+            }
+        }
+
     }
 }
