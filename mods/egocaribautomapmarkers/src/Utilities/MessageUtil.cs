@@ -10,8 +10,18 @@ namespace Egocarib.AutoMapMarkers.Utilities
         /// </summary>
         public static void Chat(string message, IPlayer serverPlayer = null, EnumChatType chatTypeForServer = EnumChatType.Notification)
         {
-            MapMarkerMod.CoreServerAPI?.SendMessage(serverPlayer, GlobalConstants.GeneralChatGroup, message, chatTypeForServer);
-            MapMarkerMod.CoreClientAPI?.SendChatMessage(message);
+            if (serverPlayer != null)
+            {
+                MapMarkerMod.CoreServerAPI.SendMessage(serverPlayer, GlobalConstants.GeneralChatGroup, message, chatTypeForServer);
+            }
+            else if (MapMarkerMod.CoreClientAPI != null)
+            {
+                MapMarkerMod.CoreClientAPI.ShowChatMessage(message);
+            }
+            else
+            {
+                LogError("Unable to propagate chat message (\"{message}\")");
+            }
         }
 
         /// <summary>
