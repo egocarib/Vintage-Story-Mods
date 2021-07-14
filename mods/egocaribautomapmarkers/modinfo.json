@@ -2,7 +2,7 @@
   "type": "code",
   "modid": "egocaribautomapmarkers",
   "name": "Auto Map Markers",
-  "author": "egocarib",
+  "authors": [ "egocarib" ],
   "description": "Automatically adds map markers to your map when you interact with certain objects. Fully configurable.",
   "version": "2.2.2",
   "requiredOnServer": true,
