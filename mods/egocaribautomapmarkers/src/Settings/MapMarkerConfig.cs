@@ -103,29 +103,29 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerIcon: "circle",
                     markerCoverageRadius: 6);
 
-                [ProtoMember(7)]
-                public AutoMapMarkerSetting MushroomBolete = new AutoMapMarkerSetting(
-                    enabled: false,
-                    markerTitle: Lang.GetMatching("block-mushroom-bolete-normal-*"),
-                    markerColor: "#503922",
-                    markerIcon: "circle",
-                    markerCoverageRadius: 6);
+                //[ProtoMember(7)]
+                //public AutoMapMarkerSetting MushroomBolete = new AutoMapMarkerSetting(
+                //    enabled: false,
+                //    markerTitle: Lang.GetMatching("block-mushroom-bolete-normal-*"),
+                //    markerColor: "#503922",
+                //    markerIcon: "circle",
+                //    markerCoverageRadius: 6);
 
-                [ProtoMember(8)]
-                public AutoMapMarkerSetting MushroomFieldMushroom = new AutoMapMarkerSetting(
-                    enabled: false,
-                    markerTitle: Lang.GetMatching("block-mushroom-fieldmushroom-normal-*"),
-                    markerColor: "ghostwhite",
-                    markerIcon: "circle",
-                    markerCoverageRadius: 6);
+                //[ProtoMember(8)]
+                //public AutoMapMarkerSetting MushroomFieldMushroom = new AutoMapMarkerSetting(
+                //    enabled: false,
+                //    markerTitle: Lang.GetMatching("block-mushroom-fieldmushroom-normal-*"),
+                //    markerColor: "ghostwhite",
+                //    markerIcon: "circle",
+                //    markerCoverageRadius: 6);
 
-                [ProtoMember(9)]
-                public AutoMapMarkerSetting MushroomFlyAgaric = new AutoMapMarkerSetting(
-                    enabled: false,
-                    markerTitle: Lang.GetMatching("block-mushroom-flyagaric-normal-*"),
-                    markerColor: "brown",
-                    markerIcon: "circle",
-                    markerCoverageRadius: 6);
+                //[ProtoMember(9)]
+                //public AutoMapMarkerSetting MushroomFlyAgaric = new AutoMapMarkerSetting(
+                //    enabled: false,
+                //    markerTitle: Lang.GetMatching("block-mushroom-flyagaric-normal-*"),
+                //    markerColor: "brown",
+                //    markerIcon: "circle",
+                //    markerCoverageRadius: 6);
             }
 
             [ProtoContract]
@@ -396,9 +396,9 @@ namespace Egocarib.AutoMapMarkers.Settings
                                     { Lang.Get("item-fruit-blackcurrant"), AutoMapMarkers.OrganicMatter.BlackCurrant },
                                     { Lang.Get("item-fruit-redcurrant"), AutoMapMarkers.OrganicMatter.RedCurrant },
                                     { Lang.Get("item-fruit-whitecurrant"), AutoMapMarkers.OrganicMatter.WhiteCurrant },
-                                    { Lang.GetMatching("block-mushroom-bolete-normal-*"), AutoMapMarkers.OrganicMatter.MushroomBolete },
-                                    { Lang.GetMatching("block-mushroom-fieldmushroom-normal-*"), AutoMapMarkers.OrganicMatter.MushroomFieldMushroom },
-                                    { Lang.GetMatching("block-mushroom-flyagaric-normal-*"), AutoMapMarkers.OrganicMatter.MushroomFlyAgaric }
+                                    //{ Lang.GetMatching("block-mushroom-bolete-normal-*"), AutoMapMarkers.OrganicMatter.MushroomBolete },
+                                    //{ Lang.GetMatching("block-mushroom-fieldmushroom-normal-*"), AutoMapMarkers.OrganicMatter.MushroomFieldMushroom },
+                                    //{ Lang.GetMatching("block-mushroom-flyagaric-normal-*"), AutoMapMarkers.OrganicMatter.MushroomFlyAgaric }
                                 }
                             },
                             { Lang.Get("egocarib-mapmarkers:surface-ore"),

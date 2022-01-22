@@ -27,18 +27,18 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
         {
             if (world.Side == EnumAppSide.Client)
             {
-                if (byPlayer != null)
-                {
-                    EnumTool? tool = byPlayer.InventoryManager.ActiveTool;
-                    BlockMushroom thisBlock = block as BlockMushroom;
-                    if (thisBlock != null && thisBlock.IsGrown() && tool == EnumTool.Knife)
-                    {
-                        //set map marker
-                        Vec3d mushroomBlockPosition = new Vec3d(pos.X, pos.Y, pos.Z);
-                        MapMarkerConfig.Settings.AutoMapMarkerSetting settingData = GetMushroomSettings(out bool shouldChat);
-                        MapMarkerMod.Network.RequestWaypointFromServer(mushroomBlockPosition, settingData, shouldChat);
-                    }
-                }
+                //if (byPlayer != null)
+                //{
+                //    EnumTool? tool = byPlayer.InventoryManager.ActiveTool;
+                //    BlockMushroom thisBlock = block as BlockMushroom;
+                //    if (thisBlock != null && thisBlock.IsGrown() && tool == EnumTool.Knife)
+                //    {
+                //        //set map marker
+                //        Vec3d mushroomBlockPosition = new Vec3d(pos.X, pos.Y, pos.Z);
+                //        MapMarkerConfig.Settings.AutoMapMarkerSetting settingData = GetMushroomSettings(out bool shouldChat);
+                //        MapMarkerMod.Network.RequestWaypointFromServer(mushroomBlockPosition, settingData, shouldChat);
+                //    }
+                //}
             }
             base.OnBlockBroken(world, pos, byPlayer, ref handling);
         }
@@ -52,15 +52,15 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
             shouldChat = settings.ChatNotifyOnWaypointCreation;
             if (IsBolete)
             {
-                return settings.AutoMapMarkers.OrganicMatter.MushroomBolete;
+                //return settings.AutoMapMarkers.OrganicMatter.MushroomBolete;
             }
             if (IsFieldMushroom)
             {
-                return settings.AutoMapMarkers.OrganicMatter.MushroomFieldMushroom;
+                //return settings.AutoMapMarkers.OrganicMatter.MushroomFieldMushroom;
             }
             if (IsFlyAgaric)
             {
-                return settings.AutoMapMarkers.OrganicMatter.MushroomFlyAgaric;
+                //return settings.AutoMapMarkers.OrganicMatter.MushroomFlyAgaric;
             }
             return null;
         }
