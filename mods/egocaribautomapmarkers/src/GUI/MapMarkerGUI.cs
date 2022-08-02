@@ -687,7 +687,7 @@ namespace Egocarib.AutoMapMarkers.GUI
         /// </summary>
         public override void OnGuiClosed()
         {
-            GuiElementTextButton saveButton = SingleComposer.GetButton("auto-markers-saveButton");
+            GuiElementTextButton saveButton = SingleComposer?.GetButton("auto-markers-saveButton");
             if (saveButton != null && saveButton.Enabled == false)
             {
                 //"Auto Map Marker settings not saved: Settings included invalid colors or names."
