@@ -1,6 +1,22 @@
 [
   {
     "op": "add",
+    "file": "game:entities/humanoid/trader-agriculture",
+    "path": "/client/behaviors/-",
+    "value": {
+      "code": "egocarib_TraderMarkerBehavior"
+    }
+  },
+  {
+    "op": "add",
+    "file": "game:entities/humanoid/trader-agriculture",
+    "path": "/server/behaviors/-",
+    "value": {
+      "code": "egocarib_TraderMarkerBehavior"
+    }
+  },
+  {
+    "op": "add",
     "file": "game:entities/humanoid/trader-artisan",
     "path": "/client/behaviors/-",
     "value": {
@@ -58,22 +74,6 @@
   {
     "op": "add",
     "file": "game:entities/humanoid/trader-commodities",
-    "path": "/server/behaviors/-",
-    "value": {
-      "code": "egocarib_TraderMarkerBehavior"
-    }
-  },
-  {
-    "op": "add",
-    "file": "game:entities/humanoid/trader-foods",
-    "path": "/client/behaviors/-",
-    "value": {
-      "code": "egocarib_TraderMarkerBehavior"
-    }
-  },
-  {
-    "op": "add",
-    "file": "game:entities/humanoid/trader-foods",
     "path": "/server/behaviors/-",
     "value": {
       "code": "egocarib_TraderMarkerBehavior"
