@@ -144,7 +144,7 @@ namespace Egocarib.AutoMapMarkers.GUI
                     var customMarkerSettings = settings.AutoMapMarkers.Custom.SettingByIndex(index);
                     if (customMarkerSettings.Enabled)
                     {
-                        SyncedEntityPos pos = ClientAPI.World.Player.Entity.Pos;
+                        EntityPos pos = ClientAPI.World.Player.Entity.Pos;
                         if (pos != null)
                         {
                             MapMarkerMod.Network.RequestWaypointFromServer(
