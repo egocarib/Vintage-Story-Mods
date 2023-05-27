@@ -1,0 +1,13 @@
+{
+  "type": "code",
+  "modid": "immersivecorpsedrop",
+  "name": "Immersive Corpse Drop",
+  "author": [ "egocarib" ],
+  "description": "Harvested corpses now drop their contents without any UI",
+  "version": "1.0.0",
+  "requiredOnServer": true,
+  "requiredOnClient": true,
+  "dependency": {
+    "game": "1.18.0"
+  }
+}
