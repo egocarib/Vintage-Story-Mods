@@ -76,6 +76,9 @@
     <Compile Include="src\ImmersiveCorpseDropMod.cs" />
     <Compile Include="src\ImmersiveCorpseDropPatch.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
