@@ -14,10 +14,7 @@ namespace Egocarib.ImmersiveCorpseDrop
         {
             base.StartClientSide(api);
 
-#if DEBUG
-            Harmony.DEBUG = true;
-#endif
-
+            //Harmony.DEBUG = true;
             Harmony harmony = new Harmony("egocarib:ImmersiveCorpseDropMod");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
@@ -26,10 +23,7 @@ namespace Egocarib.ImmersiveCorpseDrop
         {
             base.StartServerSide(api);
 
-#if DEBUG
-            Harmony.DEBUG = true;
-#endif
-
+            //Harmony.DEBUG = true;
             Harmony harmony = new Harmony("egocarib:ImmersiveCorpseDropMod");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
