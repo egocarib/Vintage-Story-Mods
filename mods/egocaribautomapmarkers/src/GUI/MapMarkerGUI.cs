@@ -29,6 +29,9 @@ namespace Egocarib.AutoMapMarkers.GUI
         public int DynamicDrawColor;
         private Action RegisterCustomHotkeys;
         private Action RegisterDeleteHotkey;
+        public string[] iconsPrefixed;
+        public string[] icons;
+        public string[] iconsVTML;
 
         public override string ToggleKeyCombinationCode { get { return HotkeyCode; } }
 
@@ -54,6 +57,7 @@ namespace Egocarib.AutoMapMarkers.GUI
             {
                 ModSettings = MapMarkerConfig.GetSettings(capi);
                 AutoMapMarkerSettings = ModSettings.GetMapMarkerSettingCollection();
+                LoadIconStrings();
                 SetupDialog();
             }
             catch (Exception e)
@@ -64,14 +68,37 @@ namespace Egocarib.AutoMapMarkers.GUI
         }
 
         /// <summary>
+        /// Loads all the world map waypoint icons, which typically are loaded from the following directory:
+        /// %appdata%\Roaming\Vintagestory\assets\survival\textures\icons\worldmap
+        /// </summary>
+        private void LoadIconStrings()
+        {
+            iconsPrefixed = capi.Gui.Icons.CustomIcons.Keys
+                .Where(k => k.Substring(0,2) == "wp" && k != "wpCross" && k.Length > 2)
+                .ToArray();
+            List<string> tmpStrings = new List<string>();
+            foreach (string icon in iconsPrefixed)
+            {
+                //example:  wpBee  ->  bee
+                string s = icon.Substring(2, 1).ToLower() + (icon.Length > 3 ? icon.Substring(3) : "");
+                tmpStrings.Add(s);
+            }
+            icons = tmpStrings.ToArray();
+            tmpStrings.Clear();
+            foreach (string icon in iconsPrefixed)
+            {
+                //example:  wpBee  ->  <icon name=\"wpBee\">
+                string s = $"<icon name=\"{icon}\">";
+                tmpStrings.Add(s);
+            }
+            iconsVTML = tmpStrings.ToArray();
+        }
+
+        /// <summary>
         /// Composes or re-composes the GUI. Called each time the menu tab changes or an option is toggled off/on
         /// </summary>
         private void SetupDialog()
         {
-            // Icon info
-            string[] icons = MapMarkerConfig.Settings.Icons.Split(',');
-            string[] iconsVTML = MapMarkerConfig.Settings.IconsVTML.Split(',');
-
             CairoFont headerFont = CairoFont.WhiteSmallishText().Clone().WithWeight(Cairo.FontWeight.Bold);
             headerFont.Color[3] = 0.6; // Adjust transparency
             CairoFont disabledFont = CairoFont.WhiteSmallishText().Clone().WithSlant(FontSlant.Italic);

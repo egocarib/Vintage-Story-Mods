@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>$(ProjectDir)\bin</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <IntermediateOutputPath>..\..\obj\Debug\egocaribautomapmarkers\</IntermediateOutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -50,6 +50,10 @@
       <HintPath>..\..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\cairo-sharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\protobuf-net.dll</HintPath>
       <Private>False</Private>
@@ -77,10 +81,6 @@
     </Reference>
     <Reference Include="VSCreativeMod">
       <HintPath>..\..\..\..\..\..\AppData\Roaming\Vintagestory\Mods\VSCreativeMod.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>D:\Program Files\Vintagestory\Lib\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -112,6 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".ignore" />
+    <None Include="assets\automapmarkers\lang\de.json" />
     <None Include="assets\automapmarkers\lang\ru.json" />
     <None Include="README.md" />
   </ItemGroup>

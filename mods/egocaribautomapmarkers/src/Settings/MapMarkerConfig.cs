@@ -21,8 +21,6 @@ namespace Egocarib.AutoMapMarkers.Settings
         public class Settings
         {
             private OrderedDictionary<string, OrderedDictionary<string, AutoMapMarkerSetting>> _MapMarkerSettingsCollection = null;
-            public const string Icons = "circle,bee,cave,home,ladder,pick,rocks,ruins,spiral,star1,star2,trader,vessel";
-            public const string IconsVTML = "<icon name=\"wpCircle\">,<icon name=\"wpBee\">,<icon name=\"wpCave\">,<icon name=\"wpHome\">,<icon name=\"wpLadder\">,<icon name=\"wpPick\">,<icon name=\"wpRocks\">,<icon name=\"wpRuins\">,<icon name=\"wpSpiral\">,<icon name=\"wpStar1\">,<icon name=\"wpStar2\">,<icon name=\"wpTrader\">,<icon name=\"wpVessel\">";
 
             [ProtoMember(1, IsRequired = true)]
             public bool ChatNotifyOnWaypointCreation = false;
