@@ -14,7 +14,7 @@ namespace Egocarib.AutoMapMarkers.Patches
         /// </summary>
         [HarmonyPostfix]
         [HarmonyPatch(typeof(Vintagestory.GameContent.EntityTrader), "OnInteract")]
-        public static void Prefix(EntityTrader __instance, EntityAgent byEntity, ItemSlot slot, Vec3d hitPosition, EnumInteractMode mode)
+        public static void Prefix(Vintagestory.GameContent.EntityTrader __instance, EntityAgent byEntity, ItemSlot slot, Vec3d hitPosition, EnumInteractMode mode)
         {
             if (mode != EnumInteractMode.Interact || !(byEntity is EntityPlayer))
             {

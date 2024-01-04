@@ -26,6 +26,7 @@ namespace Egocarib.AutoMapMarkers.GUI
         public OrderedDictionary<string, OrderedDictionary<string, AutoMapMarkerSetting>> AutoMapMarkerSettings;
         public readonly string ExtraSettingsTabName = Lang.Get("egocarib-mapmarkers:ui");
         public string CurrentTab;
+        public int CurrentPage;
         public int DynamicDrawColor;
         private Action RegisterCustomHotkeys;
         private Action RegisterDeleteHotkey;
@@ -82,6 +83,7 @@ namespace Egocarib.AutoMapMarkers.GUI
                 //example:  wpBee  ->  bee
                 string s = icon.Substring(2, 1).ToLower() + (icon.Length > 3 ? icon.Substring(3) : "");
                 tmpStrings.Add(s);
+                //MessageUtil.Log($"Icon: {s}"); //DEBUG
             }
             icons = tmpStrings.ToArray();
             tmpStrings.Clear();
@@ -90,6 +92,7 @@ namespace Egocarib.AutoMapMarkers.GUI
                 //example:  wpBee  ->  <icon name=\"wpBee\">
                 string s = $"<icon name=\"{icon}\">";
                 tmpStrings.Add(s);
+                //MessageUtil.Log($"Icon VTML: {s}"); //DEBUG
             }
             iconsVTML = tmpStrings.ToArray();
         }
@@ -113,11 +116,18 @@ namespace Egocarib.AutoMapMarkers.GUI
              *    bgBounds
              *      toggleButtonBarBounds
              *        toggleButtonBounds [multiple]
+             *      togglePageButtonBarBounds
+             *        togglePageButtonBounds [multiple]
              *      mainContentBounds
              *        markerOptionAreaBounds
              *          markerOptionRowBounds [multiple]
              *            markerOption* [multiple]
              */
+
+            // Determine current tab and whether it needs to be paged
+            if (string.IsNullOrEmpty(CurrentTab))
+                CurrentTab = AutoMapMarkerSettings.Keys.First();
+            bool needsPages = AutoMapMarkerSettings.ContainsKey(CurrentTab) && AutoMapMarkerSettings[CurrentTab].Count > 12;
 
             // Auto-sized dialog at the center of the screen
             ElementBounds dialogBounds = ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.CenterMiddle);
@@ -136,14 +146,14 @@ namespace Egocarib.AutoMapMarkers.GUI
             double opPromptWidth = 240;
             double toggleWidth = 100; //Toggle switch, plus empty space after
             double disabledMsgWidth = 200;
-            double iconLabelWidth = 52;
+            double iconLabelWidth = GetFontTextWidth(CairoFont.WhiteSmallishText(), Lang.Get("egocarib-mapmarkers:icon"), 12.0);  // Important to calculate these for localization
             double iconDropdownWidth = 60;
             double iconDropdownAfter = 28;
-            double colorLabelWidth = 62;
+            double colorLabelWidth = GetFontTextWidth(CairoFont.WhiteSmallishText(), Lang.Get("egocarib-mapmarkers:color"), 12.0);
             double colorInputWidth = 140;
             double colorInputAfter = 10;
             double colorPreviewWidth = 55; //Color preview box, plus empty space after
-            double nameLabelWidth = 62;
+            double nameLabelWidth = GetFontTextWidth(CairoFont.WhiteSmallishText(), Lang.Get("egocarib-mapmarkers:name"), 12.0);
             double nameInputWidth = 140;
             double titleBarThickness = 31;
             double dgInnerWidth = opPromptWidth + toggleWidth + iconLabelWidth + iconDropdownWidth + iconDropdownAfter + colorLabelWidth + colorInputWidth
@@ -156,11 +166,16 @@ namespace Egocarib.AutoMapMarkers.GUI
                 .WithFixedWidth(dgWidth - 2.0 * GuiStyle.ElementToDialogPadding);
             ElementBounds toggleButtonBounds = ElementBounds.Fixed(0, 0, 160, 40).WithFixedPadding(0, 3);
 
+            ElementBounds togglePageButtonBarBounds = ElementBounds
+                .Fixed(0, titleBarThickness + toggleBarHeight, dgWidth, toggleBarHeight)
+                .WithFixedPadding(GuiStyle.ElementToDialogPadding)
+                .WithFixedWidth(dgWidth - 2.0 * GuiStyle.ElementToDialogPadding);
+            ElementBounds togglePageButtonBounds = ElementBounds.Fixed(0, 0, 160, 40).WithFixedPadding(0, 3);
+
             ElementBounds markerHeaderBounds = ElementBounds.Fixed(0, yStart, dgWidth, headerHeight);
             ElementBounds markerOptionAreaBounds = ElementBounds.Fixed(0, (int)(yStart))
                 .WithFixedPadding(rowIndent, 0)
                 .WithSizing(ElementSizing.FitToChildren);
-
 
             ElementBounds markerOptionRowBounds = ElementBounds.Fixed(0, 0)
                 .WithSizing(horizontalSizing: ElementSizing.FitToChildren, verticalSizing: ElementSizing.Fixed)
@@ -179,13 +194,15 @@ namespace Egocarib.AutoMapMarkers.GUI
 
             ElementBounds mainContentBounds = ElementBounds.Fixed(0, titleBarThickness + toggleBarHeight, dgWidth - dialogPadding * 2, opAreaHeight)
                 .WithFixedPadding(dialogPadding);
-                // Uncomment the following line to make each tab resize the GUI to fit its contents (decided I didn't like that)
-                //.WithSizing(horizontalSizing: ElementSizing.Fixed, verticalSizing: ElementSizing.FitToChildren)
-                //.WithChildren(/*markerHeaderBounds,*/ markerOptionAreaBounds);
+            // Uncomment the following line to make each tab resize the GUI to fit its contents (decided I didn't like that)
+            //.WithSizing(horizontalSizing: ElementSizing.Fixed, verticalSizing: ElementSizing.FitToChildren)
+            //.WithChildren(/*markerHeaderBounds,*/ markerOptionAreaBounds);
 
             ElementBounds bgBounds = ElementBounds.Fill
                 .WithChildren(mainContentBounds, toggleButtonBarBounds)
                 .WithSizing(ElementSizing.FitToChildren);
+            if (needsPages)
+                bgBounds = bgBounds.WithChild(togglePageButtonBarBounds);
 
             SingleComposer = capi.Gui.CreateCompo(DialogID, dialogBounds)
                 .AddShadedDialogBG(bgBounds)
@@ -203,13 +220,8 @@ namespace Egocarib.AutoMapMarkers.GUI
             foreach (var settingGroupName in AutoMapMarkerSettings.Keys.Concat(new [] { ExtraSettingsTabName }))
             {
                 if (settingGroupName == customTabName && !ModSettings.EnableCustomHotkeys)
-                {
                     continue;
-                }
-                if (string.IsNullOrEmpty(CurrentTab))
-                {
-                    CurrentTab = settingGroupName;
-                }
+
                 CairoFont buttonFont = CairoFont.ButtonText();
                 SingleComposer.AddToggleButton(
                     text: settingGroupName,
@@ -226,17 +238,16 @@ namespace Egocarib.AutoMapMarkers.GUI
                 .AddButton(text: Lang.Get("general-save"),
                     onClick: OnSaveButton,
                     bounds: ElementBounds.Fixed(0.0, 0.0, 80.0, 40.0).WithFixedPadding(4.0, 3.0).WithAlignment(EnumDialogArea.RightTop))
-                .EndChildElements() // end header bar toggle buttons
-
-                .BeginChildElements(mainContentBounds);
+                .EndChildElements(); // end header bar toggle buttons
 
             if (ModSettings.DisableAllModFeatures)
             {
                 string enableLabel = Lang.Get("egocarib-mapmarkers:re-enable-mod");
                 SingleComposer
+                    .BeginChildElements(mainContentBounds)
                     .AddButton(
                         text: enableLabel,
-                        onClick: () => 
+                        onClick: () =>
                         {
                             ModSettings.DisableAllModFeatures = false;
                             SetupDialog();
@@ -252,6 +263,51 @@ namespace Egocarib.AutoMapMarkers.GUI
                     .Compose();
                 return;
             }
+
+            // Add Paging toggle bar if needed:
+            int pagedOptionStartNum = 1;
+            int pagedOptionEndNum = 14;
+            if (needsPages)
+            {
+                // Draw the paging bar if this category of options needs to be paged
+                SingleComposer
+                    .AddStaticCustomDraw(togglePageButtonBarBounds, delegate (Context ctx, ImageSurface surface, ElementBounds bounds)
+                    {
+                        ctx.SetSourceRGBA(1.0, 1.0, 1.0, 0.06);
+                        GuiElement.RoundRectangle(ctx, GuiElement.scaled(5.0) + bounds.bgDrawX, GuiElement.scaled(5.0) + bounds.bgDrawY, bounds.OuterWidth - GuiElement.scaled(10.0), GuiElement.scaled(75.0), 1.0);
+                        ctx.Fill();
+                    })
+                    .BeginChildElements(); // begin paging bar
+                int pageCt = AutoMapMarkerSettings[CurrentTab].Count / 12 + 1;
+                CurrentPage = (CurrentPage <= 0) ? 1 : CurrentPage;
+                for (int p = 1; p <= pageCt; p++)
+                {
+                    string pageName = $"{Lang.Get("egocarib-mapmarkers:page")} {p}";
+                    CairoFont buttonFont = CairoFont.ButtonText();
+                    int pVal = p;
+                    SingleComposer.AddToggleButton(
+                        text: pageName,
+                        font: buttonFont,
+                        onToggle: isSelected => OnPageToggle(pVal),
+                        bounds: togglePageButtonBounds.WithFixedWidth(GetFontTextWidth(buttonFont, pageName)),
+                        key: $"page-{p}-toggle-tab");
+                    togglePageButtonBounds = togglePageButtonBounds.RightCopy(15, 0);
+                }
+                SingleComposer.GetToggleButton($"page-{CurrentPage}-toggle-tab").SetValue(true);
+                SingleComposer.EndChildElements(); // end paging bar
+
+                // Update paging bounds
+                pagedOptionStartNum = (CurrentPage - 1) * 12 + 1;
+                pagedOptionEndNum = pagedOptionStartNum + 11;
+
+                // To accomodate paging toolbar we added, shift main content bounds downward and shrink its height
+                mainContentBounds.fixedY += toggleBarHeight;
+                mainContentBounds.fixedHeight -= toggleBarHeight;
+            }
+
+            SingleComposer
+                .BeginChildElements(mainContentBounds);
+
 
             SingleComposer.BeginChildElements(markerOptionAreaBounds);
 
@@ -275,8 +331,14 @@ namespace Egocarib.AutoMapMarkers.GUI
                     .EndChildElements();
                     markerOptionRowBounds = markerOptionRowBounds.BelowCopy().WithFixedHeight(rowHeight);
                 }
+
+                int optionCt = 0;
                 foreach (var setting in settingGroup.Value)
                 {
+                    optionCt++;
+                    if (needsPages && optionCt < pagedOptionStartNum || optionCt > pagedOptionEndNum)
+                        continue;  // Paging is active and option shouldn't be shown on current page
+
                     string markerSettingTitle = setting.Key;
                     AutoMapMarkerSetting markerSetting = setting.Value;
 
@@ -314,12 +376,12 @@ namespace Egocarib.AutoMapMarkers.GUI
                             bounds: markerOptionColorLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
                         .AddTextInput(
                             bounds: markerOptionColorInputBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                            OnTextChanged: OnMarkerColorChanged,
+                            onTextChanged: OnMarkerColorChanged,
                             font: CairoFont.TextInput(),
                             key: markerSettingTitle + "-auto-markers-color")
                         .AddDynamicCustomDraw(
                             bounds: markerOptionColorPreviewBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                            OnDraw: OnDrawColorRect,
+                            onDraw: OnDrawColorRect,
                             key: markerSettingTitle + "-auto-markers-color-rect")
 
                         // Map marker name
@@ -329,7 +391,7 @@ namespace Egocarib.AutoMapMarkers.GUI
                             bounds: markerOptionNameLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
                         .AddTextInput(
                             bounds: markerOptionNameInputBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                            OnTextChanged: OnMarkerNameChanged,
+                            onTextChanged: OnMarkerNameChanged,
                             font: CairoFont.TextInput(),
                             key: markerSettingTitle + "-auto-markers-name")
 
@@ -398,6 +460,46 @@ namespace Egocarib.AutoMapMarkers.GUI
                 string hotkeyTooltipText = Lang.Get("egocarib-mapmarkers:show-chat-message-hotkey-tooltip").Replace(">", "&gt;");
 
                 SingleComposer.BeginChildElements(markerOptionRowBounds)
+
+                    // Interact with object to trigger creation of a map marker
+                    .AddSwitch(
+                        onToggle: isSelected => {
+                            ModSettings.EnableMarkOnInteract = isSelected;
+                            if (!ModSettings.EnableMarkOnInteract && !ModSettings.EnableMarkOnSneak)
+                            {
+                                ModSettings.EnableMarkOnSneak = true; // Force one of these options to be chosen
+                                SetupDialog();
+                            }
+                        },
+                        bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                        key: "toggle-mark-style-interact")
+                    .AddStaticText(
+                        text: Lang.Get("egocarib-mapmarkers:mark-style-interact"),
+                        font: CairoFont.WhiteSmallishText(),
+                        bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+                .EndChildElements()
+                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
+                    // Sneak while looking at object to trigger creation of a map marker
+                    .AddSwitch(
+                        onToggle: isSelected => {
+                            ModSettings.EnableMarkOnSneak = isSelected;
+                            if (!ModSettings.EnableMarkOnSneak && !ModSettings.EnableMarkOnInteract)
+                            {
+                                ModSettings.EnableMarkOnInteract = true; // Force one of these options to be chosen
+                                SetupDialog();
+                            }
+                        },
+                        bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                        key: "toggle-mark-style-sneak")
+                    .AddStaticText(
+                        text: Lang.Get("egocarib-mapmarkers:mark-style-sneak"),
+                        font: CairoFont.WhiteSmallishText(),
+                        bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+                .EndChildElements()
+                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
 
                     // Chat messages for waypoint creation enabled/disabled
                     .AddSwitch(
@@ -495,6 +597,8 @@ namespace Egocarib.AutoMapMarkers.GUI
 
                 .EndChildElements();
 
+                SingleComposer.GetSwitch("toggle-mark-style-interact").SetValue(ModSettings.EnableMarkOnInteract);
+                SingleComposer.GetSwitch("toggle-mark-style-sneak").SetValue(ModSettings.EnableMarkOnSneak);
                 SingleComposer.GetSwitch("toggle-show-create-chat-message").SetValue(ModSettings.ChatNotifyOnWaypointCreation);
                 SingleComposer.GetSwitch("toggle-enable-custom-hotkeys").SetValue(ModSettings.EnableCustomHotkeys);
                 SingleComposer.GetSwitch("toggle-enable-delete-hotkey").SetValue(ModSettings.EnableWaypointDeletionHotkey);
@@ -532,6 +636,16 @@ namespace Egocarib.AutoMapMarkers.GUI
         private void OnTabToggle(string tabName)
         {
             CurrentTab = tabName;
+            CurrentPage = 1;
+            SetupDialog();
+        }
+
+        /// <summary>
+        /// Called when the selected page tab changes. Recomposes the GUI to draw the new menu screen.
+        /// </summary>
+        private void OnPageToggle(int pageNumber)
+        {
+            CurrentPage = pageNumber;
             SetupDialog();
         }
 
@@ -596,7 +710,7 @@ namespace Egocarib.AutoMapMarkers.GUI
                     GuiElementCustomDraw colorTile = SingleComposer.GetCustomDraw(settings.Key + "-auto-markers-color-rect");
                     colorstring = colorInput.GetText();
                     int? parsedColor = null;
-                    if (colorstring.StartsWith("#"))
+                    if (colorstring.StartsWith("#", StringComparison.Ordinal))
                     {
                         if (colorstring.Length == 7)
                         {
@@ -731,10 +845,10 @@ namespace Egocarib.AutoMapMarkers.GUI
         /// Measures the GUI width that will be consumed by a string of text in the specified font.
         /// Can be used to help pre-determine the width needed for the text's enclosing GUI element.
         /// </summary>
-        private double GetFontTextWidth(CairoFont font, string text)
+        private double GetFontTextWidth(CairoFont font, string text, double padding = 15.0)
         {
             TextExtents textExtents = font.GetTextExtents(text);
-            return textExtents.Width / (double)RuntimeEnv.GUIScale + 15.0;
+            return textExtents.Width / (double)RuntimeEnv.GUIScale + padding;
         }
     }
 }

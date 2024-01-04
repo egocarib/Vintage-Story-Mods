@@ -1,4 +1,5 @@
 ﻿using Egocarib.AutoMapMarkers.Settings;
+using Egocarib.AutoMapMarkers.Utilities;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
 
@@ -12,13 +13,6 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
     /// </summary>
     public class HarvestMarkerBehavior : BlockBehavior
     {
-        public bool IsResin { get { return block.Code.Path.StartsWith("log-resin-"); } }
-        public bool IsBlueberry { get { return block.Code.Path.Contains("-blueberry-ripe"); } }
-        public bool IsCranberry { get { return block.Code.Path.Contains("-cranberry-ripe"); } }
-        public bool IsCurrantBlack { get { return block.Code.Path.Contains("-blackcurrant-ripe"); } }
-        public bool IsCurrantRed { get { return block.Code.Path.Contains("-redcurrant-ripe"); } }
-        public bool IsCurrantWhite { get { return block.Code.Path.Contains("-whitecurrant-ripe"); } }
-
         public HarvestMarkerBehavior(Block block) : base(block)
         {
         }
@@ -38,11 +32,19 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
         {
             if (world.Side == EnumAppSide.Client)
             {
-                if (blockSel != null && blockSel.Position != null && byPlayer != null)
+                if (blockSel != null && byPlayer != null)
                 {
-                    Vec3d harvestBlockPosition = new Vec3d(blockSel.Position.X, blockSel.Position.Y, blockSel.Position.Z);
-                    MapMarkerConfig.Settings.AutoMapMarkerSetting settingData = GetHarvestableObjectSettings(out bool shouldChat);
-                    MapMarkerMod.Network.RequestWaypointFromServer(harvestBlockPosition, settingData, shouldChat);
+                    MapMarkerConfig.Settings config = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
+                    if (config != null && config.EnableMarkOnInteract)
+                    {
+                        var settings = GetHarvestableObjectSettings(config, blockSel.Position);
+                        if (settings != null && blockSel.Position != null)
+                        {
+                            bool shouldChat = config.ChatNotifyOnWaypointCreation;
+                            Vec3d pos = blockSel.Position.ToVec3d();
+                            MapMarkerMod.Network.RequestWaypointFromServer(pos, settings, shouldChat);
+                        }
+                    }
                 }
             }
             return base.OnBlockInteractStart(world, byPlayer, blockSel, ref handling);
@@ -51,34 +53,22 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
         /// <summary>
         /// Gets the map marker settings for the block this behavior is attached to.
         /// </summary>
-        private MapMarkerConfig.Settings.AutoMapMarkerSetting GetHarvestableObjectSettings(out bool shouldChat)
+        private MapMarkerConfig.Settings.AutoMapMarkerSetting GetHarvestableObjectSettings(MapMarkerConfig.Settings config, BlockPos blockPos)
         {
-            MapMarkerConfig.Settings settings = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
-            shouldChat = settings.ChatNotifyOnWaypointCreation;
-            if (IsResin)
-            {
-                return settings.AutoMapMarkers.OrganicMatter.Resin;
-            }
-            if (IsBlueberry)
-            {
-                return settings.AutoMapMarkers.OrganicMatter.Blueberry;
-            }
-            if (IsCranberry)
-            {
-                return settings.AutoMapMarkers.OrganicMatter.Cranberry;
-            }
-            if (IsCurrantBlack)
-            {
-                return settings.AutoMapMarkers.OrganicMatter.BlackCurrant;
-            }
-            if (IsCurrantRed)
-            {
-                return settings.AutoMapMarkers.OrganicMatter.RedCurrant;
-            }
-            if (IsCurrantWhite)
-            {
-                return settings.AutoMapMarkers.OrganicMatter.WhiteCurrant;
-            }
+            ThingIdentifier thing = new ThingIdentifier(block, blockPos);
+            if (thing.IsResin)
+                return config.AutoMapMarkers.OrganicMatter.Resin;
+            if (thing.IsBlueberry)
+                return config.AutoMapMarkers.OrganicMatter.Blueberry;
+            if (thing.IsCranberry)
+                return config.AutoMapMarkers.OrganicMatter.Cranberry;
+            if (thing.IsCurrantBlack)
+                return config.AutoMapMarkers.OrganicMatter.BlackCurrant;
+            if (thing.IsCurrantRed)
+                return config.AutoMapMarkers.OrganicMatter.RedCurrant;
+            if (thing.IsCurrantWhite)
+                return config.AutoMapMarkers.OrganicMatter.WhiteCurrant;
+
             return null;
         }
     }

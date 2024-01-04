@@ -15,16 +15,6 @@ namespace Egocarib.AutoMapMarkers.EntityBehavior
     /// </summary>
     public class TraderMarkerBehavior : EntityBehavior
     {
-        public bool IsArtisan => entity.Code.Path.EndsWith("-trader-artisan");
-        public bool IsBuildingMaterials => entity.Code.Path.EndsWith("-trader-buildmaterials");
-        public bool IsClothing => entity.Code.Path.EndsWith("-trader-clothing");
-        public bool IsCommodities => entity.Code.Path.EndsWith("-trader-commodities");
-        public bool IsFoods => entity.Code.Path.EndsWith("-trader-foods");
-        public bool IsFurniture => entity.Code.Path.EndsWith("-trader-furniture");
-        public bool IsLuxuries => entity.Code.Path.EndsWith("-trader-luxuries");
-        public bool IsSurvivalGoods => entity.Code.Path.EndsWith("-trader-survivalgoods");
-        public bool IsTreasureHunter => entity.Code.Path.EndsWith("-trader-treasurehunter");
-
         public TraderMarkerBehavior(Entity entity) : base(entity)
         {
         }
@@ -43,9 +33,17 @@ namespace Egocarib.AutoMapMarkers.EntityBehavior
                     IPlayer byPlayer = byEntity.World.PlayerByUid((byEntity as EntityPlayer).PlayerUID);
                     if (byPlayer != null)
                     {
-                        Vec3d traderPos = new Vec3d(entity.Pos.X, entity.Pos.Y, entity.Pos.Z);
-                        MapMarkerConfig.Settings.AutoMapMarkerSetting settingData = GetTraderSettings(out bool shouldChat);
-                        MapMarkerMod.Network.RequestWaypointFromServer(traderPos, settingData, shouldChat);
+                        MapMarkerConfig.Settings config = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
+                        if (config != null && config.EnableMarkOnInteract)
+                        {
+                            var settings = GetTraderSettings(config);
+                            if (settings != null && entity.Pos != null)
+                            {
+                                bool shouldChat = config.ChatNotifyOnWaypointCreation;
+                                Vec3d traderPos = entity.Pos.XYZ;
+                                MapMarkerMod.Network.RequestWaypointFromServer(traderPos, settings, shouldChat);
+                            }
+                        }
                     }
                 }
             }
@@ -55,46 +53,28 @@ namespace Egocarib.AutoMapMarkers.EntityBehavior
         /// <summary>
         /// Gets the map marker settings for the block this behavior is attached to.
         /// </summary>
-        private MapMarkerConfig.Settings.AutoMapMarkerSetting GetTraderSettings(out bool shouldChat)
+        private MapMarkerConfig.Settings.AutoMapMarkerSetting GetTraderSettings(MapMarkerConfig.Settings config)
         {
-            MapMarkerConfig.Settings settings = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
-            shouldChat = settings.ChatNotifyOnWaypointCreation;
-            if (IsArtisan)
-            {
-                return settings.AutoMapMarkers.Traders.TraderArtisan;
-            }
-            if (IsBuildingMaterials)
-            {
-                return settings.AutoMapMarkers.Traders.TraderBuildingMaterials;
-            }
-            if (IsClothing)
-            {
-                return settings.AutoMapMarkers.Traders.TraderClothing;
-            }
-            if (IsCommodities)
-            {
-                return settings.AutoMapMarkers.Traders.TraderCommodities;
-            }
-            if (IsFoods)
-            {
-                return settings.AutoMapMarkers.Traders.TraderFoods;
-            }
-            if (IsFurniture)
-            {
-                return settings.AutoMapMarkers.Traders.TraderFurniture;
-            }
-            if (IsLuxuries)
-            {
-                return settings.AutoMapMarkers.Traders.TraderLuxuries;
-            }
-            if (IsSurvivalGoods)
-            {
-                return settings.AutoMapMarkers.Traders.TraderSurvivalGoods;
-            }
-            if (IsTreasureHunter)
-            {
-                return settings.AutoMapMarkers.Traders.TraderTreasureHunter;
-            }
+            ThingIdentifier thing = new ThingIdentifier(entity);
+            if (thing.IsArtisan)
+                return config.AutoMapMarkers.Traders.TraderArtisan;
+            if (thing.IsBuildingMaterials)
+                return config.AutoMapMarkers.Traders.TraderBuildingMaterials;
+            if (thing.IsClothing)
+                return config.AutoMapMarkers.Traders.TraderClothing;
+            if (thing.IsCommodities)
+                return config.AutoMapMarkers.Traders.TraderCommodities;
+            if (thing.IsFoods)
+                return config.AutoMapMarkers.Traders.TraderFoods;
+            if (thing.IsFurniture)
+                return config.AutoMapMarkers.Traders.TraderFurniture;
+            if (thing.IsLuxuries)
+                return config.AutoMapMarkers.Traders.TraderLuxuries;
+            if (thing.IsSurvivalGoods)
+                return config.AutoMapMarkers.Traders.TraderSurvivalGoods;
+            if (thing.IsTreasureHunter)
+                return config.AutoMapMarkers.Traders.TraderTreasureHunter;
+
             return null;
         }
     }

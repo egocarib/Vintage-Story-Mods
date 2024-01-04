@@ -24,6 +24,8 @@ namespace Egocarib.AutoMapMarkers.Network
         public AutoMapMarkerSetting waypointSettings;
         [ProtoMember(3)]
         public bool sendChatMessageToPlayer;
+        [ProtoMember(4)]
+        public string dynamicTitleComponent;
     }
 
     [ProtoContract]
@@ -120,7 +122,7 @@ namespace Egocarib.AutoMapMarkers.Network
                 return;
             }
             WaypointUtil waypointUtil = new WaypointUtil(serverPlayer);
-            waypointUtil.AddWaypoint(request.waypointPosition, request.waypointSettings, request.sendChatMessageToPlayer);
+            waypointUtil.AddWaypoint(request.waypointPosition, request.waypointSettings, request.sendChatMessageToPlayer, request.dynamicTitleComponent);
         }
 
         /// <summary>
@@ -170,7 +172,7 @@ namespace Egocarib.AutoMapMarkers.Network
         /// <remarks>
         /// Side: client only
         /// </remarks>
-        public void RequestWaypointFromServer(Vec3d position, AutoMapMarkerSetting settings, bool sendChatMessage)
+        public void RequestWaypointFromServer(Vec3d position, AutoMapMarkerSetting settings, bool sendChatMessage, string dynamicTitleComponent = null)
         {
             if (Side != EnumAppSide.Client)
             {
@@ -191,7 +193,8 @@ namespace Egocarib.AutoMapMarkers.Network
             {
                 waypointPosition = position,
                 waypointSettings = settings,
-                sendChatMessageToPlayer = sendChatMessage
+                sendChatMessageToPlayer = sendChatMessage,
+                dynamicTitleComponent = dynamicTitleComponent
             };
             ClientNetworkChannel.SendPacket(waypointRequest);
         }
