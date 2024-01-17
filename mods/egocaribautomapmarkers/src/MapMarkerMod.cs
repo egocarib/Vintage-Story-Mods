@@ -67,10 +67,14 @@ namespace Egocarib.AutoMapMarkers
         public override void Dispose()
         {
             HarmonyAgent.Deharmonize();
-            CoreClientAPI.Input.InWorldAction -= SneakHandler.HandlePlayerSneak;
+            if (CoreClientAPI != null)
+            {
+                if (CoreClientAPI.Input != null)
+                    CoreClientAPI.Input.InWorldAction -= SneakHandler.HandlePlayerSneak;
+                CoreClientAPI = null;
+            }
             CoreAPI = null;
             CoreServerAPI = null;
-            CoreClientAPI = null;
             Network?.Dispose();
             Network = null;
         }
