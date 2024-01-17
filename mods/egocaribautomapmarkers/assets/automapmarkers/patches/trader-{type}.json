@@ -1,6 +1,7 @@
 [
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-agriculture",
     "path": "/client/behaviors/-",
     "value": {
@@ -9,6 +10,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-agriculture",
     "path": "/server/behaviors/-",
     "value": {
@@ -17,6 +19,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-artisan",
     "path": "/client/behaviors/-",
     "value": {
@@ -25,6 +28,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-artisan",
     "path": "/server/behaviors/-",
     "value": {
@@ -33,6 +37,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-buildmaterials",
     "path": "/client/behaviors/-",
     "value": {
@@ -41,6 +46,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-buildmaterials",
     "path": "/server/behaviors/-",
     "value": {
@@ -49,6 +55,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-clothing",
     "path": "/client/behaviors/-",
     "value": {
@@ -57,6 +64,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-clothing",
     "path": "/server/behaviors/-",
     "value": {
@@ -65,6 +73,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-commodities",
     "path": "/client/behaviors/-",
     "value": {
@@ -73,6 +82,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-commodities",
     "path": "/server/behaviors/-",
     "value": {
@@ -81,6 +91,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-furniture",
     "path": "/client/behaviors/-",
     "value": {
@@ -89,6 +100,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-furniture",
     "path": "/server/behaviors/-",
     "value": {
@@ -97,6 +109,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-luxuries",
     "path": "/client/behaviors/-",
     "value": {
@@ -105,6 +118,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-luxuries",
     "path": "/server/behaviors/-",
     "value": {
@@ -113,6 +127,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-survivalgoods",
     "path": "/client/behaviors/-",
     "value": {
@@ -121,6 +136,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-survivalgoods",
     "path": "/server/behaviors/-",
     "value": {
@@ -129,6 +145,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-treasurehunter",
     "path": "/client/behaviors/-",
     "value": {
@@ -137,6 +154,7 @@
   },
   {
     "op": "add",
+    "side": "server",
     "file": "game:entities/humanoid/trader-treasurehunter",
     "path": "/server/behaviors/-",
     "value": {

@@ -1,6 +1,7 @@
 ﻿//[
 //  {
 //    "op": "add",
+//    "side":  "server",
 //    "file": "game:blocktypes/plant/mushroom",
 //    "path": "/behaviorsByType",
 //    "value": {

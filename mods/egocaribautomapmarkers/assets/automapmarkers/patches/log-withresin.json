@@ -1,6 +1,7 @@
 ﻿[
   {
     "op": "add",
+    "side": "server",
     "file": "game:blocktypes/wood/woodtyped/log-withresin",
     "path": "/behaviorsByType/*/-",
     "value": {
