@@ -9,6 +9,9 @@ using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Egocarib.AutoMapMarkers.Settings;
 using Egocarib.AutoMapMarkers.Utilities;
+using Vintagestory.API.Common;
+using System.Text.RegularExpressions;
+using Vintagestory.API.Util;
 
 namespace Egocarib.AutoMapMarkers.GUI
 {
@@ -30,9 +33,9 @@ namespace Egocarib.AutoMapMarkers.GUI
         public int DynamicDrawColor;
         private Action RegisterCustomHotkeys;
         private Action RegisterDeleteHotkey;
-        public string[] iconsPrefixed;
         public string[] icons;
         public string[] iconsVTML;
+        List<IAsset> loadedIconAssets;
 
         public override string ToggleKeyCombinationCode { get { return HotkeyCode; } }
 
@@ -58,7 +61,7 @@ namespace Egocarib.AutoMapMarkers.GUI
             {
                 ModSettings = MapMarkerConfig.GetSettings(capi);
                 AutoMapMarkerSettings = ModSettings.GetMapMarkerSettingCollection();
-                LoadIconStrings();
+                LoadIconTextures();
                 SetupDialog();
             }
             catch (Exception e)
@@ -70,31 +73,34 @@ namespace Egocarib.AutoMapMarkers.GUI
 
         /// <summary>
         /// Loads all the world map waypoint icons, which typically are loaded from the following directory:
-        /// %appdata%\Roaming\Vintagestory\assets\survival\textures\icons\worldmap
+        /// %appdata%\Vintagestory\assets\survival\textures\icons\worldmap
+        /// Also loads modded icons from the same asset directory of each mod
         /// </summary>
-        private void LoadIconStrings()
+        private void LoadIconTextures()
         {
-            iconsPrefixed = capi.Gui.Icons.CustomIcons.Keys
-                .Where(k => k.Substring(0,2) == "wp" && k != "wpCross" && k.Length > 2)
-                .ToArray();
-            List<string> tmpStrings = new List<string>();
-            foreach (string icon in iconsPrefixed)
+            // Load (or retrieve cached) icon assets from the asset manager
+            loadedIconAssets = capi.Assets.GetMany("textures/icons/worldmap/", null, loadAsset: true);
+
+            List<string> listIcons = new List<string>();
+            List<string> listIconsVTML = new List<string>();
+            foreach (var icon in loadedIconAssets)
             {
-                //example:  wpBee  ->  bee
-                string s = icon.Substring(2, 1).ToLower() + (icon.Length > 3 ? icon.Substring(3) : "");
-                tmpStrings.Add(s);
-                //MessageUtil.Log($"Icon: {s}"); //DEBUG
+                // Replicate logic the game uses when loading map icons in WaypointMapLayer constructor
+                string name = icon.Name.Substring(0, icon.Name.IndexOf("."));
+                name = Regex.Replace(name, "\\d+\\-", "");
+                listIcons.Add(name);                                      //example:  bee
+                listIconsVTML.Add($"<icon name=\"wp{name.UcFirst()}\">"); //example:  <icon name=\"wpBee\">
             }
-            icons = tmpStrings.ToArray();
-            tmpStrings.Clear();
-            foreach (string icon in iconsPrefixed)
-            {
-                //example:  wpBee  ->  <icon name=\"wpBee\">
-                string s = $"<icon name=\"{icon}\">";
-                tmpStrings.Add(s);
-                //MessageUtil.Log($"Icon VTML: {s}"); //DEBUG
-            }
-            iconsVTML = tmpStrings.ToArray();
+            icons = listIcons.ToArray();
+            iconsVTML = listIconsVTML.ToArray();
+        }
+
+        /// <summary>
+        /// Release references to the icon assets so that the AssetManager can later dispose of them.
+        /// </summary>
+        private void UnloadIconTextures()
+        {
+            loadedIconAssets = null;
         }
 
         /// <summary>
@@ -838,6 +844,7 @@ namespace Egocarib.AutoMapMarkers.GUI
             {
                 MapMarkerConfig.SaveSettings(capi, ModSettings);
             }
+            UnloadIconTextures();
             base.OnGuiClosed();
         }
 
