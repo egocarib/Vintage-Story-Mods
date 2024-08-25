@@ -12,7 +12,7 @@
   "egocarib-mapmarkers:color": "色",
   "egocarib-mapmarkers:name": "名前",
   "egocarib-mapmarkers:disabled": "使用しない",
-  "egocarib-mapmarkers:not-saved-warning": "自動地図マーカーの設定がされませんでした。: 設定に無効な色や名前が含まれています。",
+  "egocarib-mapmarkers:not-saved-warning": "自動地図マーカーの設定が保存できませんでした。: 設定に無効な色や名前が含まれています。",
   "egocarib-mapmarkers:organic-matter": "植物",
   "egocarib-mapmarkers:surface-ore": "地表の鉱石",
   "egocarib-mapmarkers:deep-ore": "地中の鉱石",
