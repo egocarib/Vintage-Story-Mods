@@ -362,8 +362,8 @@ namespace Egocarib.AutoMapMarkers.Utilities
             ItemStack[] drops = mushroomBlock.GetDrops(world, BlockPosition, world.Player);
             if (drops != null && drops.Length > 0 && drops[0] != null)
             {
-                FoodNutritionProperties mushProps = drops[0].Collectible.GetNutritionProperties(world, drops[0], world.Player.Entity);
-                return !(mushProps.Health < 0);
+                FoodNutritionProperties mushProps = drops[0].Collectible?.GetNutritionProperties(world, drops[0], world.Player.Entity);
+                return mushProps == null || mushProps.Health >= 0f;  //null represents an inedible mushroom
             }
             return false;
         }
