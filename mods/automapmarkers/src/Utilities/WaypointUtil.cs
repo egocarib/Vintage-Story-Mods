@@ -77,7 +77,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
                 }
             }
 
-            AddWaypointToMap(position, title, settings.MarkerIcon, settings.MarkerColorInteger, sendChatMessageToPlayer);
+            AddWaypointToMap(position, title, settings.MarkerIcon, settings.MarkerColorInteger, sendChatMessageToPlayer, settings.MarkerPinned);
         }
 
         /// <summary>
