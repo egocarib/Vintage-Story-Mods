@@ -6,13 +6,12 @@ using Cairo;
 using Vintagestory.API.Client;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
+using Vintagestory.API.MathTools;
 using Egocarib.AutoMapMarkers.Settings;
 using Egocarib.AutoMapMarkers.Utilities;
 using Vintagestory.API.Common;
 using System.Text.RegularExpressions;
 using Vintagestory.API.Util;
-using Vintagestory.GameContent;
-using Vintagestory.API.MathTools;
 
 namespace Egocarib.AutoMapMarkers.GUI
 {
@@ -36,13 +35,7 @@ namespace Egocarib.AutoMapMarkers.GUI
         private Action RegisterDeleteHotkey;
         public string[] icons;
         public string[] iconsVTML;
-        public int[] colors;
-        private List<IAsset> loadedIconAssets;
-        MapMarkerIconSettingsGUI iconConfigPopup;
-
-        ////TEST
-        //BitmapRef floraBitmap;
-        ////TEST
+        List<IAsset> loadedIconAssets;
 
         public override string ToggleKeyCombinationCode { get { return HotkeyCode; } }
 
@@ -69,8 +62,6 @@ namespace Egocarib.AutoMapMarkers.GUI
                 ModSettings = MapMarkerConfig.GetSettings(capi);
                 AutoMapMarkerSettings = ModSettings.GetMapMarkerSettingCollection();
                 LoadIconTextures();
-                LoadColorOptions();
-                //LoadScenery(); //TEST
                 SetupDialog();
             }
             catch (Exception e)
@@ -78,33 +69,6 @@ namespace Egocarib.AutoMapMarkers.GUI
                 MapMarkerMod.CoreAPI.Logger.Error("Map Marker Mod: Failed to initialize settings GUI. (" + e.ToString() + ")");
             }
             base.OnGuiOpened();
-        }
-
-        private string GetWaypointIconName(string iconName)
-        {
-            return $"wp{iconName.UcFirst()}";
-        }
-
-        ////TEST
-        //private void LoadScenery()
-        //{
-        //    floraBitmap = capi.Assets.Get("automapmarkers:textures/gui/amm_flora_cover.png").ToBitmap(capi);
-        //}
-        ////TEST
-
-        private void LoadColorOptions()
-        {
-            List<MapLayer> mapLayers = capi.ModLoader?.GetModSystem<WorldMapManager>()?.MapLayers;
-            WaypointMapLayer wml = mapLayers?.FirstOrDefault((MapLayer l) => l is WaypointMapLayer) as WaypointMapLayer;
-            if (wml != null)
-            {
-                colors = wml.WaypointColors.ToArray();
-            }
-            else
-            {
-                MessageUtil.Log("Unable to load map color options from the game. Falling back to hard-coded defaults...");
-                colors = WaypointUtil.GetDefaultWaypointColorOptions();
-            }
         }
 
         /// <summary>
@@ -124,8 +88,8 @@ namespace Egocarib.AutoMapMarkers.GUI
                 // Replicate logic the game uses when loading map icons in WaypointMapLayer constructor
                 string name = icon.Name.Substring(0, icon.Name.IndexOf("."));
                 name = Regex.Replace(name, "\\d+\\-", "");
-                listIcons.Add(name);                                               //example:  bee
-                listIconsVTML.Add($"<icon name=\"{GetWaypointIconName(name)}\">"); //example:  <icon name=\"wpBee\">
+                listIcons.Add(name);                                      //example:  bee
+                listIconsVTML.Add($"<icon name=\"wp{name.UcFirst()}\">"); //example:  <icon name=\"wpBee\">
             }
             icons = listIcons.ToArray();
             iconsVTML = listIconsVTML.ToArray();
@@ -169,7 +133,7 @@ namespace Egocarib.AutoMapMarkers.GUI
             // Determine current tab and whether it needs to be paged
             if (string.IsNullOrEmpty(CurrentTab))
                 CurrentTab = AutoMapMarkerSettings.Keys.First();
-            bool needsPages = AutoMapMarkerSettings.ContainsKey(CurrentTab) && AutoMapMarkerSettings[CurrentTab].Count > 13;
+            bool needsPages = AutoMapMarkerSettings.ContainsKey(CurrentTab) && AutoMapMarkerSettings[CurrentTab].Count > 12;
 
             // Auto-sized dialog at the center of the screen
             ElementBounds dialogBounds = ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.CenterMiddle);
@@ -180,34 +144,26 @@ namespace Egocarib.AutoMapMarkers.GUI
             double ypos = 2.5;
             double yStart = 0;
             double opAreaHeight = 575;
-            double dgMinWidth = 920;  //NEW
-            double dgMaxWidth = 1080; //NEW
             double toggleBarHeight = 76;
             double headerHeight = 48;
             double rowIndent = 20;
             double rowHeight = 42;
-            //double uiElementHeight = 25;
-            double opPromptWidth = 280;
-            double toggleWidth = 64; // 100; //Toggle switch, plus empty space after
+            double uiElementHeight = 25;
+            double opPromptWidth = 240;
+            double toggleWidth = 100; //Toggle switch, plus empty space after
             double disabledMsgWidth = 200;
-            //double iconLabelWidth = GetFontTextWidth(CairoFont.WhiteSmallishText(), Lang.Get("egocarib-mapmarkers:icon"), 12.0);  // Important to calculate these for localization
-            //double iconDropdownWidth = 60;
-            double iconColorButtonWidth = 70;
-            double iconColorButtonHeight = 32;
-            //double iconDropdownAfter = 28;
-            //double colorLabelWidth = GetFontTextWidth(CairoFont.WhiteSmallishText(), Lang.Get("egocarib-mapmarkers:color"), 12.0);
-            //double colorInputWidth = 140;
-            //double colorInputAfter = 10;
-            //double colorPreviewWidth = 55; //Color preview box, plus empty space after
-            //double nameLabelWidth = GetFontTextWidth(CairoFont.WhiteSmallishText(), Lang.Get("egocarib-mapmarkers:name"), 12.0);
-            //double nameInputWidth = 140;
+            double iconLabelWidth = GetFontTextWidth(CairoFont.WhiteSmallishText(), Lang.Get("egocarib-mapmarkers:icon"), 12.0);  // Important to calculate these for localization
+            double iconDropdownWidth = 60;
+            double iconDropdownAfter = 28;
+            double colorLabelWidth = GetFontTextWidth(CairoFont.WhiteSmallishText(), Lang.Get("egocarib-mapmarkers:color"), 12.0);
+            double colorInputWidth = 140;
+            double colorInputAfter = 10;
+            double colorPreviewWidth = 55; //Color preview box, plus empty space after
+            double nameLabelWidth = GetFontTextWidth(CairoFont.WhiteSmallishText(), Lang.Get("egocarib-mapmarkers:name"), 12.0);
+            double nameInputWidth = 140;
             double titleBarThickness = 31;
-            double dgInnerWidth = opPromptWidth + toggleWidth + /* iconLabelWidth + iconDropdownWidth */ iconColorButtonWidth /* + iconDropdownAfter + colorLabelWidth + colorInputWidth
-                + colorInputAfter + colorPreviewWidth + nameLabelWidth + nameInputWidth */;
-            if (dgInnerWidth < dgMinWidth)
-                dgInnerWidth = dgMinWidth;
-            else if (dgInnerWidth > dgMaxWidth)
-                dgInnerWidth = dgMaxWidth;
+            double dgInnerWidth = opPromptWidth + toggleWidth + iconLabelWidth + iconDropdownWidth + iconDropdownAfter + colorLabelWidth + colorInputWidth
+                + colorInputAfter + colorPreviewWidth + nameLabelWidth + nameInputWidth;
             double dgWidth = dgInnerWidth + rowIndent * 2 + dialogPadding * 2;
 
             ElementBounds toggleButtonBarBounds = ElementBounds
@@ -234,14 +190,13 @@ namespace Egocarib.AutoMapMarkers.GUI
             ElementBounds markerOptionPromptBounds = ElementBounds.Fixed(xpos, ypos, opPromptWidth, rowHeight); 
             ElementBounds markerOptionToggleBounds = ElementBounds.Fixed(xpos += opPromptWidth, ypos - 2.5, toggleWidth, rowHeight); // bigger than dropdown/textinput, so we minus 2.5 pixels to vertically align better with rest of row
             ElementBounds markerOptionDisabledMessage = ElementBounds.Fixed(xpos += toggleWidth, ypos, disabledMsgWidth, rowHeight);
-            //ElementBounds markerOptionIconLabelBounds = ElementBounds.Fixed(xpos, ypos, iconLabelWidth, rowHeight);
-            //ElementBounds markerOptionIconDropdownBounds = ElementBounds.Fixed(xpos += iconLabelWidth, ypos, iconDropdownWidth, uiElementHeight);
-            ElementBounds markerOptionIconColorButtonBounds = ElementBounds.Fixed(xpos /*+= iconLabelWidth*/, ypos - 3.5, iconColorButtonWidth, iconColorButtonHeight);
-            //ElementBounds markerOptionColorLabelBounds = ElementBounds.Fixed(xpos += iconDropdownWidth + iconDropdownAfter, ypos, colorLabelWidth, rowHeight);
-            //ElementBounds markerOptionColorInputBounds = ElementBounds.Fixed(xpos += colorLabelWidth, ypos, colorInputWidth, uiElementHeight);
-            //ElementBounds markerOptionColorPreviewBounds = ElementBounds.Fixed(xpos += colorInputWidth + colorInputAfter, ypos, colorPreviewWidth, uiElementHeight);
-            //ElementBounds markerOptionNameLabelBounds = ElementBounds.Fixed(xpos += colorPreviewWidth, ypos, nameLabelWidth, rowHeight);
-            //ElementBounds markerOptionNameInputBounds = ElementBounds.Fixed(xpos += nameLabelWidth, ypos, nameInputWidth, uiElementHeight);
+            ElementBounds markerOptionIconLabelBounds = ElementBounds.Fixed(xpos, ypos, iconLabelWidth, rowHeight); 
+            ElementBounds markerOptionIconDropdownBounds = ElementBounds.Fixed(xpos += iconLabelWidth, ypos, iconDropdownWidth, uiElementHeight);
+            ElementBounds markerOptionColorLabelBounds = ElementBounds.Fixed(xpos += iconDropdownWidth + iconDropdownAfter, ypos, colorLabelWidth, rowHeight);
+            ElementBounds markerOptionColorInputBounds = ElementBounds.Fixed(xpos += colorLabelWidth, ypos, colorInputWidth, uiElementHeight);
+            ElementBounds markerOptionColorPreviewBounds = ElementBounds.Fixed(xpos += colorInputWidth + colorInputAfter, ypos, colorPreviewWidth, uiElementHeight);
+            ElementBounds markerOptionNameLabelBounds = ElementBounds.Fixed(xpos += colorPreviewWidth, ypos, nameLabelWidth, rowHeight);
+            ElementBounds markerOptionNameInputBounds = ElementBounds.Fixed(xpos += nameLabelWidth, ypos, nameInputWidth, uiElementHeight);
 
             ElementBounds mainContentBounds = ElementBounds.Fixed(0, titleBarThickness + toggleBarHeight, dgWidth - dialogPadding * 2, opAreaHeight)
                 .WithFixedPadding(dialogPadding);
@@ -362,34 +317,6 @@ namespace Egocarib.AutoMapMarkers.GUI
 
             SingleComposer.BeginChildElements(markerOptionAreaBounds);
 
-            ////TEST
-            //if (CurrentTab == Lang.Get("egocarib-mapmarkers:organic-matter"))
-            //{
-            //    //ElementBounds markerOptionAreaBounds2 = ElementBounds.Fixed(0, (int)(yStart))
-            //    //    .WithFixedPadding(rowIndent, 0)
-            //    //    .WithSizing(ElementSizing.FitToChildren);
-            //    //ElementBounds markerOptionAreaBounds3 = ElementBounds.Fixed(430, (int)(yStart))
-            //    //    .WithFixedPadding(rowIndent, 0)
-            //    //    .WithSizing(ElementSizing.FitToChildren);
-
-            //    SingleComposer
-            //    //.BeginChildElements(markerOptionAreaBounds2)
-            //    .AddStaticCustomDraw(markerOptionAreaBounds.FlatCopy().WithParent(markerOptionAreaBounds), delegate (Context ctx, ImageSurface surface, ElementBounds bounds)
-            //        {
-            //            MessageUtil.Log("attempting to draw .png ...");
-            //            surface.Image(floraBitmap, 0, 10, floraBitmap.Width, floraBitmap.Height);
-
-
-            //            ////This header design copied from Vintagestory.Client.NoObf.GuiCompositeSettings.ComposerHeader
-            //            //ctx.SetSourceRGBA(1.0, 1.0, 1.0, 0.1);
-            //            //GuiElement.RoundRectangle(ctx, GuiElement.scaled(5.0) + bounds.bgDrawX, GuiElement.scaled(5.0) + bounds.bgDrawY, bounds.OuterWidth - GuiElement.scaled(10.0), GuiElement.scaled(75.0), 1.0);
-            //            //ctx.Fill();
-            //        });
-                
-            //    //.EndChildElements();
-            //}
-            ////TEST
-
             foreach (var settingGroup in AutoMapMarkerSettings)
             {
                 if (settingGroup.Key != CurrentTab)
@@ -421,10 +348,6 @@ namespace Egocarib.AutoMapMarkers.GUI
                     string markerSettingTitle = setting.Key;
                     AutoMapMarkerSetting markerSetting = setting.Value;
 
-                    double[] markerColorRGBADoubles = markerSetting.MarkerColorInteger.HasValue
-                        ? ColorUtil.ToRGBADoubles(markerSetting.MarkerColorInteger.Value)
-                        : new double[] { 1.0, 1.0, 1.0, 1.0};
-
                     SingleComposer.BeginChildElements(markerOptionRowBounds)
 
                     // Option name + toggle switch to enable
@@ -439,52 +362,44 @@ namespace Egocarib.AutoMapMarkers.GUI
 
                     .AddIf(markerSetting.Enabled == true)
 
-                        //// Map marker icon
-                        //.AddStaticText(
-                        //    text: Lang.Get("egocarib-mapmarkers:icon"),
-                        //    font: CairoFont.WhiteSmallishText(),
-                        //    bounds: markerOptionIconLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-                        //.AddDropDown(
-                        //    values: icons,
-                        //    names: iconsVTML,
-                        //    selectedIndex: GetIconIndex(icons, markerSetting),
-                        //    onSelectionChanged: OnMarkerIconChanged,
-                        //    bounds: markerOptionIconDropdownBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        //    key: markerSettingTitle + "-auto-markers-icon")
-                        .AddColorIconButton(
-                            icon: GetWaypointIconName(markerSetting.MarkerIcon),
-                            iconColor: markerColorRGBADoubles,
-                            onClick: () => { return OnIconColorButtonClick(CurrentTab, markerSettingTitle, markerSetting); },
-                            bounds: markerOptionIconColorButtonBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                            style: EnumButtonStyle.Normal,
+                        // Map marker icon
+                        .AddStaticText(
+                            text: Lang.Get("egocarib-mapmarkers:icon"),
+                            font: CairoFont.WhiteSmallishText(),
+                            bounds: markerOptionIconLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+                        .AddDropDown(
+                            values: icons,
+                            names: iconsVTML,
+                            selectedIndex: GetIconIndex(icons, markerSetting),
+                            onSelectionChanged: OnMarkerIconChanged,
+                            bounds: markerOptionIconDropdownBounds.FlatCopy().WithParent(markerOptionRowBounds),
                             key: markerSettingTitle + "-auto-markers-icon")
-                        
 
-                        //// Map marker color
-                        //.AddStaticText(
-                        //    text: Lang.Get("egocarib-mapmarkers:color"),
-                        //    font: CairoFont.WhiteSmallishText(),
-                        //    bounds: markerOptionColorLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-                        //.AddTextInput(
-                        //    bounds: markerOptionColorInputBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        //    onTextChanged: OnMarkerColorChanged,
-                        //    font: CairoFont.TextInput(),
-                        //    key: markerSettingTitle + "-auto-markers-color")
-                        //.AddDynamicCustomDraw(
-                        //    bounds: markerOptionColorPreviewBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        //    onDraw: OnDrawColorRect,
-                        //    key: markerSettingTitle + "-auto-markers-color-rect")
+                        // Map marker color
+                        .AddStaticText(
+                            text: Lang.Get("egocarib-mapmarkers:color"),
+                            font: CairoFont.WhiteSmallishText(),
+                            bounds: markerOptionColorLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+                        .AddTextInput(
+                            bounds: markerOptionColorInputBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                            onTextChanged: OnMarkerColorChanged,
+                            font: CairoFont.TextInput(),
+                            key: markerSettingTitle + "-auto-markers-color")
+                        .AddDynamicCustomDraw(
+                            bounds: markerOptionColorPreviewBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                            onDraw: OnDrawColorRect,
+                            key: markerSettingTitle + "-auto-markers-color-rect")
 
-                        //// Map marker name
-                        //.AddStaticText(
-                        //    text: Lang.Get("egocarib-mapmarkers:name"),
-                        //    font: CairoFont.WhiteSmallishText(),
-                        //    bounds: markerOptionNameLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-                        //.AddTextInput(
-                        //    bounds: markerOptionNameInputBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        //    onTextChanged: OnMarkerNameChanged,
-                        //    font: CairoFont.TextInput(),
-                        //    key: markerSettingTitle + "-auto-markers-name")
+                        // Map marker name
+                        .AddStaticText(
+                            text: Lang.Get("egocarib-mapmarkers:name"),
+                            font: CairoFont.WhiteSmallishText(),
+                            bounds: markerOptionNameLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+                        .AddTextInput(
+                            bounds: markerOptionNameInputBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                            onTextChanged: OnMarkerNameChanged,
+                            font: CairoFont.TextInput(),
+                            key: markerSettingTitle + "-auto-markers-name")
 
                     .EndIf()
                     .AddIf(markerSetting.Enabled == false)
@@ -501,11 +416,11 @@ namespace Egocarib.AutoMapMarkers.GUI
 
                     // Set initial option values for this row
                     SingleComposer.GetSwitch(markerSettingTitle + "-auto-markers-enabled").SetValue(markerSetting.Enabled);
-                    //if (markerSetting.Enabled)
-                    //{
-                    //    //SingleComposer.GetTextInput(markerSettingTitle + "-auto-markers-color").SetValue(markerSetting.MarkerColor);
-                    //    SingleComposer.GetTextInput(markerSettingTitle + "-auto-markers-name").SetValue(markerSetting.MarkerTitle);
-                    //}
+                    if (markerSetting.Enabled)
+                    {
+                        SingleComposer.GetTextInput(markerSettingTitle + "-auto-markers-color").SetValue(markerSetting.MarkerColor);
+                        SingleComposer.GetTextInput(markerSettingTitle + "-auto-markers-name").SetValue(markerSetting.MarkerTitle);
+                    }
 
                     markerOptionRowBounds = markerOptionRowBounds.BelowCopy(); // Create next row, immediately below current row
                 }
@@ -605,19 +520,6 @@ namespace Egocarib.AutoMapMarkers.GUI
                 .EndChildElements()
                 .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
 
-                    // Include coordinates in marker labels enabled/disabled
-                    .AddSwitch(
-                        onToggle: isSelected => { ModSettings.LabelCoordinates = isSelected; },
-                        bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        key: "toggle-label-coordinates")
-                    .AddStaticText(
-                        text: Lang.Get("egocarib-mapmarkers:include-coordinates"),
-                        font: CairoFont.WhiteSmallishText(),
-                        bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-
-                .EndChildElements()
-                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
-
                     // Custom waypoint hotkeys enabled/disabled
                     .AddSwitch(
                         onToggle: isSelected =>
@@ -704,7 +606,6 @@ namespace Egocarib.AutoMapMarkers.GUI
                 SingleComposer.GetSwitch("toggle-mark-style-interact").SetValue(ModSettings.EnableMarkOnInteract);
                 SingleComposer.GetSwitch("toggle-mark-style-sneak").SetValue(ModSettings.EnableMarkOnSneak);
                 SingleComposer.GetSwitch("toggle-show-create-chat-message").SetValue(ModSettings.ChatNotifyOnWaypointCreation);
-                SingleComposer.GetSwitch("toggle-label-coordinates").SetValue(ModSettings.LabelCoordinates);
                 SingleComposer.GetSwitch("toggle-enable-custom-hotkeys").SetValue(ModSettings.EnableCustomHotkeys);
                 SingleComposer.GetSwitch("toggle-enable-delete-hotkey").SetValue(ModSettings.EnableWaypointDeletionHotkey);
                 SingleComposer.GetSwitch("toggle-show-delete-chat-message")?.SetValue(ModSettings.ChatNotifyOnWaypointDeletion);
@@ -717,23 +618,23 @@ namespace Egocarib.AutoMapMarkers.GUI
                 .EndChildElements() // bgBounds
                 .Compose();
 
-            //OnMarkerColorChanged(); // Force color tiles to be redrawn with correct colors.
+            OnMarkerColorChanged(); // Force color tiles to be redrawn with correct colors.
         }
 
-        ///// <summary>
-        ///// Calculates the dropdown index of an icon associated with a given setting.
-        ///// </summary>
-        //private int GetIconIndex(string[] icons, AutoMapMarkerSetting setting)
-        //{
-        //    int index = Array.FindIndex(icons, i => i.Equals(setting.MarkerIcon, StringComparison.OrdinalIgnoreCase));
-        //    if (index < 0)
-        //    {
-        //        // Reset icon setting if invalid
-        //        index = 0;
-        //        setting.MarkerIcon = icons[0];
-        //    }
-        //    return index;
-        //}
+        /// <summary>
+        /// Calculates the dropdown index of an icon associated with a given setting.
+        /// </summary>
+        private int GetIconIndex(string[] icons, AutoMapMarkerSetting setting)
+        {
+            int index = Array.FindIndex(icons, i => i.Equals(setting.MarkerIcon, StringComparison.OrdinalIgnoreCase));
+            if (index < 0)
+            {
+                // Reset icon setting if invalid
+                index = 0;
+                setting.MarkerIcon = icons[0];
+            }
+            return index;
+        }
 
         /// <summary>
         /// Called when the selected menu tab changes. Recomposes the GUI to draw the new menu screen.
@@ -773,156 +674,143 @@ namespace Egocarib.AutoMapMarkers.GUI
             SetupDialog(); // Redraw GUI
         }
 
-        ///// <summary>
-        ///// Called when an icon dropdown choice changes. Updates the related map marker settings.
-        ///// </summary>
-        //private void OnMarkerIconChanged(string iconName, bool selected)
-        //{
-        //    foreach (var settingGroup in AutoMapMarkerSettings)
-        //    {
-        //        foreach (KeyValuePair<string, AutoMapMarkerSetting> settings in settingGroup.Value)
-        //        {
-        //            GuiElementSwitch enabledSwitch = SingleComposer.GetSwitch(settings.Key + "-auto-markers-enabled");
-        //            if (enabledSwitch == null || !enabledSwitch.On)
-        //            {
-        //                continue; //this marker option not enabled & won't have icon fields.
-        //            }
-        //            settings.Value.MarkerIcon = SingleComposer.GetDropDown(settings.Key + "-auto-markers-icon").SelectedValue;
-        //        }
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Called when the color input text changes. Updates the related map marker settings.
-        ///// </summary>
-        //private void OnMarkerColorChanged(string colorstring = "")
-        //{
-        //    int colorTransparent = Color.Transparent.ToArgb();
-        //    int colorBlack = Color.Black.ToArgb();
-        //    bool saveEnabled = true;
-
-        //    foreach (var settingGroup in AutoMapMarkerSettings)
-        //    {
-        //        foreach (KeyValuePair<string, AutoMapMarkerSetting> settings in settingGroup.Value)
-        //        {
-        //            GuiElementSwitch enabledSwitch = SingleComposer.GetSwitch(settings.Key + "-auto-markers-enabled");
-        //            if (enabledSwitch == null || !enabledSwitch.On)
-        //            {
-        //                continue; //this marker option not enabled & won't have color fields.
-        //            }
-        //            GuiElementTextInput colorInput = SingleComposer.GetTextInput(settings.Key + "-auto-markers-color");
-        //            GuiElementTextInput nameInput = SingleComposer.GetTextInput(settings.Key + "-auto-markers-name");
-        //            GuiElementCustomDraw colorTile = SingleComposer.GetCustomDraw(settings.Key + "-auto-markers-color-rect");
-        //            colorstring = colorInput.GetText();
-        //            int? parsedColor = null;
-        //            if (colorstring.StartsWith("#", StringComparison.Ordinal))
-        //            {
-        //                if (colorstring.Length == 7)
-        //                {
-        //                    string s = colorstring.Substring(1);
-        //                    try
-        //                    {
-        //                        parsedColor = (int.Parse(s, NumberStyles.HexNumber) | colorBlack);
-        //                    }
-        //                    catch (Exception)
-        //                    {
-        //                    }
-        //                }
-        //            }
-        //            else
-        //            {
-        //                Color color = Color.FromName(colorstring);
-        //                if (color.A == byte.MaxValue)
-        //                {
-        //                    parsedColor = color.ToArgb();
-        //                }
-        //            }
-        //            DynamicDrawColor = (parsedColor ?? colorTransparent);
-        //            colorInput.Font.Color = (parsedColor.HasValue ? GuiStyle.DialogDefaultTextColor : GuiStyle.ErrorTextColor);
-        //            bool nameValid = nameInput.GetText().Trim() != "";
-        //            bool colorValid = parsedColor.HasValue;
-        //            if (!nameValid || !colorValid)
-        //            {
-        //                saveEnabled = false;
-        //            }
-        //            colorTile.Redraw();
-        //            if (colorValid)
-        //            {
-        //                settings.Value.MarkerColor = colorstring;
-        //            }
-        //        }
-        //    }
-        //    SetSaveButtonState(saveEnabled);
-        //}
-
-        ///// <summary>
-        ///// Called when the name input text changes. Updates the related map marker settings.
-        ///// </summary>
-        //private void OnMarkerNameChanged(string name)
-        //{
-        //    bool saveEnabled = true;
-
-        //    foreach (var settingGroup in AutoMapMarkerSettings)
-        //    {
-        //        foreach (KeyValuePair<string, AutoMapMarkerSetting> settings in settingGroup.Value)
-        //        {
-        //            GuiElementSwitch enabledSwitch = SingleComposer.GetSwitch(settings.Key + "-auto-markers-enabled");
-        //            if (enabledSwitch == null || !enabledSwitch.On)
-        //            {
-        //                continue; //this marker option not enabled & won't have name fields.
-        //            }
-        //            //bool colorValid = SingleComposer.GetTextInput(settings.Key + "-auto-markers-color").Font.Color != GuiStyle.ErrorTextColor;
-        //            name = SingleComposer.GetTextInput(settings.Key + "-auto-markers-name").GetText();
-        //            bool nameValid = name.Trim() != "";
-        //            //if (!colorValid || !nameValid)
-        //            if (!nameValid)
-        //            {
-        //                saveEnabled = false;
-        //            }
-        //            if (nameValid)
-        //            {
-        //                settings.Value.MarkerTitle = name;
-        //            }
-        //        }
-        //    }
-        //    SetSaveButtonState(saveEnabled);
-        //}
-
-        private bool OnIconColorButtonClick(string settingGroup, string settingName, AutoMapMarkerSetting settings)
+        /// <summary>
+        /// Called when an icon dropdown choice changes. Updates the related map marker settings.
+        /// </summary>
+        private void OnMarkerIconChanged(string iconName, bool selected)
         {
-            //MessageUtil.Log($"clicked button for category '{settingGroup}' and setting '{settingName}'");
-
-
-
-            iconConfigPopup = new MapMarkerIconSettingsGUI(capi, settingName, settings, icons, colors);
-            iconConfigPopup.TryOpen();
-            iconConfigPopup.OnClosed += delegate
+            foreach (var settingGroup in AutoMapMarkerSettings)
             {
-                capi.Gui.RequestFocus(this);
-                SetupDialog();  // Redraw GUI
-            };
-            //GuiDialogWorldMap mapdlg = capi.ModLoader.GetModSystem<WorldMapManager>().worldMapDlg;
-            //editWpDlg = new GuiDialogEditWayPoint(capi, mapdlg.MapLayers.FirstOrDefault((MapLayer l) => l is WaypointMapLayer) as WaypointMapLayer, waypoint, waypointIndex);
-            //editWpDlg.TryOpen();
-            //editWpDlg.OnClosed += delegate
-            //{
-            //    capi.Gui.RequestFocus(mapdlg);
-            //};
-            //TODO: recompose gui to recolor and re-icon the button after changes...
-            return true;
+                foreach (KeyValuePair<string, AutoMapMarkerSetting> settings in settingGroup.Value)
+                {
+                    GuiElementSwitch enabledSwitch = SingleComposer.GetSwitch(settings.Key + "-auto-markers-enabled");
+                    if (enabledSwitch == null || !enabledSwitch.On)
+                    {
+                        continue; //this marker option not enabled & won't have icon fields.
+                    }
+                    settings.Value.MarkerIcon = SingleComposer.GetDropDown(settings.Key + "-auto-markers-icon").SelectedValue;
+                }
+            }
         }
 
-        ///// <summary>
-        ///// Enables or disables the Save button. Disabled when a color input is invalid or if no Name is specified for an option.
-        ///// </summary>
-        //private void SetSaveButtonState(bool enabled)
-        //{
-        //    GuiElementTextButton saveButton = SingleComposer.GetButton("auto-markers-saveButton");
-        //    if (saveButton != null)
-        //    {
-        //        saveButton.Enabled = enabled;
-        //    }
-        //}
+        /// <summary>
+        /// Called when the color input text changes. Updates the related map marker settings.
+        /// </summary>
+        private void OnMarkerColorChanged(string colorstring = "")
+        {
+            int colorTransparent = Color.Transparent.ToArgb();
+            int colorBlack = Color.Black.ToArgb();
+            bool saveEnabled = true;
+
+            foreach (var settingGroup in AutoMapMarkerSettings)
+            {
+                foreach (KeyValuePair<string, AutoMapMarkerSetting> settings in settingGroup.Value)
+                {
+                    GuiElementSwitch enabledSwitch = SingleComposer.GetSwitch(settings.Key + "-auto-markers-enabled");
+                    if (enabledSwitch == null || !enabledSwitch.On)
+                    {
+                        continue; //this marker option not enabled & won't have color fields.
+                    }
+                    GuiElementTextInput colorInput = SingleComposer.GetTextInput(settings.Key + "-auto-markers-color");
+                    GuiElementTextInput nameInput = SingleComposer.GetTextInput(settings.Key + "-auto-markers-name");
+                    GuiElementCustomDraw colorTile = SingleComposer.GetCustomDraw(settings.Key + "-auto-markers-color-rect");
+                    colorstring = colorInput.GetText();
+                    int? parsedColor = null;
+                    if (colorstring.StartsWith("#", StringComparison.Ordinal))
+                    {
+                        if (colorstring.Length == 7)
+                        {
+                            string s = colorstring.Substring(1);
+                            try
+                            {
+                                parsedColor = (int.Parse(s, NumberStyles.HexNumber) | colorBlack);
+                            }
+                            catch (Exception)
+                            {
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Color color = Color.FromName(colorstring);
+                        if (color.A == byte.MaxValue)
+                        {
+                            parsedColor = color.ToArgb();
+                        }
+                    }
+                    DynamicDrawColor = (parsedColor ?? colorTransparent);
+                    colorInput.Font.Color = (parsedColor.HasValue ? GuiStyle.DialogDefaultTextColor : GuiStyle.ErrorTextColor);
+                    bool nameValid = nameInput.GetText().Trim() != "";
+                    bool colorValid = parsedColor.HasValue;
+                    if (!nameValid || !colorValid)
+                    {
+                        saveEnabled = false;
+                    }
+                    colorTile.Redraw();
+                    if (colorValid)
+                    {
+                        settings.Value.MarkerColor = colorstring;
+                    }
+                }
+            }
+            SetSaveButtonState(saveEnabled);
+        }
+
+        /// <summary>
+        /// Called when the name input text changes. Updates the related map marker settings.
+        /// </summary>
+        private void OnMarkerNameChanged(string name)
+        {
+            bool saveEnabled = true;
+
+            foreach (var settingGroup in AutoMapMarkerSettings)
+            {
+                foreach (KeyValuePair<string, AutoMapMarkerSetting> settings in settingGroup.Value)
+                {
+                    GuiElementSwitch enabledSwitch = SingleComposer.GetSwitch(settings.Key + "-auto-markers-enabled");
+                    if (enabledSwitch == null || !enabledSwitch.On)
+                    {
+                        continue; //this marker option not enabled & won't have name fields.
+                    }
+                    bool colorValid = SingleComposer.GetTextInput(settings.Key + "-auto-markers-color").Font.Color != GuiStyle.ErrorTextColor;
+                    name = SingleComposer.GetTextInput(settings.Key + "-auto-markers-name").GetText();
+                    bool nameValid = name.Trim() != "";
+                    if (!colorValid || !nameValid)
+                    {
+                        saveEnabled = false;
+                    }
+                    if (nameValid)
+                    {
+                        settings.Value.MarkerTitle = name;
+                    }
+                }
+            }
+            SetSaveButtonState(saveEnabled);
+        }
+
+        /// <summary>
+        /// Draws the color preview tile.
+        /// </summary>
+        private void OnDrawColorRect(Context ctx, ImageSurface surface, ElementBounds currentBounds)
+        {
+            ctx.Rectangle(0.0, 0.0, 25.0, 25.0);
+            ctx.SetSourceRGBA(ColorUtil.ToRGBADoubles(DynamicDrawColor));
+            ctx.FillPreserve();
+            ctx.SetSourceRGBA(GuiStyle.DialogBorderColor);
+            ctx.Stroke();
+        }
+
+        /// <summary>
+        /// Enables or disables the Save button. Disabled when a color input is invalid or if no Name is specified for an option.
+        /// </summary>
+        private void SetSaveButtonState(bool enabled)
+        {
+            GuiElementTextButton saveButton = SingleComposer.GetButton("auto-markers-saveButton");
+            if (saveButton != null)
+            {
+                saveButton.Enabled = enabled;
+            }
+        }
 
         /// <summary>
         /// Closes the GUI, which will also trigger an attempt to save the settings.

@@ -8,7 +8,7 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
     using BlockBehavior = Vintagestory.API.Common.BlockBehavior;
 
     /// <summary>
-    /// Block behavior for harvestable objects, such as berries and resin. Automatically
+    /// Block behavior for harvestable objects, such as berries and mushrooms. Automatically
     /// creates map markers when the player interacts with certain harvestable objects.
     /// </summary>
     public class HarvestMarkerBehavior : BlockBehavior

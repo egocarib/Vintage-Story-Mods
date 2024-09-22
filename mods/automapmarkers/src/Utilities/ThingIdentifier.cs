@@ -124,8 +124,6 @@ namespace Egocarib.AutoMapMarkers.Utilities
                     ModConfig?.AutoMapMarkers.OrganicMatter.UnsafeMushroom;
             else if (IsReedAny)
                 MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Reed;
-            else if (IsTuleAny)
-                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Tule;
             else if (IsWildCropAny)
                 MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.WildCrop;
             else if (IsFlowerAny)
@@ -224,8 +222,6 @@ namespace Egocarib.AutoMapMarkers.Utilities
                 MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreTitanium;
             else if (IsZincBlock)
                 MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreZinc;
-            else if (IsNickelBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreNickel;
             else
                 return false;
 
@@ -235,9 +231,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
 
         private bool IdentifyAsMisc()
         {
-            if (IsRedClay)
-                MarkerSettings = ModConfig?.AutoMapMarkers.MiscBlocks.BlockRedClay;
-            else if (IsBlueClay)
+            if (IsBlueClay)
                 MarkerSettings = ModConfig?.AutoMapMarkers.MiscBlocks.BlockBlueClay;
             else if (IsFireClay)
                 MarkerSettings = ModConfig?.AutoMapMarkers.MiscBlocks.BlockFireClay;
@@ -377,7 +371,6 @@ namespace Egocarib.AutoMapMarkers.Utilities
         // Misc blocks (soil, etc)
         public bool IsBeehive { get { return BlockOrEntity.Code.Path.StartsWith("wildbeehive-", StringComparison.Ordinal); } }
         public bool IsTranslocator { get { return BlockOrEntity.Code.Path.StartsWith("statictranslocator-", StringComparison.Ordinal); } }
-        public bool IsRedClay { get { return BlockOrEntity.Code.Path.StartsWith("rawclay-red-", StringComparison.Ordinal); } }
         public bool IsBlueClay { get { return BlockOrEntity.Code.Path.StartsWith("rawclay-blue-", StringComparison.Ordinal); } }
         public bool IsFireClay { get { return BlockOrEntity.Code.Path.StartsWith("rawclay-fire-", StringComparison.Ordinal); } }
         public bool IsPeat { get { return BlockOrEntity.Code.Path.StartsWith("peat-", StringComparison.Ordinal); } }
@@ -395,8 +388,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
         public bool IsMushroomAny { get { return BlockOrEntity.Code.Path.StartsWith("mushroom-", StringComparison.Ordinal); } }
         public bool IsWildCropAny { get { return BlockOrEntity.Code.Path.StartsWith("crop-", StringComparison.Ordinal); } }
         public bool IsFlowerAny { get { return BlockOrEntity.Code.Path.StartsWith("flower-", StringComparison.Ordinal) || BlockOrEntity.Code.Path.StartsWith("herb-", StringComparison.Ordinal); } }
-        public bool IsReedAny { get { return BlockOrEntity.Code.Path.StartsWith("tallplant-", StringComparison.Ordinal) && (BlockOrEntity.Code.Path.Contains("-coopersreed-") || BlockOrEntity.Code.Path.Contains("-papyrus-")); } }
-        public bool IsTuleAny { get { return BlockOrEntity.Code.Path.StartsWith("tallplant-tule-", StringComparison.Ordinal); } }
+        public bool IsReedAny { get { return BlockOrEntity.Code.Path.StartsWith("tallplant-", StringComparison.Ordinal); } }
         public bool IsFruitTreeAny { get { return BlockOrEntity.Code.Path.StartsWith("fruittree-", StringComparison.Ordinal) && !BlockOrEntity.Code.Path.Equals("fruittree-cutting", StringComparison.Ordinal); } }  // Ignore cuttings
 
 
@@ -439,7 +431,6 @@ namespace Egocarib.AutoMapMarkers.Utilities
         public bool IsTinBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-cassiterite-"); } }
         public bool IsTitaniumBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-ilmenite-"); } }
         public bool IsZincBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-sphalerite-"); } }
-        public bool IsNickelBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-pentlandite-"); } }
 
         // Trader entities
         public bool IsArtisan { get { return BlockOrEntity.Code.Path.Contains("-trader-artisan"); } }

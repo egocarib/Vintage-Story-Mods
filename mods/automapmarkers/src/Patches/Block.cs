@@ -55,13 +55,11 @@ namespace Egocarib.AutoMapMarkers.Patches
                 block = MapMarkerMod.CoreClientAPI.World.BlockAccessor.GetBlock(blockPos);
             }
 
-            // BlockSoil (High Fert. Soil) and BlockSoilDeposit (Peat, Red Clay, Blue Clay, Fire Clay)
+            // BlockSoil (High Fert. Soil) and BlockSoilDeposit (Peat, Blue Clay, Fire Clay)
             if (block is BlockSoil)
             {
                 ThingIdentifier thing = new ThingIdentifier(block, blockPos);
-                if (thing.IsRedClay)
-                    settings = config.AutoMapMarkers.MiscBlocks.BlockRedClay;
-                else if (thing.IsBlueClay)
+                if (thing.IsBlueClay)
                     settings = config.AutoMapMarkers.MiscBlocks.BlockBlueClay;
                 else if (thing.IsFireClay)
                     settings = config.AutoMapMarkers.MiscBlocks.BlockFireClay;
@@ -124,7 +122,7 @@ namespace Egocarib.AutoMapMarkers.Patches
                 shouldRequestWaypoint = true;
             }
 
-            // BlockMushroom (all mushrooms), BlockPlant (all flowers), BlockCrop (all crops), BlockReed (all reeds, including Tule), BlockFruitTreePart (all fruit trees)
+            // BlockMushroom (all mushrooms), BlockPlant (all flowers), BlockCrop (all crops), BlockReed (all reeds), BlockFruitTreePart (all fruit trees)
             else if (block is BlockPlant
                 || block is BlockCrop
                 || block is BlockMushroom
