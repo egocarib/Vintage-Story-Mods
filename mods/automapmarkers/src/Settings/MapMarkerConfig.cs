@@ -37,6 +37,8 @@ namespace Egocarib.AutoMapMarkers.Settings
             public bool EnableMarkOnSneak = true;
             [ProtoMember(9, IsRequired = true)]
             public bool EnableMarkOnInteract = true;
+            [ProtoMember(10, IsRequired = true)]
+            public bool LabelCoordinates = false;
             [ProtoMember(2, IsRequired = true)]
             public bool DisableAllModFeatures = true;
             [ProtoMember(3)]

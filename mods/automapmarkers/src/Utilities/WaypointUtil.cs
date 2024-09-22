@@ -38,7 +38,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
         /// at the specified coordinates based on those settings. Then creates the waypoint and syncs it
         /// back to the client.
         /// </summary>
-        public void AddWaypoint(Vec3d position, MapMarkerConfig.Settings.AutoMapMarkerSetting settings, bool sendChatMessageToPlayer, string dynamicTitleComponent)
+        public void AddWaypoint(Vec3d position, MapMarkerConfig.Settings.AutoMapMarkerSetting settings, bool sendChatMessageToPlayer, string dynamicTitleComponent, bool includeCoordinates)
         {
             if (!Valid)
             {
@@ -57,6 +57,13 @@ namespace Egocarib.AutoMapMarkers.Utilities
 
             // If there's a dynamic component to the marker title, figure that out before creating the waypoint
             string title = $"{settings.MarkerTitle}{(dynamicTitleComponent != null ? $" ({dynamicTitleComponent})" : "")}";
+
+            if (includeCoordinates)
+            {
+                Vec3d playerFriendlyPos = position.Clone().Sub(MapMarkerMod.CoreServerAPI.World.DefaultSpawnPosition.AsBlockPos);
+                title = $"{title}  [{playerFriendlyPos.XInt}, {position.YInt}, {playerFriendlyPos.ZInt}]";
+            }
+            
 
             foreach (Waypoint waypoint in WaypointMapLayer.Waypoints.Where(w => w.OwningPlayerUid == ServerPlayer.PlayerUID))
             {
