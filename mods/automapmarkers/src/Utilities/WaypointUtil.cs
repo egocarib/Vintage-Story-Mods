@@ -1,5 +1,6 @@
 ﻿using Egocarib.AutoMapMarkers.Settings;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Vintagestory.API.Config;
@@ -186,6 +187,28 @@ namespace Egocarib.AutoMapMarkers.Utilities
             {
                 RebuildMapComponentsMethod.Invoke(WaypointMapLayer, null);
             }
+        }
+
+        /// <summary>
+        /// Get the default waypoint icon color array. This is intended as a fallback and is only used if
+        /// the mod can't get the colors from the game's WaypointMapLayer for some reason. Copied from the
+        /// private hardcoded list in Vintagestory.GameContent.WaypointMapLayer
+        /// </summary>
+        public static int[] GetDefaultWaypointColorOptions()
+        {
+            string[] hexcolors = new string[36]
+            {
+                "#F9D0DC", "#F179AF", "#F15A4A", "#ED272A", "#A30A35", "#FFDE98", "#EFFD5F", "#F6EA5E", "#FDBB3A", "#C8772E",
+                "#F47832", "C3D941", "#9FAB3A", "#94C948", "#47B749", "#366E4F", "#516D66", "93D7E3", "#7698CF", "#20909E",
+                "#14A4DD", "#204EA2", "#28417A", "#C395C4", "#92479B", "#8E007E", "#5E3896", "D9D4CE", "#AFAAA8", "#706D64",
+                "#4F4C2B", "#BF9C86", "#9885530", "#5D3D21", "#FFFFFF", "#080504"
+            };
+            List<int> colors = new List<int>();
+            for (int i = 0; i < hexcolors.Length; i++)
+            {
+                colors.Add(ColorUtil.Hex2Int(hexcolors[i]));
+            }
+            return colors.ToArray();
         }
 
     }

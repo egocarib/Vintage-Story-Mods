@@ -868,6 +868,18 @@ namespace Egocarib.AutoMapMarkers.Settings
                 {
                     get
                     {
+                        int? ret = MarkerColorIntegerNoAlpha;
+                        if (ret.HasValue)
+                            ret = ret.Value | (255 << 24);
+                        return ret;
+                    }
+                }
+
+                [JsonIgnore]
+                public int? MarkerColorIntegerNoAlpha
+                {
+                    get
+                    {
                         System.Drawing.Color parsedColor;
                         if (MarkerColor.StartsWith("#", StringComparison.Ordinal))
                         {
@@ -885,7 +897,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                         {
                             parsedColor = System.Drawing.Color.FromName(MarkerColor);
                         }
-                        return parsedColor.ToArgb() | (255 << 24);
+                        return parsedColor.ToArgb();
                     }
                 }
 
