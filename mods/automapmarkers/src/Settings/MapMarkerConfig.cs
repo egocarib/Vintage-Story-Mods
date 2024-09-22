@@ -192,6 +192,15 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerIcon: "grain",
                     markerCoverageRadius: 20);
 
+                [ProtoMember(16)]
+                public AutoMapMarkerSetting Tule = new AutoMapMarkerSetting(
+                    enabled: false,
+                    pinned: false,
+                    markerTitle: Lang.GetMatching("block-tallplant-tule-*"),
+                    markerColor: "darkkhaki",
+                    markerIcon: "grain",
+                    markerCoverageRadius: 20);
+
                 [ProtoMember(15)]
                 public AutoMapMarkerSetting FruitTree = new AutoMapMarkerSetting(
                     enabled: true,
@@ -528,11 +537,29 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerColor: "gray",
                     markerIcon: "ladder",
                     markerCoverageRadius: 10);
+
+                [ProtoMember(19)]
+                public AutoMapMarkerSetting DeepOreNickel = new AutoMapMarkerSetting(
+                    enabled: false,
+                    pinned: false,
+                    markerTitle: Lang.GetMatching("block-ore-*-pentlandite-*"),
+                    markerColor: "darkgoldenrod",
+                    markerIcon: "ladder",
+                    markerCoverageRadius: 12);
             }
 
             [ProtoContract]
             public class MapMarkerSettings_Misc
             {
+                [ProtoMember(9)]
+                public AutoMapMarkerSetting BlockRedClay = new AutoMapMarkerSetting(
+                    enabled: false,
+                    pinned: false,
+                    markerTitle: Lang.GetMatching("item-clay-red"),
+                    markerColor: "indianred",
+                    markerIcon: "vessel",
+                    markerCoverageRadius: 30);
+
                 [ProtoMember(1)]
                 public AutoMapMarkerSetting BlockBlueClay = new AutoMapMarkerSetting(
                     enabled: false,
@@ -747,7 +774,8 @@ namespace Egocarib.AutoMapMarkers.Settings
                                     { Lang.Get("egocarib-mapmarkers:flowers"), AutoMapMarkers.OrganicMatter.Flower },
                                     { Lang.Get("egocarib-mapmarkers:fruit-trees"), AutoMapMarkers.OrganicMatter.FruitTree },
                                     { Lang.Get("egocarib-mapmarkers:wild-crops"), AutoMapMarkers.OrganicMatter.WildCrop },
-                                    { Lang.Get("egocarib-mapmarkers:reeds"), AutoMapMarkers.OrganicMatter.Reed }
+                                    { Lang.Get("egocarib-mapmarkers:reeds"), AutoMapMarkers.OrganicMatter.Reed },
+                                    { Lang.GetMatching("block-tallplant-tule-*"), AutoMapMarkers.OrganicMatter.Tule }
                                 }
                             },
                             { Lang.Get("egocarib-mapmarkers:surface-ore"),
@@ -783,13 +811,14 @@ namespace Egocarib.AutoMapMarkers.Settings
                                     { Lang.GetMatching("block-ore-*-limonite-*"), AutoMapMarkers.DeepOre.DeepOreIron },
                                     { Lang.GetMatching("block-ore-lapislazuli-*"), AutoMapMarkers.DeepOre.DeepOreLapisLazuli },
                                     { Lang.GetMatching("block-ore-*-galena-*"), AutoMapMarkers.DeepOre.DeepOreLead },
+                                    { Lang.GetMatching("block-ore-*-pentlandite-*"), AutoMapMarkers.DeepOre.DeepOreNickel },
                                     { Lang.Get("ore-olivine"), AutoMapMarkers.DeepOre.DeepOreOlivine },
                                     { Lang.Get("ore-quartz"), AutoMapMarkers.DeepOre.DeepOreQuartz },
                                     { Lang.Get("egocarib-mapmarkers:silver-ore"), AutoMapMarkers.DeepOre.DeepOreSilver },
                                     { Lang.Get("ore-sulfur"), AutoMapMarkers.DeepOre.DeepOreSulfur },
                                     { Lang.GetMatching("block-ore-*-cassiterite-*"), AutoMapMarkers.DeepOre.DeepOreTin },
                                     { Lang.GetMatching("block-ore-*-ilmenite-*"), AutoMapMarkers.DeepOre.DeepOreTitanium },
-                                    { Lang.GetMatching("block-ore-*-sphalerite-*"), AutoMapMarkers.DeepOre.DeepOreZinc },
+                                    { Lang.GetMatching("block-ore-*-sphalerite-*"), AutoMapMarkers.DeepOre.DeepOreZinc }
                                 }
                             },
                             { Lang.Get("egocarib-mapmarkers:misc"),
@@ -797,6 +826,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                                 {
                                     { Lang.Get("egocarib-mapmarkers:beehive"), AutoMapMarkers.MiscBlocks.Beehive },
                                     { Lang.Get("wpSuggestion-spiral"), AutoMapMarkers.MiscBlocks.Translocator },
+                                    { Lang.GetMatching("item-clay-red"), AutoMapMarkers.MiscBlocks.BlockRedClay },
                                     { Lang.GetMatching("item-clay-blue"), AutoMapMarkers.MiscBlocks.BlockBlueClay },
                                     { Lang.GetMatching("item-clay-fire"), AutoMapMarkers.MiscBlocks.BlockFireClay },
                                     { Lang.GetMatching("block-peat-none"), AutoMapMarkers.MiscBlocks.BlockPeat },
