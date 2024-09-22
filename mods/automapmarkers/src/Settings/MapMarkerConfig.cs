@@ -37,6 +37,8 @@ namespace Egocarib.AutoMapMarkers.Settings
             public bool EnableMarkOnSneak = true;
             [ProtoMember(9, IsRequired = true)]
             public bool EnableMarkOnInteract = true;
+            [ProtoMember(10, IsRequired = true)]
+            public bool LabelCoordinates = false;
             [ProtoMember(2, IsRequired = true)]
             public bool DisableAllModFeatures = true;
             [ProtoMember(3)]
@@ -67,6 +69,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(1)]
                 public AutoMapMarkerSetting Resin = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("item-resin"),
                     markerColor: "darkorange",
                     markerIcon: "circle",
@@ -75,6 +78,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(2)]
                 public AutoMapMarkerSetting Blueberry = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("item-fruit-blueberry"),
                     markerColor: "midnightblue",
                     markerIcon: "circle",
@@ -83,6 +87,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(3)]
                 public AutoMapMarkerSetting Cranberry = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("item-fruit-cranberry"),
                     markerColor: "maroon",
                     markerIcon: "circle",
@@ -91,6 +96,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(4)]
                 public AutoMapMarkerSetting BlackCurrant = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("item-fruit-blackcurrant"),
                     markerColor: "#291B1A",
                     markerIcon: "circle",
@@ -99,6 +105,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(5)]
                 public AutoMapMarkerSetting RedCurrant = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("item-fruit-redcurrant"),
                     markerColor: "darkred",
                     markerIcon: "circle",
@@ -107,6 +114,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(6)]
                 public AutoMapMarkerSetting WhiteCurrant = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("item-fruit-whitecurrant"),
                     markerColor: "ivory",
                     markerIcon: "circle",
@@ -115,6 +123,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 //[ProtoMember(7)]
                 //public AutoMapMarkerSetting MushroomBolete = new AutoMapMarkerSetting(
                 //    enabled: false,
+                //    pinned: false,
                 //    markerTitle: Lang.GetMatching("block-mushroom-bolete-normal-*"),
                 //    markerColor: "#503922",
                 //    markerIcon: "circle",
@@ -123,6 +132,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 //[ProtoMember(8)]
                 //public AutoMapMarkerSetting MushroomFieldMushroom = new AutoMapMarkerSetting(
                 //    enabled: false,
+                //    pinned: false,
                 //    markerTitle: Lang.GetMatching("block-mushroom-fieldmushroom-normal-*"),
                 //    markerColor: "ghostwhite",
                 //    markerIcon: "circle",
@@ -131,6 +141,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 //[ProtoMember(9)]
                 //public AutoMapMarkerSetting MushroomFlyAgaric = new AutoMapMarkerSetting(
                 //    enabled: false,
+                //    pinned: false,
                 //    markerTitle: Lang.GetMatching("block-mushroom-flyagaric-normal-*"),
                 //    markerColor: "brown",
                 //    markerIcon: "circle",
@@ -139,6 +150,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(10)]
                 public AutoMapMarkerSetting SafeMushroom = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("egocarib-mapmarkers:safe-mushrooms"),
                     markerColor: "forestgreen",
                     markerIcon: "mushroom",
@@ -147,6 +159,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(11)]
                 public AutoMapMarkerSetting UnsafeMushroom = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("egocarib-mapmarkers:unsafe-mushrooms"),
                     markerColor: "crimson",
                     markerIcon: "mushroom",
@@ -155,6 +168,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(12)]
                 public AutoMapMarkerSetting WildCrop = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("egocarib-mapmarkers:wild-crops"),
                     markerColor: "goldenrod",
                     markerIcon: "grain",
@@ -163,6 +177,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(13)]
                 public AutoMapMarkerSetting Flower = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("egocarib-mapmarkers:flowers"),
                     markerColor: "fuchsia",
                     markerIcon: "grain",
@@ -171,7 +186,17 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(14)]
                 public AutoMapMarkerSetting Reed = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("egocarib-mapmarkers:reeds"),
+                    markerColor: "darkkhaki",
+                    markerIcon: "grain",
+                    markerCoverageRadius: 20);
+
+                [ProtoMember(16)]
+                public AutoMapMarkerSetting Tule = new AutoMapMarkerSetting(
+                    enabled: false,
+                    pinned: false,
+                    markerTitle: Lang.GetMatching("block-tallplant-tule-*"),
                     markerColor: "darkkhaki",
                     markerIcon: "grain",
                     markerCoverageRadius: 20);
@@ -179,6 +204,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(15)]
                 public AutoMapMarkerSetting FruitTree = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("egocarib-mapmarkers:fruit-trees"),
                     markerColor: "mediumpurple",
                     markerIcon: "tree",
@@ -191,6 +217,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(1)]
                 public AutoMapMarkerSetting LooseOreAnthracite = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-looseores-anthracite-*"),
                     markerColor: "black",
                     markerIcon: "pick",
@@ -199,6 +226,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(2)]
                 public AutoMapMarkerSetting LooseOreBlackCoal = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-looseores-bituminouscoal-*"),
                     markerColor: "black",
                     markerIcon: "pick",
@@ -207,6 +235,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(3)]
                 public AutoMapMarkerSetting LooseOreBorax = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-looseores-borax-*"),
                     markerColor: "ghostwhite",
                     markerIcon: "pick",
@@ -215,6 +244,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(4)]
                 public AutoMapMarkerSetting LooseOreBrownCoal = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-looseores-lignite-*"),
                     markerColor: "black",
                     markerIcon: "pick",
@@ -223,6 +253,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(5)]
                 public AutoMapMarkerSetting LooseOreCinnabar = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-looseores-cinnabar-*"),
                     markerColor: "crimson",
                     markerIcon: "pick",
@@ -231,6 +262,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(6)]
                 public AutoMapMarkerSetting LooseOreCopper = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-looseores-nativecopper-*"),
                     markerColor: "darkorange",
                     markerIcon: "pick",
@@ -238,6 +270,7 @@ namespace Egocarib.AutoMapMarkers.Settings
 
                 //public AutoMapMarkerSetting LooseOreFluorite = new AutoMapMarkerSetting(
                 //        enabled: false,
+                //        pinned: false,
                 //        markerTitle: Lang.GetMatching("block-looseores-fluorite-*"),
                 //        markerColor: "black",
                 //        markerIcon: "pick",
@@ -246,6 +279,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(7)]
                 public AutoMapMarkerSetting LooseOreGold = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-looseores-quartz_nativegold-*"),
                     markerColor: "gold",
                     markerIcon: "pick",
@@ -253,6 +287,7 @@ namespace Egocarib.AutoMapMarkers.Settings
 
                 //public AutoMapMarkerSetting LooseOreGraphite = new AutoMapMarkerSetting(
                 //        enabled: false,
+                //        pinned: false,
                 //        markerTitle: Lang.GetMatching("block-looseores-graphite-*"),
                 //        markerColor: "black",
                 //        markerIcon: "pick",
@@ -260,6 +295,7 @@ namespace Egocarib.AutoMapMarkers.Settings
 
                 //public AutoMapMarkerSetting LooseOreKernite = new AutoMapMarkerSetting(
                 //        enabled: false,
+                //        pinned: false,
                 //        markerTitle: Lang.GetMatching("block-looseores-kernite-*"),
                 //        markerColor: "black",
                 //        markerIcon: "pick",
@@ -268,6 +304,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(8)]
                 public AutoMapMarkerSetting LooseOreLapisLazuli = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-looseores-lapislazuli-*"),
                     markerColor: "royalblue",
                     markerIcon: "pick",
@@ -276,6 +313,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(9)]
                 public AutoMapMarkerSetting LooseOreLead = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-looseores-galena-*"),
                     markerColor: "slategray",
                     markerIcon: "pick",
@@ -284,6 +322,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(10)]
                 public AutoMapMarkerSetting LooseOreOlivine = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-looseores-olivine-peridotite-*"),
                     markerColor: "olivedrab",
                     markerIcon: "pick",
@@ -291,6 +330,7 @@ namespace Egocarib.AutoMapMarkers.Settings
 
                 //public AutoMapMarkerSetting LooseOrePhosporite = new AutoMapMarkerSetting(
                 //        enabled: false,
+                //        pinned: false,
                 //        markerTitle: Lang.GetMatching("block-looseores-phosphorite-*"),
                 //        markerColor: "black",
                 //        markerIcon: "pick",
@@ -299,6 +339,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(11)]
                 public AutoMapMarkerSetting LooseOreQuartz = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-looseores-quartz-*"),
                     markerColor: "white",
                     markerIcon: "pick",
@@ -307,6 +348,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(12)]
                 public AutoMapMarkerSetting LooseOreSilver = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-looseores-quartz_nativesilver-*"),
                     markerColor: "silver",
                     markerIcon: "pick",
@@ -315,6 +357,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(13)]
                 public AutoMapMarkerSetting LooseOreSulfur = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-looseores-sulfur-*"),
                     markerColor: "khaki",
                     markerIcon: "pick",
@@ -323,6 +366,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(14)]
                 public AutoMapMarkerSetting LooseOreTin = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-looseores-cassiterite-*"),
                     markerColor: "#3C1E05",
                     markerIcon: "pick",
@@ -335,6 +379,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(1)]
                 public AutoMapMarkerSetting DeepOreAnthracite = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-ore-anthracite-*"),
                     markerColor: "black",
                     markerIcon: "ladder",
@@ -343,6 +388,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(15)]
                 public AutoMapMarkerSetting DeepOreBismuth = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-ore-*-bismuthinite-*"),
                     markerColor: "seagreen",
                     markerIcon: "ladder",
@@ -351,6 +397,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(2)]
                 public AutoMapMarkerSetting DeepOreBlackCoal = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-ore-bituminouscoal-*"),
                     markerColor: "black",
                     markerIcon: "ladder",
@@ -359,6 +406,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(3)]
                 public AutoMapMarkerSetting DeepOreBorax = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-ore-borax-*"),
                     markerColor: "ghostwhite",
                     markerIcon: "ladder",
@@ -367,6 +415,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(4)]
                 public AutoMapMarkerSetting DeepOreBrownCoal = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-ore-lignite-*"),
                     markerColor: "black",
                     markerIcon: "ladder",
@@ -375,6 +424,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(5)]
                 public AutoMapMarkerSetting DeepOreCinnabar = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-ore-cinnabar-*"),
                     markerColor: "crimson",
                     markerIcon: "ladder",
@@ -383,6 +433,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(6)]
                 public AutoMapMarkerSetting DeepOreCopper = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("egocarib-mapmarkers:copper-ore"),
                     markerColor: "darkorange",
                     markerIcon: "ladder",
@@ -391,6 +442,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(7)]
                 public AutoMapMarkerSetting DeepOreGold = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("egocarib-mapmarkers:gold-ore"),
                     markerColor: "gold",
                     markerIcon: "ladder",
@@ -399,6 +451,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(16)]
                 public AutoMapMarkerSetting DeepOreIron = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-ore-*-limonite-*"),
                     markerColor: "maroon",
                     markerIcon: "ladder",
@@ -407,6 +460,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(8)]
                 public AutoMapMarkerSetting DeepOreLapisLazuli = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-ore-lapislazuli-*"),
                     markerColor: "royalblue",
                     markerIcon: "ladder",
@@ -415,6 +469,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(9)]
                 public AutoMapMarkerSetting DeepOreLead = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-ore-*-galena-*"),
                     markerColor: "slategray",
                     markerIcon: "ladder",
@@ -423,6 +478,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(10)]
                 public AutoMapMarkerSetting DeepOreOlivine = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("ore-olivine"),
                     markerColor: "olivedrab",
                     markerIcon: "ladder",
@@ -431,6 +487,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(11)]
                 public AutoMapMarkerSetting DeepOreQuartz = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("ore-quartz"),
                     markerColor: "white",
                     markerIcon: "ladder",
@@ -439,6 +496,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(12)]
                 public AutoMapMarkerSetting DeepOreSilver = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("egocarib-mapmarkers:silver-ore"),
                     markerColor: "silver",
                     markerIcon: "ladder",
@@ -447,6 +505,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(13)]
                 public AutoMapMarkerSetting DeepOreSulfur = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("ore-sulfur"),
                     markerColor: "khaki",
                     markerIcon: "ladder",
@@ -455,6 +514,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(14)]
                 public AutoMapMarkerSetting DeepOreTin = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-ore-*-cassiterite-*"),
                     markerColor: "#3C1E05",
                     markerIcon: "ladder",
@@ -463,6 +523,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(17)]
                 public AutoMapMarkerSetting DeepOreTitanium = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-ore-*-ilmenite-*"),
                     markerColor: "darkslategray",
                     markerIcon: "ladder",
@@ -471,18 +532,38 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(18)]
                 public AutoMapMarkerSetting DeepOreZinc = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-ore-*-sphalerite-*"),
                     markerColor: "gray",
                     markerIcon: "ladder",
                     markerCoverageRadius: 10);
+
+                [ProtoMember(19)]
+                public AutoMapMarkerSetting DeepOreNickel = new AutoMapMarkerSetting(
+                    enabled: false,
+                    pinned: false,
+                    markerTitle: Lang.GetMatching("block-ore-*-pentlandite-*"),
+                    markerColor: "darkgoldenrod",
+                    markerIcon: "ladder",
+                    markerCoverageRadius: 12);
             }
 
             [ProtoContract]
             public class MapMarkerSettings_Misc
             {
+                [ProtoMember(9)]
+                public AutoMapMarkerSetting BlockRedClay = new AutoMapMarkerSetting(
+                    enabled: false,
+                    pinned: false,
+                    markerTitle: Lang.GetMatching("item-clay-red"),
+                    markerColor: "indianred",
+                    markerIcon: "vessel",
+                    markerCoverageRadius: 30);
+
                 [ProtoMember(1)]
                 public AutoMapMarkerSetting BlockBlueClay = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("item-clay-blue"),
                     markerColor: "cornflowerblue",
                     markerIcon: "vessel",
@@ -491,6 +572,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(2)]
                 public AutoMapMarkerSetting BlockFireClay = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("item-clay-fire"),
                     markerColor: "firebrick",
                     markerIcon: "vessel",
@@ -499,6 +581,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(3)]
                 public AutoMapMarkerSetting BlockPeat = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-peat-none"),
                     markerColor: "chocolate",
                     markerIcon: "rocks",
@@ -507,6 +590,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(4)]
                 public AutoMapMarkerSetting BlockHighFertilitySoil = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-soil-compost-none"),
                     markerColor: "indigo",
                     markerIcon: "star2",
@@ -515,6 +599,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(5)]
                 public AutoMapMarkerSetting BlockMeteoriticIron = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.GetMatching("block-meteorite-iron"),
                     markerColor: "darkorange",
                     markerIcon: "star2",
@@ -523,6 +608,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(6)]
                 public AutoMapMarkerSetting BlockCoatingSaltpeter = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("block-saltpeter-d"),
                     markerColor: "beige",
                     markerIcon: "ladder",
@@ -531,6 +617,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(7)]
                 public AutoMapMarkerSetting Beehive = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("egocarib-mapmarkers:beehive"),
                     markerColor: "gold",
                     markerIcon: "bee",
@@ -539,6 +626,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(8)]
                 public AutoMapMarkerSetting Translocator = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("wpSuggestion-spiral"),
                     markerColor: "darkturquoise",
                     markerIcon: "spiral",
@@ -551,6 +639,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(1)]
                 public AutoMapMarkerSetting TraderArtisan = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("item-creature-humanoid-trader-artisan"),
                     markerColor: "yellow",
                     markerIcon: "trader",
@@ -559,6 +648,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(2)]
                 public AutoMapMarkerSetting TraderBuildingMaterials = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("item-creature-humanoid-trader-buildmaterials"),
                     markerColor: "yellow",
                     markerIcon: "trader",
@@ -567,6 +657,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(3)]
                 public AutoMapMarkerSetting TraderClothing = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("item-creature-humanoid-trader-clothing"),
                     markerColor: "yellow",
                     markerIcon: "trader",
@@ -575,6 +666,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(4)]
                 public AutoMapMarkerSetting TraderCommodities = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("item-creature-humanoid-trader-commodities"),
                     markerColor: "yellow",
                     markerIcon: "trader",
@@ -583,6 +675,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(5)]
                 public AutoMapMarkerSetting TraderFoods = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("item-creature-humanoid-trader-foods"),
                     markerColor: "yellow",
                     markerIcon: "trader",
@@ -591,6 +684,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(6)]
                 public AutoMapMarkerSetting TraderFurniture = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("item-creature-humanoid-trader-furniture"),
                     markerColor: "yellow",
                     markerIcon: "trader",
@@ -599,6 +693,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(7)]
                 public AutoMapMarkerSetting TraderLuxuries = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("item-creature-humanoid-trader-luxuries"),
                     markerColor: "yellow",
                     markerIcon: "trader",
@@ -607,6 +702,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(8)]
                 public AutoMapMarkerSetting TraderSurvivalGoods = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("item-creature-humanoid-trader-survivalgoods"),
                     markerColor: "yellow",
                     markerIcon: "trader",
@@ -615,6 +711,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(9)]
                 public AutoMapMarkerSetting TraderTreasureHunter = new AutoMapMarkerSetting(
                     enabled: true,
+                    pinned: false,
                     markerTitle: Lang.Get("item-creature-humanoid-trader-treasurehunter"),
                     markerColor: "yellow",
                     markerIcon: "trader",
@@ -627,6 +724,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(1)]
                 public AutoMapMarkerSetting CustomMarker1 = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("egocarib-mapmarkers:custom-marker-1"),
                     markerColor: "black",
                     markerIcon: "circle",
@@ -635,6 +733,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(2)]
                 public AutoMapMarkerSetting CustomMarker2 = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("egocarib-mapmarkers:custom-marker-2"),
                     markerColor: "black",
                     markerIcon: "circle",
@@ -643,6 +742,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 [ProtoMember(3)]
                 public AutoMapMarkerSetting CustomMarker3 = new AutoMapMarkerSetting(
                     enabled: false,
+                    pinned: false,
                     markerTitle: Lang.Get("egocarib-mapmarkers:custom-marker-3"),
                     markerColor: "black",
                     markerIcon: "circle",
@@ -674,7 +774,8 @@ namespace Egocarib.AutoMapMarkers.Settings
                                     { Lang.Get("egocarib-mapmarkers:flowers"), AutoMapMarkers.OrganicMatter.Flower },
                                     { Lang.Get("egocarib-mapmarkers:fruit-trees"), AutoMapMarkers.OrganicMatter.FruitTree },
                                     { Lang.Get("egocarib-mapmarkers:wild-crops"), AutoMapMarkers.OrganicMatter.WildCrop },
-                                    { Lang.Get("egocarib-mapmarkers:reeds"), AutoMapMarkers.OrganicMatter.Reed }
+                                    { Lang.Get("egocarib-mapmarkers:reeds"), AutoMapMarkers.OrganicMatter.Reed },
+                                    { Lang.GetMatching("block-tallplant-tule-*"), AutoMapMarkers.OrganicMatter.Tule }
                                 }
                             },
                             { Lang.Get("egocarib-mapmarkers:surface-ore"),
@@ -710,13 +811,14 @@ namespace Egocarib.AutoMapMarkers.Settings
                                     { Lang.GetMatching("block-ore-*-limonite-*"), AutoMapMarkers.DeepOre.DeepOreIron },
                                     { Lang.GetMatching("block-ore-lapislazuli-*"), AutoMapMarkers.DeepOre.DeepOreLapisLazuli },
                                     { Lang.GetMatching("block-ore-*-galena-*"), AutoMapMarkers.DeepOre.DeepOreLead },
+                                    { Lang.GetMatching("block-ore-*-pentlandite-*"), AutoMapMarkers.DeepOre.DeepOreNickel },
                                     { Lang.Get("ore-olivine"), AutoMapMarkers.DeepOre.DeepOreOlivine },
                                     { Lang.Get("ore-quartz"), AutoMapMarkers.DeepOre.DeepOreQuartz },
                                     { Lang.Get("egocarib-mapmarkers:silver-ore"), AutoMapMarkers.DeepOre.DeepOreSilver },
                                     { Lang.Get("ore-sulfur"), AutoMapMarkers.DeepOre.DeepOreSulfur },
                                     { Lang.GetMatching("block-ore-*-cassiterite-*"), AutoMapMarkers.DeepOre.DeepOreTin },
                                     { Lang.GetMatching("block-ore-*-ilmenite-*"), AutoMapMarkers.DeepOre.DeepOreTitanium },
-                                    { Lang.GetMatching("block-ore-*-sphalerite-*"), AutoMapMarkers.DeepOre.DeepOreZinc },
+                                    { Lang.GetMatching("block-ore-*-sphalerite-*"), AutoMapMarkers.DeepOre.DeepOreZinc }
                                 }
                             },
                             { Lang.Get("egocarib-mapmarkers:misc"),
@@ -724,6 +826,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                                 {
                                     { Lang.Get("egocarib-mapmarkers:beehive"), AutoMapMarkers.MiscBlocks.Beehive },
                                     { Lang.Get("wpSuggestion-spiral"), AutoMapMarkers.MiscBlocks.Translocator },
+                                    { Lang.GetMatching("item-clay-red"), AutoMapMarkers.MiscBlocks.BlockRedClay },
                                     { Lang.GetMatching("item-clay-blue"), AutoMapMarkers.MiscBlocks.BlockBlueClay },
                                     { Lang.GetMatching("item-clay-fire"), AutoMapMarkers.MiscBlocks.BlockFireClay },
                                     { Lang.GetMatching("block-peat-none"), AutoMapMarkers.MiscBlocks.BlockPeat },
@@ -764,7 +867,7 @@ namespace Egocarib.AutoMapMarkers.Settings
             {
                 // IsRequired is needed to prevent ProtoBuf trying to optimize the fields to "default" values
                 // and ultimately ignoring what was actually sent across the network.
-                [ProtoMember(1, IsRequired = true)] 
+                [ProtoMember(1, IsRequired = true)]
                 public bool Enabled;
                 [ProtoMember(2, IsRequired = true)]
                 public string MarkerTitle;
@@ -772,15 +875,18 @@ namespace Egocarib.AutoMapMarkers.Settings
                 public string MarkerColor;
                 [ProtoMember(4, IsRequired = true)]
                 public string MarkerIcon;
+                [ProtoMember(6, IsRequired = true)]
+                public bool MarkerPinned;
                 [ProtoMember(5, IsRequired = true)]
                 public int MarkerCoverageRadius;
 
                 public AutoMapMarkerSetting() { /* paramaterless constructor required by proto-buf */ }
 
                 [JsonConstructor]
-                public AutoMapMarkerSetting(bool enabled, string markerTitle, string markerColor, string markerIcon, int markerCoverageRadius)
+                public AutoMapMarkerSetting(bool enabled, bool pinned, string markerTitle, string markerColor, string markerIcon, int markerCoverageRadius)
                 {
                     Enabled = enabled;
+                    MarkerPinned = pinned;
                     MarkerTitle = markerTitle;
                     MarkerColor = markerColor;
                     MarkerIcon = markerIcon;
@@ -789,6 +895,18 @@ namespace Egocarib.AutoMapMarkers.Settings
 
                 [JsonIgnore]
                 public int? MarkerColorInteger
+                {
+                    get
+                    {
+                        int? ret = MarkerColorIntegerNoAlpha;
+                        if (ret.HasValue)
+                            ret = ret.Value | (255 << 24);
+                        return ret;
+                    }
+                }
+
+                [JsonIgnore]
+                public int? MarkerColorIntegerNoAlpha
                 {
                     get
                     {
@@ -809,7 +927,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                         {
                             parsedColor = System.Drawing.Color.FromName(MarkerColor);
                         }
-                        return parsedColor.ToArgb() | (255 << 24);
+                        return parsedColor.ToArgb();
                     }
                 }
 

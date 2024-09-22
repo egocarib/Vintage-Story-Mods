@@ -26,6 +26,8 @@ namespace Egocarib.AutoMapMarkers.Network
         public bool sendChatMessageToPlayer;
         [ProtoMember(4)]
         public string dynamicTitleComponent;
+        [ProtoMember(5)]
+        public bool includeCoordinates;
     }
 
     [ProtoContract]
@@ -122,7 +124,7 @@ namespace Egocarib.AutoMapMarkers.Network
                 return;
             }
             WaypointUtil waypointUtil = new WaypointUtil(serverPlayer);
-            waypointUtil.AddWaypoint(request.waypointPosition, request.waypointSettings, request.sendChatMessageToPlayer, request.dynamicTitleComponent);
+            waypointUtil.AddWaypoint(request.waypointPosition, request.waypointSettings, request.sendChatMessageToPlayer, request.dynamicTitleComponent, request.includeCoordinates);
         }
 
         /// <summary>
@@ -179,7 +181,8 @@ namespace Egocarib.AutoMapMarkers.Network
                 MessageUtil.LogError("New map marker unexpectedly requested from server-side thread.");
                 return;
             }
-            if (MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).DisableAllModFeatures)
+            var modSettings = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
+            if (modSettings.DisableAllModFeatures)
             {
                 MessageUtil.Log("Suppressed automatic map marker creation - mod features are currently disabled.");
                 return;
@@ -194,7 +197,8 @@ namespace Egocarib.AutoMapMarkers.Network
                 waypointPosition = position,
                 waypointSettings = settings,
                 sendChatMessageToPlayer = sendChatMessage,
-                dynamicTitleComponent = dynamicTitleComponent
+                dynamicTitleComponent = dynamicTitleComponent,
+                includeCoordinates = modSettings.LabelCoordinates
             };
             ClientNetworkChannel.SendPacket(waypointRequest);
         }
