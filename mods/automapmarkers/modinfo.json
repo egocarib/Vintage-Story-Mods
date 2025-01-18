@@ -4,10 +4,10 @@
   "name": "Auto Map Markers",
   "authors": [ "egocarib" ],
   "description": "Automatically adds map markers to your map when you interact with certain objects. Fully configurable.",
-  "version": "4.0.1",
+  "version": "4.0.0",
   "requiredOnServer": true,
   "requiredOnClient":  true,
   "dependencies": {
-    "game": "1.20.0"
+    "game": "1.20.0-pre"
   }
 }

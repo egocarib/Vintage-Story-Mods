@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
@@ -73,7 +72,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
                 double zDiff = Math.Abs(waypoint.Position.Z - position.Z);
                 if (Math.Max(xDiff, zDiff) < settings.MarkerCoverageRadius)
                 {
-                    bool sameTitle = MatchingWaypointTitle(waypoint.Title, title);
+                    bool sameTitle = waypoint.Title == title;
                     bool sameIcon = waypoint.Icon == settings.MarkerIcon;
                     if (sameTitle && sameIcon)
                     {
@@ -210,19 +209,6 @@ namespace Egocarib.AutoMapMarkers.Utilities
                 colors.Add(ColorUtil.Hex2Int(hexcolors[i]));
             }
             return colors.ToArray();
-        }
-
-        public static bool MatchingWaypointTitle(string title1, string title2)
-        {
-            // If the mod appended [X, Y, Z] coords to the title, don't include them in the comparison
-            if (title1.Last() == ']' && title2.Last() == ']')
-            {
-                var match1 = Regex.Match(title1, @"^(?<MarkerTitle>.+)  +\[\-?\d+, \-?\d+, \-?\d+\]$");
-                var match2 = Regex.Match(title2, @"^(?<MarkerTitle>.+)  +\[\-?\d+, \-?\d+, \-?\d+\]$");
-                if (match1.Success && match2.Success)
-                    return match1.Groups["MarkerTitle"].Value == match2.Groups["MarkerTitle"].Value;
-            }
-            return title1 == title2;
         }
 
     }

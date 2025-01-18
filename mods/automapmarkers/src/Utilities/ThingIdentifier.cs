@@ -361,18 +361,17 @@ namespace Egocarib.AutoMapMarkers.Utilities
 
         public bool MushroomNotPoisonous()
         {
-            // Returns true by default if error or unexpected case occurs (such as modded mushroom with no nutrition properties)
             BlockMushroom mushroomBlock = BlockOrEntity as BlockMushroom;
             if (mushroomBlock == null)
-                return true;
+                return false;
             IClientWorldAccessor world = MapMarkerMod.CoreClientAPI.World;
             ItemStack[] drops = mushroomBlock.GetDrops(world, BlockPosition, world.Player);
-            if (drops == null || drops.Length == 0 || drops[0] == null)
-                return true;
-            FoodNutritionProperties mushProps = drops[0].Collectible?.GetNutritionProperties(world, drops[0], world.Player.Entity);
-            if (mushProps != null && mushProps.Health < 0f)
-                return false;
-            return true;
+            if (drops != null && drops.Length > 0 && drops[0] != null)
+            {
+                FoodNutritionProperties mushProps = drops[0].Collectible?.GetNutritionProperties(world, drops[0], world.Player.Entity);
+                return mushProps == null || mushProps.Health >= 0f;  //null represents an inedible mushroom
+            }
+            return false;
         }
 
         // Misc blocks (soil, etc)
