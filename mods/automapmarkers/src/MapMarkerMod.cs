@@ -4,7 +4,6 @@ using Egocarib.AutoMapMarkers.Events;
 using Egocarib.AutoMapMarkers.Network;
 using Egocarib.AutoMapMarkers.Patches;
 using Egocarib.AutoMapMarkers.Settings;
-using System;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
@@ -28,6 +27,7 @@ namespace Egocarib.AutoMapMarkers
             CoreAPI.RegisterBlockBehaviorClass("egocarib_HarvestMarkerBehavior", typeof(HarvestMarkerBehavior));
             //CoreAPI.RegisterBlockBehaviorClass("egocarib_MushroomMarkerBehavior", typeof(MushroomMarkerBehavior));
             CoreAPI.RegisterBlockBehaviorClass("egocarib_LooseOreMarkerBehavior", typeof(LooseOresMarkerBehavior));
+            //Harmony.DEBUG = true;
             HarmonyAgent.Harmonize();
         }
 
