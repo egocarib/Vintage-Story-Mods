@@ -196,7 +196,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 public AutoMapMarkerSetting Tule = new AutoMapMarkerSetting(
                     enabled: false,
                     pinned: false,
-                    markerTitle: Lang.GetMatching("block-tallplant-tule-*"),
+                    markerTitle: Lang.Get("egocarib-mapmarkers:tule"),
                     markerColor: "darkkhaki",
                     markerIcon: "grain",
                     markerCoverageRadius: 20);
@@ -775,7 +775,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                                     { Lang.Get("egocarib-mapmarkers:fruit-trees"), AutoMapMarkers.OrganicMatter.FruitTree },
                                     { Lang.Get("egocarib-mapmarkers:wild-crops"), AutoMapMarkers.OrganicMatter.WildCrop },
                                     { Lang.Get("egocarib-mapmarkers:reeds"), AutoMapMarkers.OrganicMatter.Reed },
-                                    { Lang.GetMatching("block-tallplant-tule-*"), AutoMapMarkers.OrganicMatter.Tule }
+                                    { Lang.Get("egocarib-mapmarkers:tule"), AutoMapMarkers.OrganicMatter.Tule }
                                 }
                             },
                             { Lang.Get("egocarib-mapmarkers:surface-ore"),
