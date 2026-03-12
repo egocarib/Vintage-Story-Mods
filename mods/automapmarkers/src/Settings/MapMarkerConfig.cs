@@ -1,4 +1,4 @@
-﻿using Egocarib.AutoMapMarkers.Utilities;
+using Egocarib.AutoMapMarkers.Utilities;
 using Newtonsoft.Json;
 using ProtoBuf;
 using System;
@@ -636,6 +636,15 @@ namespace Egocarib.AutoMapMarkers.Settings
             [ProtoContract]
             public class MapMarkerSettings_Traders
             {
+                [ProtoMember(10)]
+                public AutoMapMarkerSetting TraderAgriculture = new AutoMapMarkerSetting(
+                    enabled: true,
+                    pinned: false,
+                    markerTitle: Lang.Get("item-creature-humanoid-trader-agriculture"),
+                    markerColor: "yellow",
+                    markerIcon: "trader",
+                    markerCoverageRadius: 20);
+
                 [ProtoMember(1)]
                 public AutoMapMarkerSetting TraderArtisan = new AutoMapMarkerSetting(
                     enabled: true,
@@ -838,6 +847,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                             { Lang.Get("egocarib-mapmarkers:traders"),
                                 new OrderedDictionary<string, AutoMapMarkerSetting>
                                 {
+                                    { Lang.Get("item-creature-humanoid-trader-agriculture"), AutoMapMarkers.Traders.TraderAgriculture },
                                     { Lang.Get("item-creature-humanoid-trader-artisan"), AutoMapMarkers.Traders.TraderArtisan },
                                     { Lang.Get("item-creature-humanoid-trader-buildmaterials"), AutoMapMarkers.Traders.TraderBuildingMaterials },
                                     { Lang.Get("item-creature-humanoid-trader-clothing"), AutoMapMarkers.Traders.TraderClothing },
