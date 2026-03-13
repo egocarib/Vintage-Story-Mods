@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Client;
 using Vintagestory.API.MathTools;
@@ -49,7 +49,7 @@ namespace Egocarib.AutoMapMarkers.Patches
             string dynamicTitleComponent = null;
 
             // If the player is looking at grass, check the block beneath the grass instead
-            if (block is BlockTallGrass)
+            if (block.Code?.Path?.StartsWith("tallgrass-", System.StringComparison.Ordinal) == true)
             {
                 blockPos = blockSel.Position.DownCopy();
                 block = MapMarkerMod.CoreClientAPI.World.BlockAccessor.GetBlock(blockPos);

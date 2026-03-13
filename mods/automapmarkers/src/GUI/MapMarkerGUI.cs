@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -27,7 +27,7 @@ namespace Egocarib.AutoMapMarkers.GUI
         public const string HotkeyCode = "egocarib_MapMarkerGUI";
         public const string DialogID = "egocarib-mapmarkers-config-menu";
         public MapMarkerConfig.Settings ModSettings;
-        public OrderedDictionary<string, OrderedDictionary<string, AutoMapMarkerSetting>> AutoMapMarkerSettings;
+        public Vintagestory.API.Datastructures.OrderedDictionary<string, Vintagestory.API.Datastructures.OrderedDictionary<string, AutoMapMarkerSetting>> AutoMapMarkerSettings;
         public readonly string ExtraSettingsTabName = Lang.Get("egocarib-mapmarkers:ui");
         public string CurrentTab;
         public int CurrentPage;

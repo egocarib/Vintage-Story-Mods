@@ -2,8 +2,8 @@
   {
     "op": "add",
     "side":  "server",
-    "file": "game:blocktypes/plant/bigberrybush",
-    "path": "/behaviorsByType/*-ripe/-",
+    "file": "game:blocktypes/plant/fruitingbush",
+    "path": "/behaviors/-",
     "value": {
       "name": "egocarib_HarvestMarkerBehavior"
     }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Egocarib.AutoMapMarkers.Settings;
@@ -388,11 +388,11 @@ namespace Egocarib.AutoMapMarkers.Utilities
 
         // Flora
         public bool IsResin { get { return BlockOrEntity.Code.Path.StartsWith("log-resin-", StringComparison.Ordinal); } }
-        public bool IsBlueberry { get { return BlockOrEntity.Code.Path.StartsWith("smallberrybush-blueberry-", StringComparison.Ordinal); } }
-        public bool IsCranberry { get { return BlockOrEntity.Code.Path.StartsWith("smallberrybush-cranberry-", StringComparison.Ordinal); } }
-        public bool IsCurrantBlack { get { return BlockOrEntity.Code.Path.StartsWith("bigberrybush-blackcurrant-", StringComparison.Ordinal); } }
-        public bool IsCurrantRed { get { return BlockOrEntity.Code.Path.StartsWith("bigberrybush-redcurrant-", StringComparison.Ordinal); } }
-        public bool IsCurrantWhite { get { return BlockOrEntity.Code.Path.StartsWith("bigberrybush-whitecurrant-", StringComparison.Ordinal); } }
+        public bool IsBlueberry { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-blueberry-"); } }
+        public bool IsCranberry { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-cranberry-"); } }
+        public bool IsCurrantBlack { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-blackcurrant-"); } }
+        public bool IsCurrantRed { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-redcurrant-"); } }
+        public bool IsCurrantWhite { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-whitecurrant-"); } }
         public bool IsMushroomAny { get { return BlockOrEntity.Code.Path.StartsWith("mushroom-", StringComparison.Ordinal); } }
         public bool IsWildCropAny { get { return BlockOrEntity.Code.Path.StartsWith("crop-", StringComparison.Ordinal); } }
         public bool IsFlowerAny { get { return BlockOrEntity.Code.Path.StartsWith("flower-", StringComparison.Ordinal) || BlockOrEntity.Code.Path.StartsWith("herb-", StringComparison.Ordinal); } }
@@ -442,15 +442,17 @@ namespace Egocarib.AutoMapMarkers.Utilities
         public bool IsZincBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-sphalerite-"); } }
         public bool IsNickelBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-pentlandite-"); } }
 
-        // Trader entities
-        public bool IsArtisan { get { return BlockOrEntity.Code.Path.Contains("-trader-artisan"); } }
-        public bool IsBuildingMaterials { get { return BlockOrEntity.Code.Path.Contains("-trader-buildmaterials"); } }
-        public bool IsClothing { get { return BlockOrEntity.Code.Path.Contains("-trader-clothing"); } }
-        public bool IsCommodities { get { return BlockOrEntity.Code.Path.Contains("-trader-commodities"); } }
-        public bool IsFoods { get { return BlockOrEntity.Code.Path.Contains("-trader-foods"); } }
-        public bool IsFurniture { get { return BlockOrEntity.Code.Path.Contains("-trader-furniture"); } }
-        public bool IsLuxuries { get { return BlockOrEntity.Code.Path.Contains("-trader-luxuries"); } }
-        public bool IsSurvivalGoods { get { return BlockOrEntity.Code.Path.Contains("-trader-survivalgoods"); } }
-        public bool IsTreasureHunter { get { return BlockOrEntity.Code.Path.Contains("-trader-treasurehunter"); } }
+        // Trader entities (VS 1.22+: entity code is "trader" with gender+type variants, e.g. "trader-male-artisan")
+        private bool IsTrader(string traderType) { return BlockOrEntity.Code.Path.StartsWith("trader-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-" + traderType); }
+        public bool IsAgriculture { get { return IsTrader("agriculture"); } }
+        public bool IsArtisan { get { return IsTrader("artisan"); } }
+        public bool IsBuildingMaterials { get { return IsTrader("buildmaterials"); } }
+        public bool IsClothing { get { return IsTrader("clothing"); } }
+        public bool IsCommodities { get { return IsTrader("commodities"); } }
+        public bool IsFoods { get { return IsTrader("foods"); } }
+        public bool IsFurniture { get { return IsTrader("furniture"); } }
+        public bool IsLuxuries { get { return IsTrader("luxuries"); } }
+        public bool IsSurvivalGoods { get { return IsTrader("survivalgoods"); } }
+        public bool IsTreasureHunter { get { return IsTrader("treasurehunter"); } }
     }
 }

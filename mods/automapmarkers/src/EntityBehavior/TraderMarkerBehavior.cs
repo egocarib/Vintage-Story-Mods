@@ -1,4 +1,4 @@
-﻿using Egocarib.AutoMapMarkers.Settings;
+using Egocarib.AutoMapMarkers.Settings;
 using Egocarib.AutoMapMarkers.Utilities;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -56,6 +56,8 @@ namespace Egocarib.AutoMapMarkers.EntityBehavior
         private MapMarkerConfig.Settings.AutoMapMarkerSetting GetTraderSettings(MapMarkerConfig.Settings config)
         {
             ThingIdentifier thing = new ThingIdentifier(entity);
+            if (thing.IsAgriculture)
+                return config.AutoMapMarkers.Traders.TraderAgriculture;
             if (thing.IsArtisan)
                 return config.AutoMapMarkers.Traders.TraderArtisan;
             if (thing.IsBuildingMaterials)
