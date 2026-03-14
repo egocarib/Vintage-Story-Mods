@@ -1,0 +1,11 @@
+[
+  {
+    "op": "add",
+    "side": "server",
+    "file": "game:blocktypes/plant/fruitingbush",
+    "path": "/behaviors/-",
+    "value": {
+      "name": "egocarib_HarvestMarkerBehavior"
+    }
+  }
+]
