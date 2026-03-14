@@ -27,13 +27,13 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
             return base.OnBlockInteractStart(world, byPlayer, blockSel, ref handling);
         }
 
-        public override void OnBlockBroken(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, ref EnumHandling handling)
+        public override void OnBlockBroken(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier, ref EnumHandling handling)
         {
             if (world.Side == EnumAppSide.Client)
             {
                 HandleInteraction(pos, byPlayer);
             }
-            base.OnBlockBroken(world, pos, byPlayer, ref handling);
+            base.OnBlockBroken(world, pos, byPlayer, dropQuantityMultiplier, ref handling);
         }
 
         public void HandleInteraction(BlockPos pos, IPlayer byPlayer)
