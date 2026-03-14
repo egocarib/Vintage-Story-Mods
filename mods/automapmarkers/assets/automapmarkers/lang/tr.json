@@ -1,0 +1,16 @@
+{
+  "egocarib-mapmarkers:modname": "Otomatik Harita İşaretleyicileri",
+  "egocarib-mapmarkers:config-keybind-name": "Otomatik Harita İşaretleyici Yapılandırması",
+  "egocarib-mapmarkers:config-keybind-custom1": "Özel İşaret 1 Ekle",
+  "egocarib-mapmarkers:config-keybind-custom2": "Özel İşaret 2 Ekle",
+  "egocarib-mapmarkers:config-keybind-custom3": "Özel İşaret 3 Ekle",
+  "egocarib-mapmarkers:config-keybind-delete-nearest": "En Yakın Harita İşaretçisini Sil",
+  "egocarib-mapmarkers:config-menu-title": "Otomatik Harita İşaretleyici Ayarları",
+  "egocarib-mapmarkers:config-menu-section-header1": "Otomatik Harita İşaretleyicileri",
+  "egocarib-mapmarkers:page": "Sayfa",
+  "egocarib-mapmarkers:icon": "Simge",
+  "egocarib-mapmarkers:color": "Renk",
+  "egocarib-mapmarkers:name": "Ad",
+  "egocarib-mapmarkers:disabled": "Devre Dışı",
+  "egocarib-mapmarkers:not-saved-warning": "Otomatik Harita İşaretleyici ayarları kaydedilmedi: Ayarlar geçersiz renkler veya adlar içeriyordu."
+}
