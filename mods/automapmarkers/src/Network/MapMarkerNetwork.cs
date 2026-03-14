@@ -57,6 +57,7 @@ namespace Egocarib.AutoMapMarkers.Network
         public const string ChannelID = "Egocarib.AutoMapMarkers.Network.MapMarkerChannel";
         private Timer ClientHandshakeTimer;
         private int ConnectionCheckAttempts = 0;
+        private bool ConnectionWarningSent = false;
 
         public MapMarkerNetwork(ICoreAPI api)
         {
@@ -273,8 +274,12 @@ namespace Egocarib.AutoMapMarkers.Network
                 var clientAPI = CoreAPI as ICoreClientAPI;
                 if (clientAPI == null || clientAPI.IsSinglePlayer == false)
                 {
-                    MessageUtil.Chat(Lang.Get("egocarib-mapmarkers:server-warning"));
-                    MapMarkerConfig.GetSettings(CoreAPI); //Ensure that a config file is generated
+                    if (!ConnectionWarningSent)
+                    {
+                        ConnectionWarningSent = true;  // Ensure only a single chat warning appears
+                        MessageUtil.Chat(Lang.Get("egocarib-mapmarkers:server-warning"));
+                        MapMarkerConfig.GetSettings(CoreAPI); //Ensure that a config file is generated
+                    }
                 }
             }
             else
