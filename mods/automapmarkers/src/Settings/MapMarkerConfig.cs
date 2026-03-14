@@ -658,7 +658,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 public AutoMapMarkerSetting TraderAgriculture = new AutoMapMarkerSetting(
                     enabled: true,
                     pinned: false,
-                    markerTitle: Lang.Get("item-creature-humanoid-trader-agriculture"),
+                    markerTitle: Lang.Get("egocarib-mapmarkers:trader-agriculture"),
                     markerColor: "yellow",
                     markerIcon: "trader",
                     markerCoverageRadius: 20);
@@ -667,7 +667,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 public AutoMapMarkerSetting TraderArtisan = new AutoMapMarkerSetting(
                     enabled: true,
                     pinned: false,
-                    markerTitle: Lang.Get("item-creature-humanoid-trader-artisan"),
+                    markerTitle: Lang.Get("egocarib-mapmarkers:trader-artisan"),
                     markerColor: "yellow",
                     markerIcon: "trader",
                     markerCoverageRadius: 20);
@@ -676,7 +676,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 public AutoMapMarkerSetting TraderBuildingMaterials = new AutoMapMarkerSetting(
                     enabled: true,
                     pinned: false,
-                    markerTitle: Lang.Get("item-creature-humanoid-trader-buildmaterials"),
+                    markerTitle: Lang.Get("egocarib-mapmarkers:trader-buildmaterials"),
                     markerColor: "yellow",
                     markerIcon: "trader",
                     markerCoverageRadius: 20);
@@ -685,7 +685,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 public AutoMapMarkerSetting TraderClothing = new AutoMapMarkerSetting(
                     enabled: true,
                     pinned: false,
-                    markerTitle: Lang.Get("item-creature-humanoid-trader-clothing"),
+                    markerTitle: Lang.Get("egocarib-mapmarkers:trader-clothing"),
                     markerColor: "yellow",
                     markerIcon: "trader",
                     markerCoverageRadius: 20);
@@ -694,25 +694,25 @@ namespace Egocarib.AutoMapMarkers.Settings
                 public AutoMapMarkerSetting TraderCommodities = new AutoMapMarkerSetting(
                     enabled: true,
                     pinned: false,
-                    markerTitle: Lang.Get("item-creature-humanoid-trader-commodities"),
+                    markerTitle: Lang.Get("egocarib-mapmarkers:trader-commodities"),
                     markerColor: "yellow",
                     markerIcon: "trader",
                     markerCoverageRadius: 20);
 
-                [ProtoMember(5)]
-                public AutoMapMarkerSetting TraderFoods = new AutoMapMarkerSetting(
-                    enabled: true,
-                    pinned: false,
-                    markerTitle: Lang.Get("item-creature-humanoid-trader-foods"),
-                    markerColor: "yellow",
-                    markerIcon: "trader",
-                    markerCoverageRadius: 20);
+                //[ProtoMember(5)]
+                //public AutoMapMarkerSetting TraderFoods = new AutoMapMarkerSetting(
+                //    enabled: true,
+                //    pinned: false,
+                //    markerTitle: Lang.Get("egocarib-mapmarkers:trader-foods"),
+                //    markerColor: "yellow",
+                //    markerIcon: "trader",
+                //    markerCoverageRadius: 20);
 
                 [ProtoMember(6)]
                 public AutoMapMarkerSetting TraderFurniture = new AutoMapMarkerSetting(
                     enabled: true,
                     pinned: false,
-                    markerTitle: Lang.Get("item-creature-humanoid-trader-furniture"),
+                    markerTitle: Lang.Get("egocarib-mapmarkers:trader-furniture"),
                     markerColor: "yellow",
                     markerIcon: "trader",
                     markerCoverageRadius: 20);
@@ -721,7 +721,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 public AutoMapMarkerSetting TraderLuxuries = new AutoMapMarkerSetting(
                     enabled: true,
                     pinned: false,
-                    markerTitle: Lang.Get("item-creature-humanoid-trader-luxuries"),
+                    markerTitle: Lang.Get("egocarib-mapmarkers:trader-luxuries"),
                     markerColor: "yellow",
                     markerIcon: "trader",
                     markerCoverageRadius: 20);
@@ -730,7 +730,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 public AutoMapMarkerSetting TraderSurvivalGoods = new AutoMapMarkerSetting(
                     enabled: true,
                     pinned: false,
-                    markerTitle: Lang.Get("item-creature-humanoid-trader-survivalgoods"),
+                    markerTitle: Lang.Get("egocarib-mapmarkers:trader-survivalgoods"),
                     markerColor: "yellow",
                     markerIcon: "trader",
                     markerCoverageRadius: 20);
@@ -739,7 +739,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 public AutoMapMarkerSetting TraderTreasureHunter = new AutoMapMarkerSetting(
                     enabled: true,
                     pinned: false,
-                    markerTitle: Lang.Get("item-creature-humanoid-trader-treasurehunter"),
+                    markerTitle: Lang.Get("egocarib-mapmarkers:trader-treasurehunter"),
                     markerColor: "yellow",
                     markerIcon: "trader",
                     markerCoverageRadius: 20);
@@ -867,16 +867,15 @@ namespace Egocarib.AutoMapMarkers.Settings
                             { Lang.Get("egocarib-mapmarkers:traders"),
                                 new OrderedDictionary<string, AutoMapMarkerSetting>
                                 {
-                                    { Lang.Get("item-creature-humanoid-trader-agriculture"), AutoMapMarkers.Traders.TraderAgriculture },
-                                    { Lang.Get("item-creature-humanoid-trader-artisan"), AutoMapMarkers.Traders.TraderArtisan },
-                                    { Lang.Get("item-creature-humanoid-trader-buildmaterials"), AutoMapMarkers.Traders.TraderBuildingMaterials },
-                                    { Lang.Get("item-creature-humanoid-trader-clothing"), AutoMapMarkers.Traders.TraderClothing },
-                                    { Lang.Get("item-creature-humanoid-trader-commodities"), AutoMapMarkers.Traders.TraderCommodities },
-                                    { Lang.Get("item-creature-humanoid-trader-foods"), AutoMapMarkers.Traders.TraderFoods },
-                                    { Lang.Get("item-creature-humanoid-trader-furniture"), AutoMapMarkers.Traders.TraderFurniture },
-                                    { Lang.Get("item-creature-humanoid-trader-luxuries"), AutoMapMarkers.Traders.TraderLuxuries },
-                                    { Lang.Get("item-creature-humanoid-trader-survivalgoods"), AutoMapMarkers.Traders.TraderSurvivalGoods },
-                                    { Lang.Get("item-creature-humanoid-trader-treasurehunter"), AutoMapMarkers.Traders.TraderTreasureHunter }
+                                    { Lang.Get("egocarib-mapmarkers:trader-agriculture"), AutoMapMarkers.Traders.TraderAgriculture },
+                                    { Lang.Get("egocarib-mapmarkers:trader-artisan"), AutoMapMarkers.Traders.TraderArtisan },
+                                    { Lang.Get("egocarib-mapmarkers:trader-buildmaterials"), AutoMapMarkers.Traders.TraderBuildingMaterials },
+                                    { Lang.Get("egocarib-mapmarkers:trader-clothing"), AutoMapMarkers.Traders.TraderClothing },
+                                    { Lang.Get("egocarib-mapmarkers:trader-commodities"), AutoMapMarkers.Traders.TraderCommodities },
+                                    { Lang.Get("egocarib-mapmarkers:trader-furniture"), AutoMapMarkers.Traders.TraderFurniture },
+                                    { Lang.Get("egocarib-mapmarkers:trader-luxuries"), AutoMapMarkers.Traders.TraderLuxuries },
+                                    { Lang.Get("egocarib-mapmarkers:trader-survivalgoods"), AutoMapMarkers.Traders.TraderSurvivalGoods },
+                                    { Lang.Get("egocarib-mapmarkers:trader-treasurehunter"), AutoMapMarkers.Traders.TraderTreasureHunter }
                                 }
                             },
                             { Lang.Get("egocarib-mapmarkers:custom"),

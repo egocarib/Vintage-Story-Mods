@@ -66,8 +66,6 @@ namespace Egocarib.AutoMapMarkers.EntityBehavior
                 return config.AutoMapMarkers.Traders.TraderClothing;
             if (thing.IsCommodities)
                 return config.AutoMapMarkers.Traders.TraderCommodities;
-            if (thing.IsFoods)
-                return config.AutoMapMarkers.Traders.TraderFoods;
             if (thing.IsFurniture)
                 return config.AutoMapMarkers.Traders.TraderFurniture;
             if (thing.IsLuxuries)
