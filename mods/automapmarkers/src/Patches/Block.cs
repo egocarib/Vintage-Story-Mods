@@ -49,10 +49,14 @@ namespace Egocarib.AutoMapMarkers.Patches
             string dynamicTitleComponent = null;
 
             // If the player is looking at grass, check the block beneath the grass instead
-            if (block.Code?.Path?.StartsWith("tallgrass-", System.StringComparison.Ordinal) == true)
+            if (block is BlockPlant)
             {
-                blockPos = blockSel.Position.DownCopy();
-                block = MapMarkerMod.CoreClientAPI.World.BlockAccessor.GetBlock(blockPos);
+                bool? isGrass = block.Code?.Path?.StartsWith("tallgrass-", System.StringComparison.Ordinal);
+                if (isGrass == true)
+                {
+                    blockPos = blockSel.Position.DownCopy();
+                    block = MapMarkerMod.CoreClientAPI.World.BlockAccessor.GetBlock(blockPos);
+                }
             }
 
             // BlockSoil (High Fert. Soil) and BlockSoilDeposit (Peat, Red Clay, Blue Clay, Fire Clay)
