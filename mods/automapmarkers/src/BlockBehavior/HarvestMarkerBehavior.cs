@@ -60,6 +60,8 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
                 return config.AutoMapMarkers.OrganicMatter.Resin;
             if (thing.IsBlueberry)
                 return config.AutoMapMarkers.OrganicMatter.Blueberry;
+            if (thing.IsBeautyberry)
+                return config.AutoMapMarkers.OrganicMatter.Beautyberry;
             if (thing.IsCranberry)
                 return config.AutoMapMarkers.OrganicMatter.Cranberry;
             if (thing.IsCurrantBlack)
@@ -68,6 +70,8 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
                 return config.AutoMapMarkers.OrganicMatter.RedCurrant;
             if (thing.IsCurrantWhite)
                 return config.AutoMapMarkers.OrganicMatter.WhiteCurrant;
+            if (thing.IsStrawberry)
+                return config.AutoMapMarkers.OrganicMatter.Strawberry;
 
             return null;
         }

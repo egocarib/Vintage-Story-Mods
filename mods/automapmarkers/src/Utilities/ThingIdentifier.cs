@@ -101,6 +101,8 @@ namespace Egocarib.AutoMapMarkers.Utilities
                 MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Resin;
             else if (IsBlueberry)
                 MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Blueberry;
+            else if (IsBeautyberry)
+                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Beautyberry;
             else if (IsCranberry)
                 MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Cranberry;
             else if (IsCurrantBlack)
@@ -109,6 +111,8 @@ namespace Egocarib.AutoMapMarkers.Utilities
                 MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.RedCurrant;
             else if (IsCurrantWhite)
                 MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.WhiteCurrant;
+            else if (IsStrawberry)
+                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Strawberry;
             else
                 return false;
 
@@ -389,10 +393,12 @@ namespace Egocarib.AutoMapMarkers.Utilities
         // Flora
         public bool IsResin { get { return BlockOrEntity.Code.Path.StartsWith("log-resin-", StringComparison.Ordinal); } }
         public bool IsBlueberry { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-blueberry-"); } }
+        public bool IsBeautyberry { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-beautyberry-"); } }
         public bool IsCranberry { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-cranberry-"); } }
         public bool IsCurrantBlack { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-blackcurrant-"); } }
         public bool IsCurrantRed { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-redcurrant-"); } }
         public bool IsCurrantWhite { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-whitecurrant-"); } }
+        public bool IsStrawberry { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-strawberry-"); } }
         public bool IsMushroomAny { get { return BlockOrEntity.Code.Path.StartsWith("mushroom-", StringComparison.Ordinal); } }
         public bool IsWildCropAny { get { return BlockOrEntity.Code.Path.StartsWith("crop-", StringComparison.Ordinal); } }
         public bool IsFlowerAny { get { return BlockOrEntity.Code.Path.StartsWith("flower-", StringComparison.Ordinal) || BlockOrEntity.Code.Path.StartsWith("herb-", StringComparison.Ordinal); } }

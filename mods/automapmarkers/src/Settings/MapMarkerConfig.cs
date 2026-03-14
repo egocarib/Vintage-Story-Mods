@@ -84,6 +84,15 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerIcon: "circle",
                     markerCoverageRadius: 6);
 
+                [ProtoMember(17)]
+                public AutoMapMarkerSetting Beautyberry = new AutoMapMarkerSetting(
+                    enabled: false,
+                    pinned: false,
+                    markerTitle: Lang.Get("item-fruit-beautyberry"),
+                    markerColor: "fuchsia",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 6);
+
                 [ProtoMember(3)]
                 public AutoMapMarkerSetting Cranberry = new AutoMapMarkerSetting(
                     enabled: false,
@@ -117,6 +126,15 @@ namespace Egocarib.AutoMapMarkers.Settings
                     pinned: false,
                     markerTitle: Lang.Get("item-fruit-whitecurrant"),
                     markerColor: "ivory",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 6);
+
+                [ProtoMember(18)]
+                public AutoMapMarkerSetting Strawberry = new AutoMapMarkerSetting(
+                    enabled: false,
+                    pinned: false,
+                    markerTitle: Lang.Get("item-fruit-strawberry"),
+                    markerColor: "orangered",
                     markerIcon: "circle",
                     markerCoverageRadius: 6);
 
@@ -774,10 +792,12 @@ namespace Egocarib.AutoMapMarkers.Settings
                                 {
                                     { Lang.Get("item-resin"), AutoMapMarkers.OrganicMatter.Resin },
                                     { Lang.Get("item-fruit-blueberry"), AutoMapMarkers.OrganicMatter.Blueberry },
+                                    { Lang.Get("item-fruit-beautyberry"), AutoMapMarkers.OrganicMatter.Beautyberry },
                                     { Lang.Get("item-fruit-cranberry"), AutoMapMarkers.OrganicMatter.Cranberry },
                                     { Lang.Get("item-fruit-blackcurrant"), AutoMapMarkers.OrganicMatter.BlackCurrant },
                                     { Lang.Get("item-fruit-redcurrant"), AutoMapMarkers.OrganicMatter.RedCurrant },
                                     { Lang.Get("item-fruit-whitecurrant"), AutoMapMarkers.OrganicMatter.WhiteCurrant },
+                                    { Lang.Get("item-fruit-strawberry"), AutoMapMarkers.OrganicMatter.Strawberry },
                                     { Lang.Get("egocarib-mapmarkers:safe-mushrooms"), AutoMapMarkers.OrganicMatter.SafeMushroom },
                                     { Lang.Get("egocarib-mapmarkers:unsafe-mushrooms"), AutoMapMarkers.OrganicMatter.UnsafeMushroom },
                                     { Lang.Get("egocarib-mapmarkers:flowers"), AutoMapMarkers.OrganicMatter.Flower },
