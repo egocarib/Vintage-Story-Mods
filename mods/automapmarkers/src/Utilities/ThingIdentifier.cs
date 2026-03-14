@@ -274,8 +274,8 @@ namespace Egocarib.AutoMapMarkers.Utilities
                 MarkerSettings = ModConfig?.AutoMapMarkers.Traders.TraderClothing;
             else if (IsCommodities)
                 MarkerSettings = ModConfig?.AutoMapMarkers.Traders.TraderCommodities;
-            else if (IsFoods)
-                MarkerSettings = ModConfig?.AutoMapMarkers.Traders.TraderFoods;
+            else if (IsAgriculture)
+                MarkerSettings = ModConfig?.AutoMapMarkers.Traders.TraderAgriculture;
             else if (IsFurniture)
                 MarkerSettings = ModConfig?.AutoMapMarkers.Traders.TraderFurniture;
             else if (IsLuxuries)
@@ -455,7 +455,6 @@ namespace Egocarib.AutoMapMarkers.Utilities
         public bool IsBuildingMaterials { get { return IsTrader("buildmaterials"); } }
         public bool IsClothing { get { return IsTrader("clothing"); } }
         public bool IsCommodities { get { return IsTrader("commodities"); } }
-        public bool IsFoods { get { return IsTrader("foods"); } }
         public bool IsFurniture { get { return IsTrader("furniture"); } }
         public bool IsLuxuries { get { return IsTrader("luxuries"); } }
         public bool IsSurvivalGoods { get { return IsTrader("survivalgoods"); } }
