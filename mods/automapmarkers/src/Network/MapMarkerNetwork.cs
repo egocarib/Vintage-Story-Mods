@@ -41,6 +41,12 @@ namespace Egocarib.AutoMapMarkers.Network
     {
         [ProtoMember(1)]
         public bool sendChatMessageToPlayer;
+        [ProtoMember(2)]
+        public Vec3d targetPosition;
+        [ProtoMember(3)]
+        public string titlePattern;
+        [ProtoMember(4)]
+        public double maxRadius;
     }
 
     /// <summary>
@@ -143,7 +149,9 @@ namespace Egocarib.AutoMapMarkers.Network
                 return;
             }
             WaypointUtil waypointUtil = new WaypointUtil(serverPlayer);
-            waypointUtil.DeleteNearestWaypoint(request.sendChatMessageToPlayer);
+            waypointUtil.DeleteNearestWaypoint(request.sendChatMessageToPlayer,
+                request.targetPosition, request.titlePattern,
+                request.maxRadius > 0 ? request.maxRadius : double.MaxValue);
         }
 
         /// <summary>
@@ -231,6 +239,41 @@ namespace Egocarib.AutoMapMarkers.Network
             var waypointRequest = new ClientWaypointDeleteRequest
             {
                 sendChatMessageToPlayer = sendChatMessage
+            };
+            ClientNetworkChannel.SendPacket(waypointRequest);
+        }
+
+        /// <summary>
+        /// Method called by a client to request that the server delete a waypoint at a specific position
+        /// matching a title pattern, within a given radius.
+        /// </summary>
+        /// <remarks>
+        /// Side: client only
+        /// </remarks>
+        public void RequestWaypointDeletionAtPositionFromServer(Vec3d position, bool sendChatMessage, string titlePattern, double maxRadius)
+        {
+            if (Side != EnumAppSide.Client)
+            {
+                MessageUtil.LogError("Waypoint deletion unexpectedly requested from server-side thread.");
+                return;
+            }
+            var modSettings = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
+            if (modSettings == null || modSettings.DisableAllModFeatures)
+            {
+                MessageUtil.Log("Suppressed map marker deletion request - mod features are currently disabled.");
+                return;
+            }
+            if (!ClientNetworkChannel.Connected)
+            {
+                MessageUtil.LogError("Not connected to mod instance on server - unable to request map marker deletion.");
+                return;
+            }
+            var waypointRequest = new ClientWaypointDeleteRequest
+            {
+                sendChatMessageToPlayer = sendChatMessage,
+                targetPosition = position,
+                titlePattern = titlePattern,
+                maxRadius = maxRadius
             };
             ClientNetworkChannel.SendPacket(waypointRequest);
         }

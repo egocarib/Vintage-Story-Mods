@@ -653,6 +653,24 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerColor: "darkturquoise",
                     markerIcon: "spiral",
                     markerCoverageRadius: 2);
+
+                [ProtoMember(10)]
+                public AutoMapMarkerSetting Raft = new AutoMapMarkerSetting(
+                    enabled: true,
+                    pinned: true,
+                    markerTitle: Lang.Get("egocarib-mapmarkers:raft"),
+                    markerColor: "gold",
+                    markerIcon: "star1",
+                    markerCoverageRadius: 8);
+
+                [ProtoMember(11)]
+                public AutoMapMarkerSetting Sailboat = new AutoMapMarkerSetting(
+                    enabled: true,
+                    pinned: true,
+                    markerTitle: Lang.Get("egocarib-mapmarkers:sailboat"),
+                    markerColor: "gold",
+                    markerIcon: "star1",
+                    markerCoverageRadius: 8);
             }
 
             [ProtoContract]
@@ -865,7 +883,9 @@ namespace Egocarib.AutoMapMarkers.Settings
                                     { Lang.GetMatching("block-peat-none"), AutoMapMarkers.MiscBlocks.BlockPeat },
                                     { Lang.GetMatching("block-soil-compost-none"), AutoMapMarkers.MiscBlocks.BlockHighFertilitySoil },
                                     { Lang.GetMatching("block-meteorite-iron"), AutoMapMarkers.MiscBlocks.BlockMeteoriticIron },
-                                    { Lang.Get("block-saltpeter-d"), AutoMapMarkers.MiscBlocks.BlockCoatingSaltpeter }
+                                    { Lang.Get("block-saltpeter-d"), AutoMapMarkers.MiscBlocks.BlockCoatingSaltpeter },
+                                    { Lang.Get("egocarib-mapmarkers:raft"), AutoMapMarkers.MiscBlocks.Raft },
+                                    { Lang.Get("egocarib-mapmarkers:sailboat"), AutoMapMarkers.MiscBlocks.Sailboat }
                                 }
                             },
                             { Lang.Get("egocarib-mapmarkers:traders"),

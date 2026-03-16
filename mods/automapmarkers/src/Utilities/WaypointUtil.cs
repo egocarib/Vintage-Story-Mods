@@ -131,9 +131,11 @@ namespace Egocarib.AutoMapMarkers.Utilities
         }
 
         /// <summary>
-        /// Finds the waypoint nearest to the player's current location. Then deletes the waypoint and syncs data back to the client.
+        /// Finds the waypoint nearest to the specified position (or the player's current location if null),
+        /// optionally filtering by title pattern and max radius. Then deletes the waypoint and syncs data back to the client.
         /// </summary>
-        public void DeleteNearestWaypoint(bool sendChatMessageToPlayer)
+        public void DeleteNearestWaypoint(bool sendChatMessageToPlayer,
+            Vec3d targetPosition = null, string titlePattern = null, double maxRadius = double.MaxValue)
         {
             if (!Valid)
             {
@@ -141,12 +143,19 @@ namespace Egocarib.AutoMapMarkers.Utilities
                 return;
             }
 
+            Vec3d searchPosition = targetPosition ?? ServerPlayer.Entity.Pos.XYZ;
             double closestWpDistance = double.MaxValue;
             Waypoint closestWp = null;
 
             foreach (Waypoint wp in WaypointMapLayer.Waypoints.Where(w => w.OwningPlayerUid == ServerPlayer.PlayerUID))
             {
-                double thisDist = ServerPlayer.Entity.Pos.DistanceTo(wp.Position);
+                if (titlePattern != null && (wp.Title == null || !wp.Title.Contains(titlePattern)))
+                    continue;
+
+                double thisDist = searchPosition.DistanceTo(wp.Position);
+                if (thisDist > maxRadius)
+                    continue;
+
                 if (thisDist < closestWpDistance)
                 {
                     closestWpDistance = thisDist;
