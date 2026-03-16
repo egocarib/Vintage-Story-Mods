@@ -43,6 +43,8 @@ namespace Egocarib.AutoMapMarkers.Settings
             public bool SuppressMarkerOnFarmland = true;
             [ProtoMember(12, IsRequired = true)]
             public bool EnableDetectHotkey = false;
+            [ProtoMember(13, IsRequired = true)]
+            public bool ChatNotifyOnBoatMarker = false;
             [ProtoMember(2, IsRequired = true)]
             public bool DisableAllModFeatures = true;
             [ProtoMember(3)]
@@ -884,8 +886,8 @@ namespace Egocarib.AutoMapMarkers.Settings
                                     { Lang.GetMatching("block-soil-compost-none"), AutoMapMarkers.MiscBlocks.BlockHighFertilitySoil },
                                     { Lang.GetMatching("block-meteorite-iron"), AutoMapMarkers.MiscBlocks.BlockMeteoriticIron },
                                     { Lang.Get("block-saltpeter-d"), AutoMapMarkers.MiscBlocks.BlockCoatingSaltpeter },
-                                    { Lang.Get("egocarib-mapmarkers:raft"), AutoMapMarkers.MiscBlocks.Raft },
-                                    { Lang.Get("egocarib-mapmarkers:sailboat"), AutoMapMarkers.MiscBlocks.Sailboat }
+                                    { Lang.Get("egocarib-mapmarkers:raft-menu"), AutoMapMarkers.MiscBlocks.Raft },
+                                    { Lang.Get("egocarib-mapmarkers:sailboat-menu"), AutoMapMarkers.MiscBlocks.Sailboat }
                                 }
                             },
                             { Lang.Get("egocarib-mapmarkers:traders"),

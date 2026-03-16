@@ -62,7 +62,7 @@ namespace Egocarib.AutoMapMarkers.Patches
             MapMarkerMod.Network?.RequestWaypointFromServer(
                 position: boatPos,
                 settings: setting,
-                sendChatMessage: config.ChatNotifyOnWaypointCreation);
+                sendChatMessage: config.ChatNotifyOnBoatMarker);
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Egocarib.AutoMapMarkers.Patches
             Vec3d boatPos = boatEntity.Pos.XYZ;
             MapMarkerMod.Network?.RequestWaypointDeletionAtPositionFromServer(
                 position: boatPos,
-                sendChatMessage: config.ChatNotifyOnWaypointDeletion,
+                sendChatMessage: config.ChatNotifyOnBoatMarker,
                 titlePattern: setting.MarkerTitle,
                 maxRadius: setting.MarkerCoverageRadius);
         }

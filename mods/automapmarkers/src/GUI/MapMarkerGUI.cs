@@ -656,6 +656,19 @@ namespace Egocarib.AutoMapMarkers.GUI
                 .EndChildElements()
                 .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
 
+                    // Chat messages for boat marker creation/deletion enabled/disabled
+                    .AddSwitch(
+                        onToggle: isSelected => { ModSettings.ChatNotifyOnBoatMarker = isSelected; },
+                        bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                        key: "toggle-show-boat-chat-message")
+                    .AddStaticText(
+                        text: Lang.Get("egocarib-mapmarkers:boat-chat-message"),
+                        font: CairoFont.WhiteSmallishText(),
+                        bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+                .EndChildElements()
+                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
                     // Custom waypoint hotkeys enabled/disabled
                     .AddSwitch(
                         onToggle: isSelected =>
@@ -744,6 +757,7 @@ namespace Egocarib.AutoMapMarkers.GUI
                 SingleComposer.GetSwitch("toggle-show-create-chat-message").SetValue(ModSettings.ChatNotifyOnWaypointCreation);
                 SingleComposer.GetSwitch("toggle-label-coordinates").SetValue(ModSettings.LabelCoordinates);
                 SingleComposer.GetSwitch("toggle-suppress-farmland").SetValue(ModSettings.SuppressMarkerOnFarmland);
+                SingleComposer.GetSwitch("toggle-show-boat-chat-message").SetValue(ModSettings.ChatNotifyOnBoatMarker);
                 SingleComposer.GetSwitch("toggle-enable-detect-hotkey").SetValue(ModSettings.EnableDetectHotkey);
                 SingleComposer.GetSwitch("toggle-enable-custom-hotkeys").SetValue(ModSettings.EnableCustomHotkeys);
                 SingleComposer.GetSwitch("toggle-enable-delete-hotkey").SetValue(ModSettings.EnableWaypointDeletionHotkey);
