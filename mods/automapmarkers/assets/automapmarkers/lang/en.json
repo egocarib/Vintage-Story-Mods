@@ -53,6 +53,7 @@
   "egocarib-mapmarkers:mark-style-sneak": "Mark map by sneaking while looking at object",
   "egocarib-mapmarkers:show-chat-message": "Show chat message when new map marker is added",
   "egocarib-mapmarkers:include-coordinates": "Include X,Y,Z coordinates in map marker labels",
+  "egocarib-mapmarkers:suppress-farmland": "Don't create markers for crops on farmland",
   "egocarib-mapmarkers:enable-custom-hotkeys": "Enable hotkeys to add customizable map markers",
   "egocarib-mapmarkers:enable-delete-hotkey": "Enable hotkey to delete nearest map marker",
   "egocarib-mapmarkers:show-chat-message-on-delete": "Show chat message when nearest map marker is deleted",

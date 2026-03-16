@@ -618,6 +618,19 @@ namespace Egocarib.AutoMapMarkers.GUI
                 .EndChildElements()
                 .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
 
+                    // Suppress markers on farmland enabled/disabled
+                    .AddSwitch(
+                        onToggle: isSelected => { ModSettings.SuppressMarkerOnFarmland = isSelected; },
+                        bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                        key: "toggle-suppress-farmland")
+                    .AddStaticText(
+                        text: Lang.Get("egocarib-mapmarkers:suppress-farmland"),
+                        font: CairoFont.WhiteSmallishText(),
+                        bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+                .EndChildElements()
+                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
                     // Custom waypoint hotkeys enabled/disabled
                     .AddSwitch(
                         onToggle: isSelected =>
@@ -705,6 +718,7 @@ namespace Egocarib.AutoMapMarkers.GUI
                 SingleComposer.GetSwitch("toggle-mark-style-sneak").SetValue(ModSettings.EnableMarkOnSneak);
                 SingleComposer.GetSwitch("toggle-show-create-chat-message").SetValue(ModSettings.ChatNotifyOnWaypointCreation);
                 SingleComposer.GetSwitch("toggle-label-coordinates").SetValue(ModSettings.LabelCoordinates);
+                SingleComposer.GetSwitch("toggle-suppress-farmland").SetValue(ModSettings.SuppressMarkerOnFarmland);
                 SingleComposer.GetSwitch("toggle-enable-custom-hotkeys").SetValue(ModSettings.EnableCustomHotkeys);
                 SingleComposer.GetSwitch("toggle-enable-delete-hotkey").SetValue(ModSettings.EnableWaypointDeletionHotkey);
                 SingleComposer.GetSwitch("toggle-show-delete-chat-message")?.SetValue(ModSettings.ChatNotifyOnWaypointDeletion);
