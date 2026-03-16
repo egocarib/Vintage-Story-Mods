@@ -16,7 +16,7 @@ namespace Egocarib.AutoMapMarkers.GUI
         private bool active;
         private bool currentlyMouseDownOnElement;
         public bool PlaySound = true;
-        //public static double Padding = 2.0; //TODO: is this used?
+
         public bool Visible = true;
         private string icon;
         private double[] iconColor;
@@ -114,7 +114,6 @@ namespace Egocarib.AutoMapMarkers.GUI
                 double h = Bounds.InnerHeight - GuiElement.scaled(11.0);
                 double w = h;
 
-                //MessageUtil.Log($"drawing icon: {icon} [x:{Bounds.absPaddingX + GuiElement.scaled(4.0)} y:{Bounds.absPaddingY + GuiElement.scaled(4.0)} w:{Bounds.InnerWidth - GuiElement.scaled(9.0)} h:{Bounds.InnerHeight - GuiElement.scaled(9.0)} argb: {iconColor.ToString()}");
                 api.Gui.Icons.DrawIcon(ctx, icon, x, y, w, h, GuiStyle.DialogDefaultTextColor);
 
                 //Draw color swatch

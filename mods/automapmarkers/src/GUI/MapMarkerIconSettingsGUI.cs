@@ -90,6 +90,7 @@ namespace Egocarib.AutoMapMarkers.GUI
             selectedColorIndex = index;
         }
 
+        // Intentionally empty — the pinned value is read directly from the switch when saving
         private void OnPinnedToggled(bool t1)
         {
         }

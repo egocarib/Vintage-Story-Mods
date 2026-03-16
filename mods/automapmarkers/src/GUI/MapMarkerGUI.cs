@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Cairo;
 using Vintagestory.API.Client;
@@ -17,7 +16,6 @@ using Vintagestory.API.MathTools;
 namespace Egocarib.AutoMapMarkers.GUI
 {
     using AutoMapMarkerSetting = MapMarkerConfig.Settings.AutoMapMarkerSetting;
-    using Color = System.Drawing.Color;
 
     /// <summary>
     /// The Auto Map Marker configuration menu
@@ -30,8 +28,9 @@ namespace Egocarib.AutoMapMarkers.GUI
         public Vintagestory.API.Datastructures.OrderedDictionary<string, Vintagestory.API.Datastructures.OrderedDictionary<string, AutoMapMarkerSetting>> AutoMapMarkerSettings;
         public readonly string ExtraSettingsTabName = Lang.Get("egocarib-mapmarkers:ui");
         public string CurrentTab;
-        public int CurrentPage;
-        public int DynamicDrawColor;
+
+        private ElementBounds scrollContentBounds;
+        private float currentScrollY;
         private Action RegisterCustomHotkeys;
         private Action RegisterDeleteHotkey;
         private Action RegisterDetectHotkey;
@@ -40,10 +39,6 @@ namespace Egocarib.AutoMapMarkers.GUI
         public int[] colors;
         private List<IAsset> loadedIconAssets;
         MapMarkerIconSettingsGUI iconConfigPopup;
-
-        ////TEST
-        //BitmapRef floraBitmap;
-        ////TEST
 
         public override string ToggleKeyCombinationCode { get { return HotkeyCode; } }
 
@@ -72,7 +67,7 @@ namespace Egocarib.AutoMapMarkers.GUI
                 AutoMapMarkerSettings = ModSettings.GetMapMarkerSettingCollection();
                 LoadIconTextures();
                 LoadColorOptions();
-                //LoadScenery(); //TEST
+
                 SetupDialog();
             }
             catch (Exception e)
@@ -86,13 +81,6 @@ namespace Egocarib.AutoMapMarkers.GUI
         {
             return $"wp{iconName.UcFirst()}";
         }
-
-        ////TEST
-        //private void LoadScenery()
-        //{
-        //    floraBitmap = capi.Assets.Get("automapmarkers:textures/gui/amm_flora_cover.png").ToBitmap(capi);
-        //}
-        ////TEST
 
         private void LoadColorOptions()
         {
@@ -146,8 +134,6 @@ namespace Egocarib.AutoMapMarkers.GUI
         /// </summary>
         private void SetupDialog()
         {
-            CairoFont headerFont = CairoFont.WhiteSmallishText().Clone().WithWeight(Cairo.FontWeight.Bold);
-            headerFont.Color[3] = 0.6; // Adjust transparency
             CairoFont disabledFont = CairoFont.WhiteSmallishText().Clone().WithSlant(FontSlant.Italic);
             disabledFont.Color[3] = 0.2;
 
@@ -160,18 +146,18 @@ namespace Egocarib.AutoMapMarkers.GUI
              *    bgBounds
              *      toggleButtonBarBounds
              *        toggleButtonBounds [multiple]
-             *      togglePageButtonBarBounds
-             *        togglePageButtonBounds [multiple]
              *      mainContentBounds
-             *        markerOptionAreaBounds
-             *          markerOptionRowBounds [multiple]
-             *            markerOption* [multiple]
+             *        clipBounds (visible viewport, marker tabs only)
+             *          markerOptionAreaBounds (scrollable content)
+             *            markerOptionRowBounds [multiple]
+             *              markerOption* [multiple]
+             *        scrollbarBounds (marker tabs only)
              */
 
             // Determine current tab and whether it needs to be paged
             if (string.IsNullOrEmpty(CurrentTab))
                 CurrentTab = AutoMapMarkerSettings.Keys.First();
-            bool needsPages = AutoMapMarkerSettings.ContainsKey(CurrentTab) && AutoMapMarkerSettings[CurrentTab].Count > 13;
+            bool isMarkerTab = CurrentTab != ExtraSettingsTabName;
 
             // Auto-sized dialog at the center of the screen
             ElementBounds dialogBounds = ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.CenterMiddle);
@@ -182,30 +168,20 @@ namespace Egocarib.AutoMapMarkers.GUI
             double ypos = 2.5;
             double yStart = 0;
             double opAreaHeight = 575;
-            double dgMinWidth = 920;  //NEW
-            double dgMaxWidth = 1080; //NEW
+            double dgMinWidth = 920;
+            double dgMaxWidth = 1080;
             double toggleBarHeight = 76;
-            double headerHeight = 48;
+
             double rowIndent = 20;
             double rowHeight = 42;
-            //double uiElementHeight = 25;
+
             double opPromptWidth = 280;
             double toggleWidth = 64; // 100; //Toggle switch, plus empty space after
             double disabledMsgWidth = 200;
-            //double iconLabelWidth = GetFontTextWidth(CairoFont.WhiteSmallishText(), Lang.Get("egocarib-mapmarkers:icon"), 12.0);  // Important to calculate these for localization
-            //double iconDropdownWidth = 60;
             double iconColorButtonWidth = 70;
             double iconColorButtonHeight = 32;
-            //double iconDropdownAfter = 28;
-            //double colorLabelWidth = GetFontTextWidth(CairoFont.WhiteSmallishText(), Lang.Get("egocarib-mapmarkers:color"), 12.0);
-            //double colorInputWidth = 140;
-            //double colorInputAfter = 10;
-            //double colorPreviewWidth = 55; //Color preview box, plus empty space after
-            //double nameLabelWidth = GetFontTextWidth(CairoFont.WhiteSmallishText(), Lang.Get("egocarib-mapmarkers:name"), 12.0);
-            //double nameInputWidth = 140;
             double titleBarThickness = 31;
-            double dgInnerWidth = opPromptWidth + toggleWidth + /* iconLabelWidth + iconDropdownWidth */ iconColorButtonWidth /* + iconDropdownAfter + colorLabelWidth + colorInputWidth
-                + colorInputAfter + colorPreviewWidth + nameLabelWidth + nameInputWidth */;
+            double dgInnerWidth = opPromptWidth + toggleWidth + iconColorButtonWidth;
             if (dgInnerWidth < dgMinWidth)
                 dgInnerWidth = dgMinWidth;
             else if (dgInnerWidth > dgMaxWidth)
@@ -218,13 +194,7 @@ namespace Egocarib.AutoMapMarkers.GUI
                 .WithFixedWidth(dgWidth - 2.0 * GuiStyle.ElementToDialogPadding);
             ElementBounds toggleButtonBounds = ElementBounds.Fixed(0, 0, 160, 40).WithFixedPadding(0, 3);
 
-            ElementBounds togglePageButtonBarBounds = ElementBounds
-                .Fixed(0, titleBarThickness + toggleBarHeight, dgWidth, toggleBarHeight)
-                .WithFixedPadding(GuiStyle.ElementToDialogPadding)
-                .WithFixedWidth(dgWidth - 2.0 * GuiStyle.ElementToDialogPadding);
-            ElementBounds togglePageButtonBounds = ElementBounds.Fixed(0, 0, 160, 40).WithFixedPadding(0, 3);
 
-            ElementBounds markerHeaderBounds = ElementBounds.Fixed(0, yStart, dgWidth, headerHeight);
             ElementBounds markerOptionAreaBounds = ElementBounds.Fixed(0, (int)(yStart))
                 .WithFixedPadding(rowIndent, 0)
                 .WithSizing(ElementSizing.FitToChildren);
@@ -236,26 +206,20 @@ namespace Egocarib.AutoMapMarkers.GUI
             ElementBounds markerOptionPromptBounds = ElementBounds.Fixed(xpos, ypos, opPromptWidth, rowHeight); 
             ElementBounds markerOptionToggleBounds = ElementBounds.Fixed(xpos += opPromptWidth, ypos - 2.5, toggleWidth, rowHeight); // bigger than dropdown/textinput, so we minus 2.5 pixels to vertically align better with rest of row
             ElementBounds markerOptionDisabledMessage = ElementBounds.Fixed(xpos += toggleWidth, ypos, disabledMsgWidth, rowHeight);
-            //ElementBounds markerOptionIconLabelBounds = ElementBounds.Fixed(xpos, ypos, iconLabelWidth, rowHeight);
-            //ElementBounds markerOptionIconDropdownBounds = ElementBounds.Fixed(xpos += iconLabelWidth, ypos, iconDropdownWidth, uiElementHeight);
-            ElementBounds markerOptionIconColorButtonBounds = ElementBounds.Fixed(xpos /*+= iconLabelWidth*/, ypos - 3.5, iconColorButtonWidth, iconColorButtonHeight);
-            //ElementBounds markerOptionColorLabelBounds = ElementBounds.Fixed(xpos += iconDropdownWidth + iconDropdownAfter, ypos, colorLabelWidth, rowHeight);
-            //ElementBounds markerOptionColorInputBounds = ElementBounds.Fixed(xpos += colorLabelWidth, ypos, colorInputWidth, uiElementHeight);
-            //ElementBounds markerOptionColorPreviewBounds = ElementBounds.Fixed(xpos += colorInputWidth + colorInputAfter, ypos, colorPreviewWidth, uiElementHeight);
-            //ElementBounds markerOptionNameLabelBounds = ElementBounds.Fixed(xpos += colorPreviewWidth, ypos, nameLabelWidth, rowHeight);
-            //ElementBounds markerOptionNameInputBounds = ElementBounds.Fixed(xpos += nameLabelWidth, ypos, nameInputWidth, uiElementHeight);
+            ElementBounds markerOptionIconColorButtonBounds = ElementBounds.Fixed(xpos, ypos - 3.5, iconColorButtonWidth, iconColorButtonHeight);
 
             ElementBounds mainContentBounds = ElementBounds.Fixed(0, titleBarThickness + toggleBarHeight, dgWidth - dialogPadding * 2, opAreaHeight)
                 .WithFixedPadding(dialogPadding);
-            // Uncomment the following line to make each tab resize the GUI to fit its contents (decided I didn't like that)
-            //.WithSizing(horizontalSizing: ElementSizing.Fixed, verticalSizing: ElementSizing.FitToChildren)
-            //.WithChildren(/*markerHeaderBounds,*/ markerOptionAreaBounds);
+
+            // Scrollable content area bounds
+            double clipWidth = dgInnerWidth + rowIndent * 2;
+            double clipHeight = opAreaHeight - 10;
+            ElementBounds clipBounds = ElementBounds.Fixed(0, 0, clipWidth, clipHeight);
+            ElementBounds scrollbarBounds = ElementBounds.Fixed(clipWidth + 5, 0, 20, clipHeight);
 
             ElementBounds bgBounds = ElementBounds.Fill
                 .WithChildren(mainContentBounds, toggleButtonBarBounds)
                 .WithSizing(ElementSizing.FitToChildren);
-            if (needsPages)
-                bgBounds = bgBounds.WithChild(togglePageButtonBarBounds);
 
             SingleComposer = capi.Gui.CreateCompo(DialogID, dialogBounds)
                 .AddShadedDialogBG(bgBounds)
@@ -317,81 +281,66 @@ namespace Egocarib.AutoMapMarkers.GUI
                 return;
             }
 
-            // Add Paging toggle bar if needed:
-            int pagedOptionStartNum = 1;
-            int pagedOptionEndNum = 14;
-            if (needsPages)
-            {
-                // Draw the paging bar if this category of options needs to be paged
-                SingleComposer
-                    .AddStaticCustomDraw(togglePageButtonBarBounds, delegate (Context ctx, ImageSurface surface, ElementBounds bounds)
-                    {
-                        ctx.SetSourceRGBA(1.0, 1.0, 1.0, 0.06);
-                        GuiElement.RoundRectangle(ctx, GuiElement.scaled(5.0) + bounds.bgDrawX, GuiElement.scaled(5.0) + bounds.bgDrawY, bounds.OuterWidth - GuiElement.scaled(10.0), GuiElement.scaled(75.0), 1.0);
-                        ctx.Fill();
-                    })
-                    .BeginChildElements(); // begin paging bar
-                int pageCt = AutoMapMarkerSettings[CurrentTab].Count / 12 + 1;
-                CurrentPage = (CurrentPage <= 0) ? 1 : CurrentPage;
-                for (int p = 1; p <= pageCt; p++)
-                {
-                    string pageName = $"{Lang.Get("egocarib-mapmarkers:page")} {p}";
-                    CairoFont buttonFont = CairoFont.ButtonText();
-                    int pVal = p;
-                    SingleComposer.AddToggleButton(
-                        text: pageName,
-                        font: buttonFont,
-                        onToggle: isSelected => OnPageToggle(pVal),
-                        bounds: togglePageButtonBounds.WithFixedWidth(GetFontTextWidth(buttonFont, pageName)),
-                        key: $"page-{p}-toggle-tab");
-                    togglePageButtonBounds = togglePageButtonBounds.RightCopy(15, 0);
-                }
-                SingleComposer.GetToggleButton($"page-{CurrentPage}-toggle-tab").SetValue(true);
-                SingleComposer.EndChildElements(); // end paging bar
-
-                // Update paging bounds
-                pagedOptionStartNum = (CurrentPage - 1) * 12 + 1;
-                pagedOptionEndNum = pagedOptionStartNum + 11;
-
-                // To accomodate paging toolbar we added, shift main content bounds downward and shrink its height
-                mainContentBounds.fixedY += toggleBarHeight;
-                mainContentBounds.fixedHeight -= toggleBarHeight;
-            }
-
             SingleComposer
                 .BeginChildElements(mainContentBounds);
 
-
+            if (isMarkerTab)
+            {
+                scrollContentBounds = markerOptionAreaBounds;
+                SingleComposer.BeginClip(clipBounds);
+            }
             SingleComposer.BeginChildElements(markerOptionAreaBounds);
 
-            ////TEST
-            //if (CurrentTab == Lang.Get("egocarib-mapmarkers:organic-matter"))
-            //{
-            //    //ElementBounds markerOptionAreaBounds2 = ElementBounds.Fixed(0, (int)(yStart))
-            //    //    .WithFixedPadding(rowIndent, 0)
-            //    //    .WithSizing(ElementSizing.FitToChildren);
-            //    //ElementBounds markerOptionAreaBounds3 = ElementBounds.Fixed(430, (int)(yStart))
-            //    //    .WithFixedPadding(rowIndent, 0)
-            //    //    .WithSizing(ElementSizing.FitToChildren);
+            ComposeMarkerOptions(ref markerOptionRowBounds, rowHeight, dgInnerWidth, customTabName, disabledFont,
+                markerOptionPromptBounds, markerOptionToggleBounds, markerOptionDisabledMessage,
+                markerOptionIconColorButtonBounds, markerOptionAreaBounds);
 
-            //    SingleComposer
-            //    //.BeginChildElements(markerOptionAreaBounds2)
-            //    .AddStaticCustomDraw(markerOptionAreaBounds.FlatCopy().WithParent(markerOptionAreaBounds), delegate (Context ctx, ImageSurface surface, ElementBounds bounds)
-            //        {
-            //            MessageUtil.Log("attempting to draw .png ...");
-            //            surface.Image(floraBitmap, 0, 10, floraBitmap.Width, floraBitmap.Height);
+            if (CurrentTab == ExtraSettingsTabName)
+            {
+                ComposeExtraSettingsTab(ref markerOptionRowBounds, rowHeight);
+            }
+            
+            SingleComposer
+                .EndChildElements(); // markerOptionAreaBounds
+            if (isMarkerTab)
+            {
+                SingleComposer
+                    .EndClip()
+                    .AddVerticalScrollbar(OnNewScrollbarValue, scrollbarBounds, "scrollbar");
+            }
+            SingleComposer
+                .EndChildElements() // mainContentBounds
+                .EndChildElements() // bgBounds
+                .Compose();
 
+            if (isMarkerTab)
+            {
+                int itemCount = AutoMapMarkerSettings.ContainsKey(CurrentTab) ? AutoMapMarkerSettings[CurrentTab].Count : 0;
+                float visibleHeight = (float)clipHeight;
+                float totalContentHeight = (float)(itemCount * rowHeight);
+                if (CurrentTab == customTabName)
+                    totalContentHeight += (float)(rowHeight * 0.5); // Account for description row
+                float savedScrollY = currentScrollY;
+                var scrollbar = SingleComposer.GetScrollbar("scrollbar");
+                scrollbar?.SetHeights(visibleHeight, totalContentHeight);
+                if (savedScrollY > 0)
+                {
+                    scrollbar.CurrentYPosition = savedScrollY;
+                    scrollbar.TriggerChanged();
+                }
+            }
+        }
 
-            //            ////This header design copied from Vintagestory.Client.NoObf.GuiCompositeSettings.ComposerHeader
-            //            //ctx.SetSourceRGBA(1.0, 1.0, 1.0, 0.1);
-            //            //GuiElement.RoundRectangle(ctx, GuiElement.scaled(5.0) + bounds.bgDrawX, GuiElement.scaled(5.0) + bounds.bgDrawY, bounds.OuterWidth - GuiElement.scaled(10.0), GuiElement.scaled(75.0), 1.0);
-            //            //ctx.Fill();
-            //        });
-                
-            //    //.EndChildElements();
-            //}
-            ////TEST
-
+        /// <summary>
+        /// Composes the marker option rows for the currently selected marker tab.
+        /// Handles: custom tab description, marker row loop (label + toggle + icon button + disabled text), traders "copy settings" button.
+        /// </summary>
+        private void ComposeMarkerOptions(ref ElementBounds markerOptionRowBounds, double rowHeight, double dgInnerWidth,
+            string customTabName, CairoFont disabledFont,
+            ElementBounds markerOptionPromptBounds, ElementBounds markerOptionToggleBounds,
+            ElementBounds markerOptionDisabledMessage, ElementBounds markerOptionIconColorButtonBounds,
+            ElementBounds markerOptionAreaBounds)
+        {
             foreach (var settingGroup in AutoMapMarkerSettings)
             {
                 if (settingGroup.Key != CurrentTab)
@@ -405,21 +354,17 @@ namespace Egocarib.AutoMapMarkers.GUI
                         continue;
                     }
                     SingleComposer.BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.FlatCopy().WithFixedHeight(rowHeight * 1.5))
-                    .AddStaticText(
+                    .AddDynamicText(
                         text: Lang.Get("egocarib-mapmarkers:custom-gui-description"),
                         font: CairoFont.WhiteSmallishText(),
-                        bounds: ElementBounds.Fixed(0, 0, dgInnerWidth, rowHeight * 1.5))
+                        bounds: ElementBounds.Fixed(0, 0, dgInnerWidth, rowHeight * 1.5),
+                        key: "custom-tab-description")
                     .EndChildElements();
                     markerOptionRowBounds = markerOptionRowBounds.BelowCopy().WithFixedHeight(rowHeight);
                 }
 
-                int optionCt = 0;
                 foreach (var setting in settingGroup.Value)
                 {
-                    optionCt++;
-                    if (needsPages && optionCt < pagedOptionStartNum || optionCt > pagedOptionEndNum)
-                        continue;  // Paging is active and option shouldn't be shown on current page
-
                     string markerSettingTitle = setting.Key;
                     AutoMapMarkerSetting markerSetting = setting.Value;
 
@@ -429,30 +374,19 @@ namespace Egocarib.AutoMapMarkers.GUI
 
                     SingleComposer.BeginChildElements(markerOptionRowBounds)
 
-                    // Option name + toggle switch to enable
-                    .AddStaticText(
+                    // Option name + toggle button to enable
+                    .AddDynamicText(
                         text: markerSettingTitle,
                         font: CairoFont.WhiteSmallishText(),
-                        bounds: markerOptionPromptBounds.FlatCopy().WithParent(markerOptionRowBounds))
-                    .AddSwitch(
+                        bounds: markerOptionPromptBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                        key: markerSettingTitle + "-auto-markers-label")
+                    .AddInteractiveSwitch(
                         onToggle: OnMarkerToggleEnabled,
                         bounds: markerOptionToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
                         key: markerSettingTitle + "-auto-markers-enabled")
 
                     .AddIf(markerSetting.Enabled == true)
 
-                        //// Map marker icon
-                        //.AddStaticText(
-                        //    text: Lang.Get("egocarib-mapmarkers:icon"),
-                        //    font: CairoFont.WhiteSmallishText(),
-                        //    bounds: markerOptionIconLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-                        //.AddDropDown(
-                        //    values: icons,
-                        //    names: iconsVTML,
-                        //    selectedIndex: GetIconIndex(icons, markerSetting),
-                        //    onSelectionChanged: OnMarkerIconChanged,
-                        //    bounds: markerOptionIconDropdownBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        //    key: markerSettingTitle + "-auto-markers-icon")
                         .AddColorIconButton(
                             icon: GetWaypointIconName(markerSetting.MarkerIcon),
                             iconColor: markerColorRGBADoubles,
@@ -460,54 +394,22 @@ namespace Egocarib.AutoMapMarkers.GUI
                             bounds: markerOptionIconColorButtonBounds.FlatCopy().WithParent(markerOptionRowBounds),
                             style: EnumButtonStyle.Normal,
                             key: markerSettingTitle + "-auto-markers-icon")
-                        
-
-                        //// Map marker color
-                        //.AddStaticText(
-                        //    text: Lang.Get("egocarib-mapmarkers:color"),
-                        //    font: CairoFont.WhiteSmallishText(),
-                        //    bounds: markerOptionColorLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-                        //.AddTextInput(
-                        //    bounds: markerOptionColorInputBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        //    onTextChanged: OnMarkerColorChanged,
-                        //    font: CairoFont.TextInput(),
-                        //    key: markerSettingTitle + "-auto-markers-color")
-                        //.AddDynamicCustomDraw(
-                        //    bounds: markerOptionColorPreviewBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        //    onDraw: OnDrawColorRect,
-                        //    key: markerSettingTitle + "-auto-markers-color-rect")
-
-                        //// Map marker name
-                        //.AddStaticText(
-                        //    text: Lang.Get("egocarib-mapmarkers:name"),
-                        //    font: CairoFont.WhiteSmallishText(),
-                        //    bounds: markerOptionNameLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-                        //.AddTextInput(
-                        //    bounds: markerOptionNameInputBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        //    onTextChanged: OnMarkerNameChanged,
-                        //    font: CairoFont.TextInput(),
-                        //    key: markerSettingTitle + "-auto-markers-name")
 
                     .EndIf()
                     .AddIf(markerSetting.Enabled == false)
 
-                        //"Disabled" message
-                        .AddStaticText(
+                        .AddDynamicText(
                             text: Lang.Get("egocarib-mapmarkers:disabled"),
                             font: disabledFont,
-                            bounds: markerOptionDisabledMessage.FlatCopy().WithParent(markerOptionRowBounds))
+                            bounds: markerOptionDisabledMessage.FlatCopy().WithParent(markerOptionRowBounds),
+                            key: markerSettingTitle + "-auto-markers-disabled")
 
                     .EndIf()
 
                     .EndChildElements(); // markerOptionRowBounds
 
                     // Set initial option values for this row
-                    SingleComposer.GetSwitch(markerSettingTitle + "-auto-markers-enabled").SetValue(markerSetting.Enabled);
-                    //if (markerSetting.Enabled)
-                    //{
-                    //    //SingleComposer.GetTextInput(markerSettingTitle + "-auto-markers-color").SetValue(markerSetting.MarkerColor);
-                    //    SingleComposer.GetTextInput(markerSettingTitle + "-auto-markers-name").SetValue(markerSetting.MarkerTitle);
-                    //}
+                    SingleComposer.GetInteractiveSwitch(markerSettingTitle + "-auto-markers-enabled").SetValue(markerSetting.Enabled);
 
                     markerOptionRowBounds = markerOptionRowBounds.BelowCopy(); // Create next row, immediately below current row
                 }
@@ -544,250 +446,230 @@ namespace Egocarib.AutoMapMarkers.GUI
                     );
                 }
             }
-            if (CurrentTab == ExtraSettingsTabName)
-            {
-                // Build "UI" tab with additional mod options
-                ElementBounds uiToggleBounds = ElementBounds.Fixed(0, 0, 60, rowHeight);
-                ElementBounds uiToggleLabelBounds = ElementBounds.Fixed(60, 2.5, 800, rowHeight);
-                int hotkeyTooltipWidth = (int)(GetFontTextWidth(CairoFont.WhiteSmallText(), Lang.Get("egocarib-mapmarkers:show-chat-message-hotkey-tooltip")) / 2 + 25);
-                string hotkeyTooltipText = Lang.Get("egocarib-mapmarkers:show-chat-message-hotkey-tooltip").Replace(">", "&gt;");
-
-                SingleComposer.BeginChildElements(markerOptionRowBounds)
-
-                    // Interact with object to trigger creation of a map marker
-                    .AddSwitch(
-                        onToggle: isSelected => {
-                            ModSettings.EnableMarkOnInteract = isSelected;
-                            if (!ModSettings.EnableMarkOnInteract && !ModSettings.EnableMarkOnSneak)
-                            {
-                                ModSettings.EnableMarkOnSneak = true; // Force one of these options to be chosen
-                                SetupDialog();
-                            }
-                        },
-                        bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        key: "toggle-mark-style-interact")
-                    .AddStaticText(
-                        text: Lang.Get("egocarib-mapmarkers:mark-style-interact"),
-                        font: CairoFont.WhiteSmallishText(),
-                        bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-
-                .EndChildElements()
-                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
-
-                    // Sneak while looking at object to trigger creation of a map marker
-                    .AddSwitch(
-                        onToggle: isSelected => {
-                            ModSettings.EnableMarkOnSneak = isSelected;
-                            if (!ModSettings.EnableMarkOnSneak && !ModSettings.EnableMarkOnInteract)
-                            {
-                                ModSettings.EnableMarkOnInteract = true; // Force one of these options to be chosen
-                                SetupDialog();
-                            }
-                        },
-                        bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        key: "toggle-mark-style-sneak")
-                    .AddStaticText(
-                        text: Lang.Get("egocarib-mapmarkers:mark-style-sneak"),
-                        font: CairoFont.WhiteSmallishText(),
-                        bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-
-                .EndChildElements()
-                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
-
-                    // Mark map by pressing a hotkey while looking at object
-                    .AddSwitch(
-                        onToggle: isSelected =>
-                        {
-                            ModSettings.EnableDetectHotkey = isSelected;
-                            RegisterDetectHotkey();
-                            SetupDialog();
-                        },
-                        bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        key: "toggle-enable-detect-hotkey")
-                    .AddStaticText(
-                        text: Lang.Get("egocarib-mapmarkers:enable-detect-hotkey"),
-                        font: CairoFont.WhiteSmallishText(),
-                        bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-                    .AddHoverText(
-                        text: hotkeyTooltipText,
-                        font: CairoFont.WhiteSmallText(),
-                        width: hotkeyTooltipWidth,
-                        bounds: uiToggleLabelBounds.FlatCopy())
-
-                .EndChildElements()
-                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
-
-                    // Chat messages for waypoint creation enabled/disabled
-                    .AddSwitch(
-                        onToggle: isSelected => { ModSettings.ChatNotifyOnWaypointCreation = isSelected; },
-                        bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        key: "toggle-show-create-chat-message")
-                    .AddStaticText(
-                        text: Lang.Get("egocarib-mapmarkers:show-chat-message"),
-                        font: CairoFont.WhiteSmallishText(),
-                        bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-
-                .EndChildElements()
-                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
-
-                    // Include coordinates in marker labels enabled/disabled
-                    .AddSwitch(
-                        onToggle: isSelected => { ModSettings.LabelCoordinates = isSelected; },
-                        bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        key: "toggle-label-coordinates")
-                    .AddStaticText(
-                        text: Lang.Get("egocarib-mapmarkers:include-coordinates"),
-                        font: CairoFont.WhiteSmallishText(),
-                        bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-
-                .EndChildElements()
-                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
-
-                    // Suppress markers on farmland enabled/disabled
-                    .AddSwitch(
-                        onToggle: isSelected => { ModSettings.SuppressMarkerOnFarmland = isSelected; },
-                        bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        key: "toggle-suppress-farmland")
-                    .AddStaticText(
-                        text: Lang.Get("egocarib-mapmarkers:suppress-farmland"),
-                        font: CairoFont.WhiteSmallishText(),
-                        bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-
-                .EndChildElements()
-                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
-
-                    // Chat messages for boat marker creation/deletion enabled/disabled
-                    .AddSwitch(
-                        onToggle: isSelected => { ModSettings.ChatNotifyOnBoatMarker = isSelected; },
-                        bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        key: "toggle-show-boat-chat-message")
-                    .AddStaticText(
-                        text: Lang.Get("egocarib-mapmarkers:boat-chat-message"),
-                        font: CairoFont.WhiteSmallishText(),
-                        bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-
-                .EndChildElements()
-                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
-
-                    // Custom waypoint hotkeys enabled/disabled
-                    .AddSwitch(
-                        onToggle: isSelected =>
-                        {
-                            ModSettings.EnableCustomHotkeys = isSelected;
-                            RegisterCustomHotkeys();
-                            SetupDialog();
-                        },
-                        bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        key: "toggle-enable-custom-hotkeys")
-                    .AddStaticText(
-                        text: Lang.Get("egocarib-mapmarkers:enable-custom-hotkeys"),
-                        font: CairoFont.WhiteSmallishText(),
-                        bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-                    .AddHoverText(
-                        text: hotkeyTooltipText,
-                        font: CairoFont.WhiteSmallText(),
-                        width: hotkeyTooltipWidth,
-                        bounds: uiToggleLabelBounds.FlatCopy())
-
-                .EndChildElements()
-                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
-
-                    // Waypoint deletion enabled/disabled
-                    .AddSwitch(
-                        onToggle: isSelected =>
-                        {
-                            ModSettings.EnableWaypointDeletionHotkey = isSelected;
-                            RegisterDeleteHotkey();
-                            SetupDialog();
-                        },
-                        bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        key: "toggle-enable-delete-hotkey")
-                    .AddStaticText(
-                        text: Lang.Get("egocarib-mapmarkers:enable-delete-hotkey"),
-                        font: CairoFont.WhiteSmallishText(),
-                        bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-                    .AddHoverText(
-                        text: hotkeyTooltipText,
-                        font: CairoFont.WhiteSmallText(),
-                        width: hotkeyTooltipWidth,
-                        bounds: uiToggleLabelBounds.FlatCopy())
-
-                .EndChildElements();
-
-                if (ModSettings.EnableWaypointDeletionHotkey)
-                {
-                    SingleComposer
-                    .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy().WithFixedOffset(60, 0))
-
-                        // Chat messages for waypoint deletion enabled/disabled
-                        .AddSwitch(
-                            onToggle: isSelected => { ModSettings.ChatNotifyOnWaypointDeletion = isSelected; },
-                            bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                            key: "toggle-show-delete-chat-message")
-                        .AddStaticText(
-                            text: Lang.Get("egocarib-mapmarkers:show-chat-message-on-delete"),
-                            font: CairoFont.WhiteSmallishText(),
-                            bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-
-                    .EndChildElements();
-                    markerOptionRowBounds = markerOptionRowBounds.FlatCopy().WithFixedOffset(-60, 0);
-                }
-
-                SingleComposer
-                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
-
-                    // Master toggle to disable the mod
-                    .AddSwitch(
-                        onToggle: isSelected =>
-                        {
-                            ModSettings.DisableAllModFeatures = isSelected;
-                            SetupDialog();
-                        },
-                        bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        key: "toggle-disable-mod")
-                    .AddStaticText(
-                        text: Lang.Get("egocarib-mapmarkers:disable-mod"),
-                        font: CairoFont.WhiteSmallishText(),
-                        bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
-
-                .EndChildElements();
-
-                SingleComposer.GetSwitch("toggle-mark-style-interact").SetValue(ModSettings.EnableMarkOnInteract);
-                SingleComposer.GetSwitch("toggle-mark-style-sneak").SetValue(ModSettings.EnableMarkOnSneak);
-                SingleComposer.GetSwitch("toggle-show-create-chat-message").SetValue(ModSettings.ChatNotifyOnWaypointCreation);
-                SingleComposer.GetSwitch("toggle-label-coordinates").SetValue(ModSettings.LabelCoordinates);
-                SingleComposer.GetSwitch("toggle-suppress-farmland").SetValue(ModSettings.SuppressMarkerOnFarmland);
-                SingleComposer.GetSwitch("toggle-show-boat-chat-message").SetValue(ModSettings.ChatNotifyOnBoatMarker);
-                SingleComposer.GetSwitch("toggle-enable-detect-hotkey").SetValue(ModSettings.EnableDetectHotkey);
-                SingleComposer.GetSwitch("toggle-enable-custom-hotkeys").SetValue(ModSettings.EnableCustomHotkeys);
-                SingleComposer.GetSwitch("toggle-enable-delete-hotkey").SetValue(ModSettings.EnableWaypointDeletionHotkey);
-                SingleComposer.GetSwitch("toggle-show-delete-chat-message")?.SetValue(ModSettings.ChatNotifyOnWaypointDeletion);
-                SingleComposer.GetSwitch("toggle-disable-mod").SetValue(ModSettings.DisableAllModFeatures);
-            }
-            
-            SingleComposer
-                .EndChildElements() // markerOptionAreaBounds
-                .EndChildElements() // mainContentBounds
-                .EndChildElements() // bgBounds
-                .Compose();
-
-            //OnMarkerColorChanged(); // Force color tiles to be redrawn with correct colors.
         }
 
-        ///// <summary>
-        ///// Calculates the dropdown index of an icon associated with a given setting.
-        ///// </summary>
-        //private int GetIconIndex(string[] icons, AutoMapMarkerSetting setting)
-        //{
-        //    int index = Array.FindIndex(icons, i => i.Equals(setting.MarkerIcon, StringComparison.OrdinalIgnoreCase));
-        //    if (index < 0)
-        //    {
-        //        // Reset icon setting if invalid
-        //        index = 0;
-        //        setting.MarkerIcon = icons[0];
-        //    }
-        //    return index;
-        //}
+        /// <summary>
+        /// Composes the "UI" extra settings tab with toggle switches for mod options.
+        /// </summary>
+        private void ComposeExtraSettingsTab(ref ElementBounds markerOptionRowBounds, double rowHeight)
+        {
+            ElementBounds uiToggleBounds = ElementBounds.Fixed(0, 0, 60, rowHeight);
+            ElementBounds uiToggleLabelBounds = ElementBounds.Fixed(60, 2.5, 800, rowHeight);
+            int hotkeyTooltipWidth = (int)(GetFontTextWidth(CairoFont.WhiteSmallText(), Lang.Get("egocarib-mapmarkers:show-chat-message-hotkey-tooltip")) / 2 + 25);
+            string hotkeyTooltipText = Lang.Get("egocarib-mapmarkers:show-chat-message-hotkey-tooltip").Replace(">", "&gt;");
+
+            SingleComposer.BeginChildElements(markerOptionRowBounds)
+
+                // Interact with object to trigger creation of a map marker
+                .AddSwitch(
+                    onToggle: isSelected => {
+                        ModSettings.EnableMarkOnInteract = isSelected;
+                        if (!ModSettings.EnableMarkOnInteract && !ModSettings.EnableMarkOnSneak)
+                        {
+                            ModSettings.EnableMarkOnSneak = true; // Force one of these options to be chosen
+                            SetupDialog();
+                        }
+                    },
+                    bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                    key: "toggle-mark-style-interact")
+                .AddStaticText(
+                    text: Lang.Get("egocarib-mapmarkers:mark-style-interact"),
+                    font: CairoFont.WhiteSmallishText(),
+                    bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+            .EndChildElements()
+            .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
+                // Sneak while looking at object to trigger creation of a map marker
+                .AddSwitch(
+                    onToggle: isSelected => {
+                        ModSettings.EnableMarkOnSneak = isSelected;
+                        if (!ModSettings.EnableMarkOnSneak && !ModSettings.EnableMarkOnInteract)
+                        {
+                            ModSettings.EnableMarkOnInteract = true; // Force one of these options to be chosen
+                            SetupDialog();
+                        }
+                    },
+                    bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                    key: "toggle-mark-style-sneak")
+                .AddStaticText(
+                    text: Lang.Get("egocarib-mapmarkers:mark-style-sneak"),
+                    font: CairoFont.WhiteSmallishText(),
+                    bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+            .EndChildElements()
+            .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
+                // Mark map by pressing a hotkey while looking at object
+                .AddSwitch(
+                    onToggle: isSelected =>
+                    {
+                        ModSettings.EnableDetectHotkey = isSelected;
+                        RegisterDetectHotkey();
+                        SetupDialog();
+                    },
+                    bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                    key: "toggle-enable-detect-hotkey")
+                .AddStaticText(
+                    text: Lang.Get("egocarib-mapmarkers:enable-detect-hotkey"),
+                    font: CairoFont.WhiteSmallishText(),
+                    bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+                .AddHoverText(
+                    text: hotkeyTooltipText,
+                    font: CairoFont.WhiteSmallText(),
+                    width: hotkeyTooltipWidth,
+                    bounds: uiToggleLabelBounds.FlatCopy())
+
+            .EndChildElements()
+            .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
+                // Chat messages for waypoint creation enabled/disabled
+                .AddSwitch(
+                    onToggle: isSelected => { ModSettings.ChatNotifyOnWaypointCreation = isSelected; },
+                    bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                    key: "toggle-show-create-chat-message")
+                .AddStaticText(
+                    text: Lang.Get("egocarib-mapmarkers:show-chat-message"),
+                    font: CairoFont.WhiteSmallishText(),
+                    bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+            .EndChildElements()
+            .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
+                // Include coordinates in marker labels enabled/disabled
+                .AddSwitch(
+                    onToggle: isSelected => { ModSettings.LabelCoordinates = isSelected; },
+                    bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                    key: "toggle-label-coordinates")
+                .AddStaticText(
+                    text: Lang.Get("egocarib-mapmarkers:include-coordinates"),
+                    font: CairoFont.WhiteSmallishText(),
+                    bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+            .EndChildElements()
+            .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
+                // Suppress markers on farmland enabled/disabled
+                .AddSwitch(
+                    onToggle: isSelected => { ModSettings.SuppressMarkerOnFarmland = isSelected; },
+                    bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                    key: "toggle-suppress-farmland")
+                .AddStaticText(
+                    text: Lang.Get("egocarib-mapmarkers:suppress-farmland"),
+                    font: CairoFont.WhiteSmallishText(),
+                    bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+            .EndChildElements()
+            .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
+                // Chat messages for boat marker creation/deletion enabled/disabled
+                .AddSwitch(
+                    onToggle: isSelected => { ModSettings.ChatNotifyOnBoatMarker = isSelected; },
+                    bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                    key: "toggle-show-boat-chat-message")
+                .AddStaticText(
+                    text: Lang.Get("egocarib-mapmarkers:boat-chat-message"),
+                    font: CairoFont.WhiteSmallishText(),
+                    bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+            .EndChildElements()
+            .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
+                // Custom waypoint hotkeys enabled/disabled
+                .AddSwitch(
+                    onToggle: isSelected =>
+                    {
+                        ModSettings.EnableCustomHotkeys = isSelected;
+                        RegisterCustomHotkeys();
+                        SetupDialog();
+                    },
+                    bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                    key: "toggle-enable-custom-hotkeys")
+                .AddStaticText(
+                    text: Lang.Get("egocarib-mapmarkers:enable-custom-hotkeys"),
+                    font: CairoFont.WhiteSmallishText(),
+                    bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+                .AddHoverText(
+                    text: hotkeyTooltipText,
+                    font: CairoFont.WhiteSmallText(),
+                    width: hotkeyTooltipWidth,
+                    bounds: uiToggleLabelBounds.FlatCopy())
+
+            .EndChildElements()
+            .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
+                // Waypoint deletion enabled/disabled
+                .AddSwitch(
+                    onToggle: isSelected =>
+                    {
+                        ModSettings.EnableWaypointDeletionHotkey = isSelected;
+                        RegisterDeleteHotkey();
+                        SetupDialog();
+                    },
+                    bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                    key: "toggle-enable-delete-hotkey")
+                .AddStaticText(
+                    text: Lang.Get("egocarib-mapmarkers:enable-delete-hotkey"),
+                    font: CairoFont.WhiteSmallishText(),
+                    bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+                .AddHoverText(
+                    text: hotkeyTooltipText,
+                    font: CairoFont.WhiteSmallText(),
+                    width: hotkeyTooltipWidth,
+                    bounds: uiToggleLabelBounds.FlatCopy())
+
+            .EndChildElements();
+
+            if (ModSettings.EnableWaypointDeletionHotkey)
+            {
+                SingleComposer
+                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy().WithFixedOffset(60, 0))
+
+                    // Chat messages for waypoint deletion enabled/disabled
+                    .AddSwitch(
+                        onToggle: isSelected => { ModSettings.ChatNotifyOnWaypointDeletion = isSelected; },
+                        bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                        key: "toggle-show-delete-chat-message")
+                    .AddStaticText(
+                        text: Lang.Get("egocarib-mapmarkers:show-chat-message-on-delete"),
+                        font: CairoFont.WhiteSmallishText(),
+                        bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+                .EndChildElements();
+                markerOptionRowBounds = markerOptionRowBounds.FlatCopy().WithFixedOffset(-60, 0);
+            }
+
+            SingleComposer
+            .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
+                // Master toggle to disable the mod
+                .AddSwitch(
+                    onToggle: isSelected =>
+                    {
+                        ModSettings.DisableAllModFeatures = isSelected;
+                        SetupDialog();
+                    },
+                    bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                    key: "toggle-disable-mod")
+                .AddStaticText(
+                    text: Lang.Get("egocarib-mapmarkers:disable-mod"),
+                    font: CairoFont.WhiteSmallishText(),
+                    bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+            .EndChildElements();
+
+            SingleComposer.GetSwitch("toggle-mark-style-interact").SetValue(ModSettings.EnableMarkOnInteract);
+            SingleComposer.GetSwitch("toggle-mark-style-sneak").SetValue(ModSettings.EnableMarkOnSneak);
+            SingleComposer.GetSwitch("toggle-show-create-chat-message").SetValue(ModSettings.ChatNotifyOnWaypointCreation);
+            SingleComposer.GetSwitch("toggle-label-coordinates").SetValue(ModSettings.LabelCoordinates);
+            SingleComposer.GetSwitch("toggle-suppress-farmland").SetValue(ModSettings.SuppressMarkerOnFarmland);
+            SingleComposer.GetSwitch("toggle-show-boat-chat-message").SetValue(ModSettings.ChatNotifyOnBoatMarker);
+            SingleComposer.GetSwitch("toggle-enable-detect-hotkey").SetValue(ModSettings.EnableDetectHotkey);
+            SingleComposer.GetSwitch("toggle-enable-custom-hotkeys").SetValue(ModSettings.EnableCustomHotkeys);
+            SingleComposer.GetSwitch("toggle-enable-delete-hotkey").SetValue(ModSettings.EnableWaypointDeletionHotkey);
+            SingleComposer.GetSwitch("toggle-show-delete-chat-message")?.SetValue(ModSettings.ChatNotifyOnWaypointDeletion);
+            SingleComposer.GetSwitch("toggle-disable-mod").SetValue(ModSettings.DisableAllModFeatures);
+        }
 
         /// <summary>
         /// Called when the selected menu tab changes. Recomposes the GUI to draw the new menu screen.
@@ -795,17 +677,21 @@ namespace Egocarib.AutoMapMarkers.GUI
         private void OnTabToggle(string tabName)
         {
             CurrentTab = tabName;
-            CurrentPage = 1;
+            currentScrollY = 0;
             SetupDialog();
         }
 
         /// <summary>
-        /// Called when the selected page tab changes. Recomposes the GUI to draw the new menu screen.
+        /// Called when the scrollbar value changes. Scrolls the marker options content.
         /// </summary>
-        private void OnPageToggle(int pageNumber)
+        private void OnNewScrollbarValue(float value)
         {
-            CurrentPage = pageNumber;
-            SetupDialog();
+            currentScrollY = value;
+            if (scrollContentBounds != null)
+            {
+                scrollContentBounds.fixedY = 0 - value;
+                scrollContentBounds.CalcWorldBounds();
+            }
         }
 
         /// <summary>
@@ -817,7 +703,7 @@ namespace Egocarib.AutoMapMarkers.GUI
             {
                 foreach (KeyValuePair<string, AutoMapMarkerSetting> settings in settingGroup.Value)
                 {
-                    GuiElementSwitch enabledSwitch = SingleComposer.GetSwitch(settings.Key + "-auto-markers-enabled");
+                    GuiElementInteractiveSwitch enabledSwitch = SingleComposer.GetInteractiveSwitch(settings.Key + "-auto-markers-enabled");
                     if (enabledSwitch != null)
                     {
                         settings.Value.Enabled = enabledSwitch.On;
@@ -827,127 +713,8 @@ namespace Egocarib.AutoMapMarkers.GUI
             SetupDialog(); // Redraw GUI
         }
 
-        ///// <summary>
-        ///// Called when an icon dropdown choice changes. Updates the related map marker settings.
-        ///// </summary>
-        //private void OnMarkerIconChanged(string iconName, bool selected)
-        //{
-        //    foreach (var settingGroup in AutoMapMarkerSettings)
-        //    {
-        //        foreach (KeyValuePair<string, AutoMapMarkerSetting> settings in settingGroup.Value)
-        //        {
-        //            GuiElementSwitch enabledSwitch = SingleComposer.GetSwitch(settings.Key + "-auto-markers-enabled");
-        //            if (enabledSwitch == null || !enabledSwitch.On)
-        //            {
-        //                continue; //this marker option not enabled & won't have icon fields.
-        //            }
-        //            settings.Value.MarkerIcon = SingleComposer.GetDropDown(settings.Key + "-auto-markers-icon").SelectedValue;
-        //        }
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Called when the color input text changes. Updates the related map marker settings.
-        ///// </summary>
-        //private void OnMarkerColorChanged(string colorstring = "")
-        //{
-        //    int colorTransparent = Color.Transparent.ToArgb();
-        //    int colorBlack = Color.Black.ToArgb();
-        //    bool saveEnabled = true;
-
-        //    foreach (var settingGroup in AutoMapMarkerSettings)
-        //    {
-        //        foreach (KeyValuePair<string, AutoMapMarkerSetting> settings in settingGroup.Value)
-        //        {
-        //            GuiElementSwitch enabledSwitch = SingleComposer.GetSwitch(settings.Key + "-auto-markers-enabled");
-        //            if (enabledSwitch == null || !enabledSwitch.On)
-        //            {
-        //                continue; //this marker option not enabled & won't have color fields.
-        //            }
-        //            GuiElementTextInput colorInput = SingleComposer.GetTextInput(settings.Key + "-auto-markers-color");
-        //            GuiElementTextInput nameInput = SingleComposer.GetTextInput(settings.Key + "-auto-markers-name");
-        //            GuiElementCustomDraw colorTile = SingleComposer.GetCustomDraw(settings.Key + "-auto-markers-color-rect");
-        //            colorstring = colorInput.GetText();
-        //            int? parsedColor = null;
-        //            if (colorstring.StartsWith("#", StringComparison.Ordinal))
-        //            {
-        //                if (colorstring.Length == 7)
-        //                {
-        //                    string s = colorstring.Substring(1);
-        //                    try
-        //                    {
-        //                        parsedColor = (int.Parse(s, NumberStyles.HexNumber) | colorBlack);
-        //                    }
-        //                    catch (Exception)
-        //                    {
-        //                    }
-        //                }
-        //            }
-        //            else
-        //            {
-        //                Color color = Color.FromName(colorstring);
-        //                if (color.A == byte.MaxValue)
-        //                {
-        //                    parsedColor = color.ToArgb();
-        //                }
-        //            }
-        //            DynamicDrawColor = (parsedColor ?? colorTransparent);
-        //            colorInput.Font.Color = (parsedColor.HasValue ? GuiStyle.DialogDefaultTextColor : GuiStyle.ErrorTextColor);
-        //            bool nameValid = nameInput.GetText().Trim() != "";
-        //            bool colorValid = parsedColor.HasValue;
-        //            if (!nameValid || !colorValid)
-        //            {
-        //                saveEnabled = false;
-        //            }
-        //            colorTile.Redraw();
-        //            if (colorValid)
-        //            {
-        //                settings.Value.MarkerColor = colorstring;
-        //            }
-        //        }
-        //    }
-        //    SetSaveButtonState(saveEnabled);
-        //}
-
-        ///// <summary>
-        ///// Called when the name input text changes. Updates the related map marker settings.
-        ///// </summary>
-        //private void OnMarkerNameChanged(string name)
-        //{
-        //    bool saveEnabled = true;
-
-        //    foreach (var settingGroup in AutoMapMarkerSettings)
-        //    {
-        //        foreach (KeyValuePair<string, AutoMapMarkerSetting> settings in settingGroup.Value)
-        //        {
-        //            GuiElementSwitch enabledSwitch = SingleComposer.GetSwitch(settings.Key + "-auto-markers-enabled");
-        //            if (enabledSwitch == null || !enabledSwitch.On)
-        //            {
-        //                continue; //this marker option not enabled & won't have name fields.
-        //            }
-        //            //bool colorValid = SingleComposer.GetTextInput(settings.Key + "-auto-markers-color").Font.Color != GuiStyle.ErrorTextColor;
-        //            name = SingleComposer.GetTextInput(settings.Key + "-auto-markers-name").GetText();
-        //            bool nameValid = name.Trim() != "";
-        //            //if (!colorValid || !nameValid)
-        //            if (!nameValid)
-        //            {
-        //                saveEnabled = false;
-        //            }
-        //            if (nameValid)
-        //            {
-        //                settings.Value.MarkerTitle = name;
-        //            }
-        //        }
-        //    }
-        //    SetSaveButtonState(saveEnabled);
-        //}
-
         private bool OnIconColorButtonClick(string settingGroup, string settingName, AutoMapMarkerSetting settings)
         {
-            //MessageUtil.Log($"clicked button for category '{settingGroup}' and setting '{settingName}'");
-
-
-
             iconConfigPopup = new MapMarkerIconSettingsGUI(capi, settingName, settings, icons, colors);
             iconConfigPopup.TryOpen();
             iconConfigPopup.OnClosed += delegate
@@ -955,28 +722,8 @@ namespace Egocarib.AutoMapMarkers.GUI
                 capi.Gui.RequestFocus(this);
                 SetupDialog();  // Redraw GUI
             };
-            //GuiDialogWorldMap mapdlg = capi.ModLoader.GetModSystem<WorldMapManager>().worldMapDlg;
-            //editWpDlg = new GuiDialogEditWayPoint(capi, mapdlg.MapLayers.FirstOrDefault((MapLayer l) => l is WaypointMapLayer) as WaypointMapLayer, waypoint, waypointIndex);
-            //editWpDlg.TryOpen();
-            //editWpDlg.OnClosed += delegate
-            //{
-            //    capi.Gui.RequestFocus(mapdlg);
-            //};
-            //TODO: recompose gui to recolor and re-icon the button after changes...
             return true;
         }
-
-        ///// <summary>
-        ///// Enables or disables the Save button. Disabled when a color input is invalid or if no Name is specified for an option.
-        ///// </summary>
-        //private void SetSaveButtonState(bool enabled)
-        //{
-        //    GuiElementTextButton saveButton = SingleComposer.GetButton("auto-markers-saveButton");
-        //    if (saveButton != null)
-        //    {
-        //        saveButton.Enabled = enabled;
-        //    }
-        //}
 
         /// <summary>
         /// Closes the GUI, which will also trigger an attempt to save the settings.
@@ -1000,16 +747,7 @@ namespace Egocarib.AutoMapMarkers.GUI
         /// </summary>
         public override void OnGuiClosed()
         {
-            GuiElementTextButton saveButton = SingleComposer?.GetButton("auto-markers-saveButton");
-            if (saveButton != null && saveButton.Enabled == false)
-            {
-                //"Auto Map Marker settings not saved: Settings included invalid colors or names."
-                MessageUtil.Chat(Lang.Get("egocarib-mapmarkers:not-saved-warning"));
-            }
-            else
-            {
-                MapMarkerConfig.SaveSettings(capi, ModSettings);
-            }
+            MapMarkerConfig.SaveSettings(capi, ModSettings);
             UnloadIconTextures();
             base.OnGuiClosed();
         }
