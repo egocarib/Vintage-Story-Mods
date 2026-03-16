@@ -291,6 +291,14 @@ namespace Egocarib.AutoMapMarkers.Utilities
             return true;
         }
 
+        public bool IsOnFarmland()
+        {
+            if (BlockPosition == null)
+                return false;
+            Block blockBelow = MapMarkerMod.CoreClientAPI.World.BlockAccessor.GetBlock(BlockPosition.DownCopy());
+            return blockBelow?.Code?.Path?.StartsWith("farmland-", StringComparison.Ordinal) == true;
+        }
+
         public bool IsIdentified()
         {
             return Identified;

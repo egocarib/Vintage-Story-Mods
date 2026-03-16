@@ -37,6 +37,10 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
                     MapMarkerConfig.Settings config = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
                     if (config != null && config.EnableMarkOnInteract)
                     {
+                        ThingIdentifier farmCheck = new ThingIdentifier(block, blockSel.Position);
+                        if (config.SuppressMarkerOnFarmland && farmCheck.IsOnFarmland())
+                            return base.OnBlockInteractStart(world, byPlayer, blockSel, ref handling);
+
                         var settings = GetHarvestableObjectSettings(config, blockSel.Position);
                         if (settings != null && blockSel.Position != null)
                         {

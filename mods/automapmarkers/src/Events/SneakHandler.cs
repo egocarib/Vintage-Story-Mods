@@ -76,6 +76,9 @@ namespace Egocarib.AutoMapMarkers.Events
             if (!thing.Identify(config))
                 return;  // Unrecognized block or entity; we don't know how to make map markers for this
 
+            if (config.SuppressMarkerOnFarmland && thing.IsOnFarmland())
+                return;
+
             var settings = thing.GetMapMarkerSettings();
             if (settings == null)
                 return;

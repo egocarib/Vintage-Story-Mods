@@ -139,6 +139,9 @@ namespace Egocarib.AutoMapMarkers.Patches
                 if (!thing.Identify(config, ThingIdentifier.IdentifyAsType.DynamicFlora))
                     return;  // Unrecognized mushroom, flower, crop, reed, or fruit tree
 
+                if (config.SuppressMarkerOnFarmland && thing.IsOnFarmland())
+                    return;
+
                 settings = thing.GetMapMarkerSettings();
                 dynamicTitleComponent = thing.DynamicTitleComponent;
                 shouldRequestWaypoint = true;

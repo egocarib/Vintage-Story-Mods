@@ -39,6 +39,8 @@ namespace Egocarib.AutoMapMarkers.Settings
             public bool EnableMarkOnInteract = true;
             [ProtoMember(10, IsRequired = true)]
             public bool LabelCoordinates = false;
+            [ProtoMember(11, IsRequired = true)]
+            public bool SuppressMarkerOnFarmland = true;
             [ProtoMember(2, IsRequired = true)]
             public bool DisableAllModFeatures = true;
             [ProtoMember(3)]
