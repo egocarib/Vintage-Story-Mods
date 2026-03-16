@@ -663,7 +663,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerTitle: Lang.Get("egocarib-mapmarkers:raft"),
                     markerColor: "gold",
                     markerIcon: "star1",
-                    markerCoverageRadius: 8);
+                    markerCoverageRadius: 48);
 
                 [ProtoMember(11)]
                 public AutoMapMarkerSetting Sailboat = new AutoMapMarkerSetting(
@@ -672,7 +672,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerTitle: Lang.Get("egocarib-mapmarkers:sailboat"),
                     markerColor: "gold",
                     markerIcon: "star1",
-                    markerCoverageRadius: 8);
+                    markerCoverageRadius: 48);
             }
 
             [ProtoContract]

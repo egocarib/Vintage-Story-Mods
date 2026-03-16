@@ -172,7 +172,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
                     MessageUtil.Chat(Lang.Get("Ok, deleted waypoint."), ServerPlayer);
                 }
             }
-            else
+            else if (titlePattern == null && maxRadius == double.MaxValue)
             {
                 MessageUtil.Log($"Player {PlayerInfo} tried to delete their nearest waypoint, but no waypoints owned by that player were found.");
             }
