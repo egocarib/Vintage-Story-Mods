@@ -48,7 +48,7 @@ namespace Egocarib.AutoMapMarkers
         {
             CoreClientAPI = api;
             Network = new MapMarkerNetwork(CoreClientAPI);
-            CoreClientAPI.Input.InWorldAction += SneakHandler.HandlePlayerSneak;
+            CoreClientAPI.Input.InWorldAction += DetectionHandler.HandlePlayerSneak;
 
             //api.Event.KeyDown += (KeyEvent ev) => ClientKeyInputProxyHandler(ev, inputIndex, KeyEventType.KEY_DOWN);
 
@@ -70,7 +70,7 @@ namespace Egocarib.AutoMapMarkers
             if (CoreClientAPI != null)
             {
                 if (CoreClientAPI.Input != null)
-                    CoreClientAPI.Input.InWorldAction -= SneakHandler.HandlePlayerSneak;
+                    CoreClientAPI.Input.InWorldAction -= DetectionHandler.HandlePlayerSneak;
                 CoreClientAPI = null;
             }
             CoreAPI = null;

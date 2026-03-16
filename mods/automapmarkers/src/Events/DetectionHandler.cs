@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
@@ -8,9 +8,10 @@ using Egocarib.AutoMapMarkers.Utilities;
 namespace Egocarib.AutoMapMarkers.Events
 {
     /// <summary>
-    /// Methods for handling a sneak state change on the player.
+    /// Methods for handling detection of blocks/entities for map marking,
+    /// triggered by either sneaking or pressing a hotkey.
     /// </summary>
-    public class SneakHandler
+    public class DetectionHandler
     {
         /// <summary>
         /// Event callback that allows us to respond to the player's sneak action.
@@ -25,6 +26,15 @@ namespace Egocarib.AutoMapMarkers.Events
             if (config == null || config.EnableMarkOnSneak != true)
                 return;
 
+            IdentifyAndMarkTarget(config);
+        }
+
+        /// <summary>
+        /// Core detection logic: identifies what the player is looking at and creates a map marker for it.
+        /// Used by both the sneak handler and the detect hotkey handler.
+        /// </summary>
+        public static void IdentifyAndMarkTarget(MapMarkerConfig.Settings config)
+        {
             BlockSelection blockSel = MapMarkerMod.CoreClientAPI?.World?.Player?.CurrentBlockSelection;
             EntitySelection entitySel = MapMarkerMod.CoreClientAPI?.World?.Player?.CurrentEntitySelection;
             if (blockSel == null && entitySel == null)
@@ -49,14 +59,6 @@ namespace Egocarib.AutoMapMarkers.Events
                     return;
                 thing = new ThingIdentifier(entity);
             }
-
-            ////DEBUG
-            //MessageUtil.Log($"DEBUG: viewing '{thing.GetAssetPath()}' [class: {(blockSel != null ? blockSel.Block.GetType() : entitySel.Entity.GetType())}]");
-            //if (thing.GetAssetPath().StartsWith("tallgrass-", StringComparison.Ordinal))
-            //{
-            //    Block blockBelow = MapMarkerMod.CoreClientAPI.World.BlockAccessor.GetBlock(blockSel.Position.Copy().Down());
-            //    MessageUtil.Log($"      block below: '{blockBelow.Code.Path}' [class: {(blockBelow.GetType())}]");
-            //}
 
             // If looking at grass, check the block below it instead
             if (thing.GetAssetPath().StartsWith("tallgrass-", StringComparison.Ordinal))

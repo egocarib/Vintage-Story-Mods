@@ -41,6 +41,8 @@ namespace Egocarib.AutoMapMarkers.Settings
             public bool LabelCoordinates = false;
             [ProtoMember(11, IsRequired = true)]
             public bool SuppressMarkerOnFarmland = true;
+            [ProtoMember(12, IsRequired = true)]
+            public bool EnableDetectHotkey = false;
             [ProtoMember(2, IsRequired = true)]
             public bool DisableAllModFeatures = true;
             [ProtoMember(3)]

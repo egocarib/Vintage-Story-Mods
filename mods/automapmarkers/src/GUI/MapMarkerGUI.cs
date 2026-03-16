@@ -34,6 +34,7 @@ namespace Egocarib.AutoMapMarkers.GUI
         public int DynamicDrawColor;
         private Action RegisterCustomHotkeys;
         private Action RegisterDeleteHotkey;
+        private Action RegisterDetectHotkey;
         public string[] icons;
         public string[] iconsVTML;
         public int[] colors;
@@ -48,10 +49,11 @@ namespace Egocarib.AutoMapMarkers.GUI
 
         public override bool DisableMouseGrab { get { return true; } }
 
-        public MapMarkerGUI(ICoreClientAPI capi, Action onRegisterCustomHotkeys, Action onRegisterDeleteHotkey) : base(capi)
+        public MapMarkerGUI(ICoreClientAPI capi, Action onRegisterCustomHotkeys, Action onRegisterDeleteHotkey, Action onRegisterDetectHotkey) : base(capi)
         {
             RegisterCustomHotkeys = onRegisterCustomHotkeys;
             RegisterDeleteHotkey = onRegisterDeleteHotkey;
+            RegisterDetectHotkey = onRegisterDetectHotkey;
         }
 
         public override bool CaptureAllInputs()
@@ -592,6 +594,29 @@ namespace Egocarib.AutoMapMarkers.GUI
                 .EndChildElements()
                 .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
 
+                    // Mark map by pressing a hotkey while looking at object
+                    .AddSwitch(
+                        onToggle: isSelected =>
+                        {
+                            ModSettings.EnableDetectHotkey = isSelected;
+                            RegisterDetectHotkey();
+                            SetupDialog();
+                        },
+                        bounds: uiToggleBounds = uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                        key: "toggle-enable-detect-hotkey")
+                    .AddStaticText(
+                        text: Lang.Get("egocarib-mapmarkers:enable-detect-hotkey"),
+                        font: CairoFont.WhiteSmallishText(),
+                        bounds: uiToggleLabelBounds = uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+                    .AddHoverText(
+                        text: hotkeyTooltipText,
+                        font: CairoFont.WhiteSmallText(),
+                        width: hotkeyTooltipWidth,
+                        bounds: uiToggleLabelBounds.FlatCopy())
+
+                .EndChildElements()
+                .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
                     // Chat messages for waypoint creation enabled/disabled
                     .AddSwitch(
                         onToggle: isSelected => { ModSettings.ChatNotifyOnWaypointCreation = isSelected; },
@@ -719,6 +744,7 @@ namespace Egocarib.AutoMapMarkers.GUI
                 SingleComposer.GetSwitch("toggle-show-create-chat-message").SetValue(ModSettings.ChatNotifyOnWaypointCreation);
                 SingleComposer.GetSwitch("toggle-label-coordinates").SetValue(ModSettings.LabelCoordinates);
                 SingleComposer.GetSwitch("toggle-suppress-farmland").SetValue(ModSettings.SuppressMarkerOnFarmland);
+                SingleComposer.GetSwitch("toggle-enable-detect-hotkey").SetValue(ModSettings.EnableDetectHotkey);
                 SingleComposer.GetSwitch("toggle-enable-custom-hotkeys").SetValue(ModSettings.EnableCustomHotkeys);
                 SingleComposer.GetSwitch("toggle-enable-delete-hotkey").SetValue(ModSettings.EnableWaypointDeletionHotkey);
                 SingleComposer.GetSwitch("toggle-show-delete-chat-message")?.SetValue(ModSettings.ChatNotifyOnWaypointDeletion);

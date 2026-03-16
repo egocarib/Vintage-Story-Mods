@@ -20,8 +20,10 @@ namespace Egocarib.AutoMapMarkers.GUI
         public const string HotkeyCustom2 = "egocarib_hkCustomMarker2";
         public const string HotkeyCustom3 = "egocarib_hkCustomMarker3";
         public const string HotkeyDeleteMarker = "egocarib_hkDeleteNearestMarker";
+        public const string HotkeyDetectMarker = "egocarib_hkDetectMarker";
         private bool RegisteredCustomHotkeys = false;
         private bool RegisteredDeleteHotkey = false;
+        private bool RegisteredDetectHotkey = false;
 
         public override bool ShouldLoad(EnumAppSide forSide)
         {
@@ -31,7 +33,7 @@ namespace Egocarib.AutoMapMarkers.GUI
         public override void StartClientSide(ICoreClientAPI clientAPI)
         {
             ClientAPI = clientAPI;
-            mapMarkerDialog = new MapMarkerGUI(ClientAPI, RegisterCustomHotkeys, RegisterDeleteHotkey);
+            mapMarkerDialog = new MapMarkerGUI(ClientAPI, RegisterCustomHotkeys, RegisterDeleteHotkey, RegisterDetectHotkey);
             ClientAPI.Event.BlockTexturesLoaded += RegisterHotkeys;
         }
 
@@ -49,6 +51,10 @@ namespace Egocarib.AutoMapMarkers.GUI
             MapMarkerConfig.Settings settings = MapMarkerConfig.GetSettings(ClientAPI, false, false);
             if (settings != null)
             {
+                if (settings.EnableDetectHotkey)
+                {
+                    RegisterDetectHotkey();
+                }
                 if (settings.EnableCustomHotkeys)
                 {
                     RegisterCustomHotkeys();
@@ -108,6 +114,34 @@ namespace Egocarib.AutoMapMarkers.GUI
 
                 ClientAPI.Input.SetHotKeyHandler(hotkeyCode: HotkeyDeleteMarker, handler: DeleteNearestMapMarker);
             }
+        }
+
+        private void RegisterDetectHotkey()
+        {
+            if (!RegisteredDetectHotkey)
+            {
+                RegisteredDetectHotkey = true;
+                string prefix = Lang.Get("egocarib-mapmarkers:modname") + ": ";
+
+                ClientAPI.Input.RegisterHotKey(
+                    hotkeyCode: HotkeyDetectMarker,
+                    name: prefix + Lang.Get("egocarib-mapmarkers:config-keybind-detect"),
+                    key: GlKeys.M,
+                    type: HotkeyType.GUIOrOtherControls,
+                    altPressed: true, ctrlPressed: false, shiftPressed: false);
+
+                ClientAPI.Input.SetHotKeyHandler(hotkeyCode: HotkeyDetectMarker, handler: DetectAndMarkLookedAtTarget);
+            }
+        }
+
+        public bool DetectAndMarkLookedAtTarget(KeyCombination keyCombo)
+        {
+            var settings = MapMarkerConfig.GetSettings(ClientAPI);
+            if (settings?.EnableDetectHotkey == true)
+            {
+                Events.DetectionHandler.IdentifyAndMarkTarget(settings);
+            }
+            return true;
         }
 
         /// <summary>
