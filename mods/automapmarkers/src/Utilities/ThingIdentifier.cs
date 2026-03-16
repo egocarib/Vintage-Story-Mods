@@ -311,7 +311,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
 
         public string GetAssetPath()
         {
-            return BlockOrEntity.Code.Path;
+            return BlockOrEntity?.Code?.Path ?? string.Empty;
         }
 
         private string CalculateDynamicMarkerTitleComponent()
