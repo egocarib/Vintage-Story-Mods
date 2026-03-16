@@ -83,7 +83,7 @@ namespace Egocarib.AutoMapMarkers.Events
             if (settings == null)
                 return;
 
-            MapMarkerMod.Network.RequestWaypointFromServer(vecPos, settings, config.ChatNotifyOnWaypointCreation, thing.DynamicTitleComponent);
+            MapMarkerMod.Network?.RequestWaypointFromServer(vecPos, settings, config.ChatNotifyOnWaypointCreation, thing.DynamicTitleComponent);
         }
     }
 }

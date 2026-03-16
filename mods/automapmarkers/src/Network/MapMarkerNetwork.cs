@@ -183,7 +183,7 @@ namespace Egocarib.AutoMapMarkers.Network
                 return;
             }
             var modSettings = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
-            if (modSettings.DisableAllModFeatures)
+            if (modSettings == null || modSettings.DisableAllModFeatures)
             {
                 MessageUtil.Log("Suppressed automatic map marker creation - mod features are currently disabled.");
                 return;
@@ -217,7 +217,8 @@ namespace Egocarib.AutoMapMarkers.Network
                 MessageUtil.LogError("Waypoint deletion unexpectedly requested from server-side thread.");
                 return;
             }
-            if (MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI).DisableAllModFeatures)
+            var modSettings = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
+            if (modSettings == null || modSettings.DisableAllModFeatures)
             {
                 MessageUtil.Log("Suppressed map marker deletion request - mod features are currently disabled.");
                 return;

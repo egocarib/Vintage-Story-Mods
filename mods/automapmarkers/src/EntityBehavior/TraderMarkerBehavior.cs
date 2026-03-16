@@ -30,7 +30,9 @@ namespace Egocarib.AutoMapMarkers.EntityBehavior
             {
                 if (mode == EnumInteractMode.Interact)
                 {
-                    IPlayer byPlayer = byEntity.World.PlayerByUid((byEntity as EntityPlayer).PlayerUID);
+                    EntityPlayer entityPlayer = byEntity as EntityPlayer;
+                    if (entityPlayer == null) return;
+                    IPlayer byPlayer = byEntity.World.PlayerByUid(entityPlayer.PlayerUID);
                     if (byPlayer != null)
                     {
                         MapMarkerConfig.Settings config = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
@@ -41,7 +43,7 @@ namespace Egocarib.AutoMapMarkers.EntityBehavior
                             {
                                 bool shouldChat = config.ChatNotifyOnWaypointCreation;
                                 Vec3d traderPos = entity.Pos.XYZ;
-                                MapMarkerMod.Network.RequestWaypointFromServer(traderPos, settings, shouldChat);
+                                MapMarkerMod.Network?.RequestWaypointFromServer(traderPos, settings, shouldChat);
                             }
                         }
                     }

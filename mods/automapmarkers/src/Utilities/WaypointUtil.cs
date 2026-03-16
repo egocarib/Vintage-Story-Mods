@@ -32,6 +32,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
         {
             ServerPlayer = serverPlayer;
             WorldMapManager serverWorldMapManager = MapMarkerMod.CoreServerAPI.ModLoader.GetModSystem<WorldMapManager>();
+            if (serverWorldMapManager == null) return;
             WaypointMapLayer = serverWorldMapManager.MapLayers.FirstOrDefault((MapLayer ml) => ml is WaypointMapLayer) as WaypointMapLayer;
         }
 
@@ -214,6 +215,9 @@ namespace Egocarib.AutoMapMarkers.Utilities
 
         public static bool MatchingWaypointTitle(string title1, string title2)
         {
+            if (string.IsNullOrEmpty(title1) || string.IsNullOrEmpty(title2))
+                return title1 == title2;
+
             // If the mod appended [X, Y, Z] coords to the title, don't include them in the comparison
             if (title1.Last() == ']' && title2.Last() == ']')
             {

@@ -148,7 +148,7 @@ namespace Egocarib.AutoMapMarkers.Patches
             }
 
             // Attempt to create a waypoint if we matched something above
-            if (shouldRequestWaypoint)
+            if (shouldRequestWaypoint && MapMarkerMod.Network != null)
             {
                 MapMarkerMod.Network.RequestWaypointFromServer
                 (

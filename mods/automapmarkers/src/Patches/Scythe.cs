@@ -51,7 +51,7 @@ namespace Egocarib.AutoMapMarkers.Patches
             var settings = thing.GetMapMarkerSettings();
             string dynamicTitleComponent = thing.DynamicTitleComponent;
 
-            MapMarkerMod.Network.RequestWaypointFromServer(
+            MapMarkerMod.Network?.RequestWaypointFromServer(
                 position: pos.ToVec3d(),
                 settings: settings,
                 sendChatMessage: config.ChatNotifyOnWaypointCreation,

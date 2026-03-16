@@ -29,6 +29,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
         /// </summary>
         public static void Log(string message, EnumLogType type = EnumLogType.Notification)
         {
+            if (MapMarkerMod.CoreAPI?.Logger == null) return;
             MapMarkerMod.CoreAPI.Logger.Log(type, $"[Auto Map Markers] {message}");
         }
 

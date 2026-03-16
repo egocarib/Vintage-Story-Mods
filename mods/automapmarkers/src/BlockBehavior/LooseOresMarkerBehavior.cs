@@ -20,7 +20,7 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
 
         public override bool OnBlockInteractStart(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, ref EnumHandling handling)
         {
-            if (world.Side == EnumAppSide.Client)
+            if (world.Side == EnumAppSide.Client && blockSel != null)
             {
                 HandleInteraction(blockSel.Position, byPlayer);
             }
@@ -48,7 +48,7 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
                     {
                         bool shouldChat = config.ChatNotifyOnWaypointCreation;
                         Vec3d vecPos = pos.ToVec3d();
-                        MapMarkerMod.Network.RequestWaypointFromServer(vecPos, settings, shouldChat);
+                        MapMarkerMod.Network?.RequestWaypointFromServer(vecPos, settings, shouldChat);
                     }
                 }
             }
