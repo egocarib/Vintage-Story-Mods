@@ -20,7 +20,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
             }
             else
             {
-                LogError("Unable to propagate chat message (\"{message}\")");
+                LogError($"Unable to propagate chat message (\"{message}\")");
             }
         }
 
