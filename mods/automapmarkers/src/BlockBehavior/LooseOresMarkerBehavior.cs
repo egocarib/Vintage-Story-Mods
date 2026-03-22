@@ -90,14 +90,6 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
                 return config.AutoMapMarkers.SurfaceOre.LooseOreSulfur;
             if (thing.IsTin)
                 return config.AutoMapMarkers.SurfaceOre.LooseOreTin;
-            //if (thing.IsFluorite)
-            //    return config.AutoMapMarkers.SurfaceOre.LooseOreFluorite;
-            //if (thing.IsGraphite)
-            //    return config.AutoMapMarkers.SurfaceOre.LooseOreGraphite;
-            //if (thing.IsKernite)
-            //    return config.AutoMapMarkers.SurfaceOre.LooseOreKernite;
-            //if (thing.IsPhosporite)
-            //    return config.AutoMapMarkers.SurfaceOre.LooseOrePhosporite;
 
             return null;
         }

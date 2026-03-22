@@ -49,16 +49,6 @@ namespace Egocarib.AutoMapMarkers
             CoreClientAPI = api;
             Network = new MapMarkerNetwork(CoreClientAPI);
             CoreClientAPI.Input.InWorldAction += DetectionHandler.HandlePlayerSneak;
-
-            //api.Event.KeyDown += (KeyEvent ev) => ClientKeyInputProxyHandler(ev, inputIndex, KeyEventType.KEY_DOWN);
-
-            ////public delegate void OnEntityAction(EnumEntityAction action, bool on, ref EnumHandling handled);
-            //OnEntityAction test = (EnumEntityAction action, bool on, ref EnumHandling handled) => { };
-            //api.Input.InWorldAction += (EnumEntityAction action, bool on, ref EnumHandling handled) =>
-            //{
-            //    //Do thing when player crouches
-            //    IPlayer.CurrentBlockSelection // <-- do thing to this block
-            //};
         }
 
         /// <summary>

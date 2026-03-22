@@ -144,33 +144,6 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerIcon: "circle",
                     markerCoverageRadius: 6);
 
-                //[ProtoMember(7)]
-                //public AutoMapMarkerSetting MushroomBolete = new AutoMapMarkerSetting(
-                //    enabled: false,
-                //    pinned: false,
-                //    markerTitle: Lang.GetMatching("block-mushroom-bolete-normal-*"),
-                //    markerColor: "#503922",
-                //    markerIcon: "circle",
-                //    markerCoverageRadius: 6);
-
-                //[ProtoMember(8)]
-                //public AutoMapMarkerSetting MushroomFieldMushroom = new AutoMapMarkerSetting(
-                //    enabled: false,
-                //    pinned: false,
-                //    markerTitle: Lang.GetMatching("block-mushroom-fieldmushroom-normal-*"),
-                //    markerColor: "ghostwhite",
-                //    markerIcon: "circle",
-                //    markerCoverageRadius: 6);
-
-                //[ProtoMember(9)]
-                //public AutoMapMarkerSetting MushroomFlyAgaric = new AutoMapMarkerSetting(
-                //    enabled: false,
-                //    pinned: false,
-                //    markerTitle: Lang.GetMatching("block-mushroom-flyagaric-normal-*"),
-                //    markerColor: "brown",
-                //    markerIcon: "circle",
-                //    markerCoverageRadius: 6);
-
                 [ProtoMember(10)]
                 public AutoMapMarkerSetting SafeMushroom = new AutoMapMarkerSetting(
                     enabled: false,
@@ -292,14 +265,6 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerIcon: "pick",
                     markerCoverageRadius: 9);
 
-                //public AutoMapMarkerSetting LooseOreFluorite = new AutoMapMarkerSetting(
-                //        enabled: false,
-                //        pinned: false,
-                //        markerTitle: Lang.GetMatching("block-looseores-fluorite-*"),
-                //        markerColor: "black",
-                //        markerIcon: "pick",
-                //        markerCoverageRadius: 9);
-
                 [ProtoMember(7)]
                 public AutoMapMarkerSetting LooseOreGold = new AutoMapMarkerSetting(
                     enabled: true,
@@ -308,22 +273,6 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerColor: "gold",
                     markerIcon: "pick",
                     markerCoverageRadius: 9);
-
-                //public AutoMapMarkerSetting LooseOreGraphite = new AutoMapMarkerSetting(
-                //        enabled: false,
-                //        pinned: false,
-                //        markerTitle: Lang.GetMatching("block-looseores-graphite-*"),
-                //        markerColor: "black",
-                //        markerIcon: "pick",
-                //        markerCoverageRadius: 9);
-
-                //public AutoMapMarkerSetting LooseOreKernite = new AutoMapMarkerSetting(
-                //        enabled: false,
-                //        pinned: false,
-                //        markerTitle: Lang.GetMatching("block-looseores-kernite-*"),
-                //        markerColor: "black",
-                //        markerIcon: "pick",
-                //        markerCoverageRadius: 9);
 
                 [ProtoMember(8)]
                 public AutoMapMarkerSetting LooseOreLapisLazuli = new AutoMapMarkerSetting(
@@ -351,14 +300,6 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerColor: "olivedrab",
                     markerIcon: "pick",
                     markerCoverageRadius: 9);
-
-                //public AutoMapMarkerSetting LooseOrePhosporite = new AutoMapMarkerSetting(
-                //        enabled: false,
-                //        pinned: false,
-                //        markerTitle: Lang.GetMatching("block-looseores-phosphorite-*"),
-                //        markerColor: "black",
-                //        markerIcon: "pick",
-                //        markerCoverageRadius: 9);
 
                 [ProtoMember(11)]
                 public AutoMapMarkerSetting LooseOreQuartz = new AutoMapMarkerSetting(
@@ -722,15 +663,6 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerColor: "yellow",
                     markerIcon: "trader",
                     markerCoverageRadius: 20);
-
-                //[ProtoMember(5)]
-                //public AutoMapMarkerSetting TraderFoods = new AutoMapMarkerSetting(
-                //    enabled: true,
-                //    pinned: false,
-                //    markerTitle: Lang.Get("egocarib-mapmarkers:trader-foods"),
-                //    markerColor: "yellow",
-                //    markerIcon: "trader",
-                //    markerCoverageRadius: 20);
 
                 [ProtoMember(6)]
                 public AutoMapMarkerSetting TraderFurniture = new AutoMapMarkerSetting(
