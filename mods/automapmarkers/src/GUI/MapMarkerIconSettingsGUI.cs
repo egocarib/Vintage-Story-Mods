@@ -38,9 +38,9 @@ namespace Egocarib.AutoMapMarkers.GUI
 
         private void ComposeDialog()
         {
-            ElementBounds leftColumn = ElementBounds.Fixed(0.0, 28.0, 120.0, 25.0);
+            ElementBounds leftColumn = ElementBounds.Fixed(0.0, 28.0, 160.0, 25.0);
             ElementBounds rightColumn = leftColumn.RightCopy();
-            ElementBounds buttonRow = ElementBounds.Fixed(0.0, 28.0, 360.0, 25.0);
+            ElementBounds buttonRow = ElementBounds.Fixed(0.0, 28.0, 650.0, 25.0);
             ElementBounds bgBounds = ElementBounds.Fill.WithFixedPadding(GuiStyle.ElementToDialogPadding);
             bgBounds.BothSizing = ElementSizing.FitToChildren;
             bgBounds.WithChildren(leftColumn, rightColumn);
@@ -63,13 +63,15 @@ namespace Egocarib.AutoMapMarkers.GUI
                 .AddDialogTitleBar(iconTitle, delegate { TryClose(); })
                 .BeginChildElements(bgBounds)
                     .AddStaticText(Lang.Get("Name"), CairoFont.WhiteSmallText(), leftColumn = leftColumn.FlatCopy())
-                    .AddTextInput(rightColumn = rightColumn.FlatCopy().WithFixedWidth(200.0), OnNameChanged, CairoFont.TextInput(), $"{GuiPrefix}-nameInput")
-                    .AddStaticText(Lang.Get("egocarib-mapmarkers:should-pin"), CairoFont.WhiteSmallText(), leftColumn = leftColumn.BelowCopy(0.0, 9.0))
-                    .AddSwitch(OnPinnedToggled, rightColumn = rightColumn.BelowCopy(0.0, 5.0).WithFixedWidth(200.0), $"{GuiPrefix}-pinnedSwitch")
-                    .AddRichtext(Lang.Get("waypoint-color"), CairoFont.WhiteSmallText(), leftColumn = leftColumn.BelowCopy(0.0, 5.0))
-                    .AddColorListPicker(colors, OnColorSelected, leftColumn = leftColumn.BelowCopy(0.0, 5.0).WithFixedSize(colorIconSize, colorIconSize), 270, $"{GuiPrefix}-colorPicker")
+                    .AddTextInput(rightColumn = rightColumn.FlatCopy().WithFixedWidth(400.0), OnNameChanged, CairoFont.TextInput(), $"{GuiPrefix}-nameInput")
+                    .AddStaticText(Lang.Get("egocarib-mapmarkers:should-pin"), CairoFont.WhiteSmallText(), leftColumn = leftColumn.BelowCopy(0.0, 18.0))
+                    .AddSwitch(OnPinnedToggled, rightColumn = rightColumn.BelowCopy(0.0, 14.0).WithFixedWidth(400.0), $"{GuiPrefix}-pinnedSwitch")
+                    .AddStaticText(Lang.Get("egocarib-mapmarkers:coverage-radius"), CairoFont.WhiteSmallText(), leftColumn = leftColumn.BelowCopy(0.0, 18.0))
+                    .AddSlider(OnRadiusChanged, rightColumn = rightColumn.BelowCopy(0.0, 14.0).WithFixedWidth(400.0), $"{GuiPrefix}-radiusSlider")
+                    .AddRichtext(Lang.Get("waypoint-color"), CairoFont.WhiteSmallText(), leftColumn = leftColumn.BelowCopy(0.0, 14.0))
+                    .AddColorListPicker(colors, OnColorSelected, leftColumn = leftColumn.BelowCopy(0.0, 5.0).WithFixedSize(colorIconSize, colorIconSize), 555, $"{GuiPrefix}-colorPicker")
                     .AddStaticText(Lang.Get("Icon"), CairoFont.WhiteSmallText(), leftColumn = leftColumn.WithFixedPosition(0.0, leftColumn.fixedY + leftColumn.fixedHeight).WithFixedWidth(100.0).BelowCopy())
-                    .AddIconListPicker(icons, OnIconSelected, leftColumn = leftColumn.BelowCopy(0.0, 5.0).WithFixedSize(colorIconSize + 5, colorIconSize + 5), 270, $"{GuiPrefix}-iconPicker")
+                    .AddIconListPicker(icons, OnIconSelected, leftColumn = leftColumn.BelowCopy(0.0, 5.0).WithFixedSize(colorIconSize + 5, colorIconSize + 5), 555, $"{GuiPrefix}-iconPicker")
                     .AddSmallButton(Lang.Get("Cancel"), OnCancel, buttonRow.FlatCopy().FixedUnder(leftColumn).WithFixedWidth(100.0))
                     .AddSmallButton(Lang.Get("Save"), OnSave, buttonRow.FlatCopy().FixedUnder(leftColumn).WithFixedWidth(100.0).WithAlignment(EnumDialogArea.RightFixed), EnumButtonStyle.Normal, $"{GuiPrefix}-saveButton")
                 .EndChildElements()
@@ -78,6 +80,7 @@ namespace Egocarib.AutoMapMarkers.GUI
             SingleComposer.IconListPickerSetValue($"{GuiPrefix}-iconPicker", selectedIconIndex);
             SingleComposer.GetTextInput($"{GuiPrefix}-nameInput").SetValue(settings.MarkerTitle);
             SingleComposer.GetSwitch($"{GuiPrefix}-pinnedSwitch").SetValue(settings.MarkerPinned);
+            SingleComposer.GetSlider($"{GuiPrefix}-radiusSlider").SetValues(settings.MarkerCoverageRadius, 1, 64, 1, " blocks");
         }
 
         private void OnIconSelected(int index)
@@ -95,12 +98,18 @@ namespace Egocarib.AutoMapMarkers.GUI
         {
         }
 
+        private bool OnRadiusChanged(int value)
+        {
+            return true;
+        }
+
         private bool OnSave()
         {
             settings.MarkerIcon = icons[selectedIconIndex];
             settings.MarkerColor = ColorUtil.Int2Hex(colors[selectedColorIndex]);
             settings.MarkerTitle = SingleComposer.GetTextInput($"{GuiPrefix}-nameInput").GetText();
             settings.MarkerPinned = SingleComposer.GetSwitch($"{GuiPrefix}-pinnedSwitch").On;
+            settings.MarkerCoverageRadius = SingleComposer.GetSlider($"{GuiPrefix}-radiusSlider").GetValue();
             TryClose();
             return true;
         }
