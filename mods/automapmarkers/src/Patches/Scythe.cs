@@ -42,7 +42,7 @@ namespace Egocarib.AutoMapMarkers.Patches
                 return;
 
             ThingIdentifier thing = new ThingIdentifier(block, pos);
-            if (!thing.Identify(config, ThingIdentifier.IdentifyAsType.DynamicFlora))
+            if (!thing.Identify(config))
                 return;
 
             if (config.SuppressMarkerOnFarmland && thing.IsOnFarmland())

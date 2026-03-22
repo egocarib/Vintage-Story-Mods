@@ -25,9 +25,7 @@ namespace Egocarib.AutoMapMarkers
             CoreAPI = api;
             CoreAPI.RegisterEntityBehaviorClass("egocarib_TraderMarkerBehavior", typeof(TraderMarkerBehavior));
             CoreAPI.RegisterBlockBehaviorClass("egocarib_HarvestMarkerBehavior", typeof(HarvestMarkerBehavior));
-            //CoreAPI.RegisterBlockBehaviorClass("egocarib_MushroomMarkerBehavior", typeof(MushroomMarkerBehavior));
             CoreAPI.RegisterBlockBehaviorClass("egocarib_LooseOreMarkerBehavior", typeof(LooseOresMarkerBehavior));
-            //Harmony.DEBUG = true;
             HarmonyAgent.Harmonize();
         }
 
@@ -37,7 +35,7 @@ namespace Egocarib.AutoMapMarkers
         public override void StartServerSide(ICoreServerAPI api)
         {
             CoreServerAPI = api;
-            MapMarkerConfig.GetSettings(api, true); //Ensure config file is generated at startup if one does not exist yet.
+            MapMarkerConfig.EnsureServerSettingsExist(api);
             Network = new MapMarkerNetwork(CoreServerAPI);
         }
 
@@ -47,6 +45,7 @@ namespace Egocarib.AutoMapMarkers
         public override void StartClientSide(ICoreClientAPI api)
         {
             CoreClientAPI = api;
+            MapMarkerConfig.InitializeDefinitions(api);
             Network = new MapMarkerNetwork(CoreClientAPI);
             CoreClientAPI.Input.InWorldAction += DetectionHandler.HandlePlayerSneak;
         }

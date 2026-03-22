@@ -2,11 +2,14 @@ using Egocarib.AutoMapMarkers.Utilities;
 using Newtonsoft.Json;
 using ProtoBuf;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.IO;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
+using MarkerRegistry = Egocarib.AutoMapMarkers.Utilities.MarkerDetectionRegistry;
 
 namespace Egocarib.AutoMapMarkers.Settings
 {
@@ -15,15 +18,55 @@ namespace Egocarib.AutoMapMarkers.Settings
     /// </summary>
     public static class MapMarkerConfig
     {
-        /// <summary>The filename used when saving mod settings to the ModConfig folder.</summary>
+        /// <summary>The filename used when saving mod settings to the ModConfig folder (legacy format).</summary>
         public const string ConfigFilename = "auto_map_markers_config.json";
         /// <summary>Mod settings are cached on client side to optimize performance.</summary>
         private static Settings _cachedClientSettings = null;
+        /// <summary>Cached marker definitions loaded from JSON files.</summary>
+        private static List<MarkerCategoryDef> _cachedDefinitions = null;
+        /// <summary>Cached detection registry built from definitions + settings.</summary>
+        private static MarkerRegistry _cachedRegistry = null;
+
+        /// <summary>Returns the cached detection registry, or null if not yet built.</summary>
+        public static MarkerRegistry GetRegistry() => _cachedRegistry;
+
+        /// <summary>Rebuilds the detection registry from current definitions and settings.</summary>
+        public static void RebuildRegistry()
+        {
+            if (_cachedDefinitions != null && _cachedClientSettings != null)
+                _cachedRegistry = MarkerRegistry.Build(_cachedDefinitions, _cachedClientSettings);
+        }
+
+        /// <summary>Gets the path to the ModConfig folder.</summary>
+        public static string GetModConfigPath(ICoreAPI api)
+        {
+            return api.GetOrCreateDataPath("ModConfig");
+        }
 
         [ProtoContract]
         public class Settings
         {
-            private OrderedDictionary<string, OrderedDictionary<string, AutoMapMarkerSetting>> _MapMarkerSettingsCollection = null;
+            private MarkerSettingLayout _markerSettingLayout = null;
+
+            /// <summary>
+            /// Stores settings for addon-defined markers that don't have hardcoded grouper fields.
+            /// Not serialized via protobuf — addon settings are rebuilt from definitions + overrides on each load.
+            /// </summary>
+            internal Dictionary<string, AutoMapMarkerSetting> AddonMarkerSettings = new Dictionary<string, AutoMapMarkerSetting>();
+
+            /// <summary>
+            /// Tracks expand/collapse state for expandable entries. Key is the parent entry label.
+            /// </summary>
+            internal Dictionary<string, bool> ExpandStates = new Dictionary<string, bool>();
+
+            public bool IsExpanded(MarkerEntryDef entry)
+            {
+                if (entry.ExpandableEntries == null || entry.ExpandableEntries.Count == 0)
+                    return false;
+                if (ExpandStates.TryGetValue(entry.Label, out bool state))
+                    return state;
+                return entry.DefaultExpanded;
+            }
 
             [ProtoMember(1, IsRequired = true)]
             public bool ChatNotifyOnWaypointCreation = false;
@@ -205,6 +248,15 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerTitle: Lang.Get("egocarib-mapmarkers:fruit-trees"),
                     markerColor: "mediumpurple",
                     markerIcon: "tree",
+                    markerCoverageRadius: 6);
+
+                [ProtoMember(19)]
+                public AutoMapMarkerSetting Berries = new AutoMapMarkerSetting(
+                    enabled: false,
+                    pinned: false,
+                    markerTitle: Lang.Get("egocarib-mapmarkers:berries"),
+                    markerColor: "midnightblue",
+                    markerIcon: "circle",
                     markerCoverageRadius: 6);
             }
 
@@ -737,116 +789,18 @@ namespace Egocarib.AutoMapMarkers.Settings
                 }
             }
 
-            public OrderedDictionary<string, OrderedDictionary<string, AutoMapMarkerSetting>> GetMapMarkerSettingCollection()
+            public MarkerSettingLayout GetMapMarkerSettingLayout()
             {
-                if (_MapMarkerSettingsCollection == null)
+                if (_markerSettingLayout == null && _cachedDefinitions != null)
                 {
-                    _MapMarkerSettingsCollection = new OrderedDictionary<string, OrderedDictionary<string, AutoMapMarkerSetting>>
-                        {
-                            { Lang.Get("egocarib-mapmarkers:organic-matter"),
-                                new OrderedDictionary<string, AutoMapMarkerSetting>
-                                {
-                                    { Lang.Get("item-resin"), AutoMapMarkers.OrganicMatter.Resin },
-                                    { Lang.Get("item-fruit-blueberry"), AutoMapMarkers.OrganicMatter.Blueberry },
-                                    { Lang.Get("item-fruit-beautyberry"), AutoMapMarkers.OrganicMatter.Beautyberry },
-                                    { Lang.Get("item-fruit-cranberry"), AutoMapMarkers.OrganicMatter.Cranberry },
-                                    { Lang.Get("item-fruit-blackcurrant"), AutoMapMarkers.OrganicMatter.BlackCurrant },
-                                    { Lang.Get("item-fruit-redcurrant"), AutoMapMarkers.OrganicMatter.RedCurrant },
-                                    { Lang.Get("item-fruit-whitecurrant"), AutoMapMarkers.OrganicMatter.WhiteCurrant },
-                                    { Lang.Get("item-fruit-strawberry"), AutoMapMarkers.OrganicMatter.Strawberry },
-                                    { Lang.Get("egocarib-mapmarkers:safe-mushrooms"), AutoMapMarkers.OrganicMatter.SafeMushroom },
-                                    { Lang.Get("egocarib-mapmarkers:unsafe-mushrooms"), AutoMapMarkers.OrganicMatter.UnsafeMushroom },
-                                    { Lang.Get("egocarib-mapmarkers:flowers"), AutoMapMarkers.OrganicMatter.Flower },
-                                    { Lang.Get("egocarib-mapmarkers:fruit-trees"), AutoMapMarkers.OrganicMatter.FruitTree },
-                                    { Lang.Get("egocarib-mapmarkers:wild-crops"), AutoMapMarkers.OrganicMatter.WildCrop },
-                                    { Lang.Get("egocarib-mapmarkers:reeds"), AutoMapMarkers.OrganicMatter.Reed },
-                                    { Lang.Get("egocarib-mapmarkers:tule"), AutoMapMarkers.OrganicMatter.Tule }
-                                }
-                            },
-                            { Lang.Get("egocarib-mapmarkers:surface-ore"),
-                                new OrderedDictionary<string, AutoMapMarkerSetting>
-                                {
-                                    { Lang.GetMatching("block-looseores-anthracite-*"), AutoMapMarkers.SurfaceOre.LooseOreAnthracite },
-                                    { Lang.GetMatching("block-looseores-bituminouscoal-*"), AutoMapMarkers.SurfaceOre.LooseOreBlackCoal },
-                                    { Lang.GetMatching("block-looseores-borax-*"), AutoMapMarkers.SurfaceOre.LooseOreBorax },
-                                    { Lang.GetMatching("block-looseores-lignite-*"), AutoMapMarkers.SurfaceOre.LooseOreBrownCoal },
-                                    { Lang.GetMatching("block-looseores-cinnabar-*"), AutoMapMarkers.SurfaceOre.LooseOreCinnabar },
-                                    { Lang.Get("egocarib-mapmarkers:copper-ore-bits"), AutoMapMarkers.SurfaceOre.LooseOreCopper },
-                                    { Lang.Get("egocarib-mapmarkers:gold-ore-bits"), AutoMapMarkers.SurfaceOre.LooseOreGold },
-                                    { Lang.GetMatching("block-looseores-lapislazuli-*"), AutoMapMarkers.SurfaceOre.LooseOreLapisLazuli },
-                                    { Lang.GetMatching("block-looseores-galena-*"), AutoMapMarkers.SurfaceOre.LooseOreLead },
-                                    { Lang.GetMatching("block-looseores-olivine-peridotite-*"), AutoMapMarkers.SurfaceOre.LooseOreOlivine },
-                                    { Lang.GetMatching("block-looseores-quartz-*"), AutoMapMarkers.SurfaceOre.LooseOreQuartz },
-                                    { Lang.Get("egocarib-mapmarkers:silver-ore-bits"), AutoMapMarkers.SurfaceOre.LooseOreSilver },
-                                    { Lang.GetMatching("block-looseores-sulfur-*"), AutoMapMarkers.SurfaceOre.LooseOreSulfur },
-                                    { Lang.GetMatching("block-looseores-cassiterite-*"), AutoMapMarkers.SurfaceOre.LooseOreTin }
-                                }
-                            },
-                            { Lang.Get("egocarib-mapmarkers:deep-ore"),
-                                new OrderedDictionary<string, AutoMapMarkerSetting>
-                                {
-                                    { Lang.GetMatching("block-ore-anthracite-*"), AutoMapMarkers.DeepOre.DeepOreAnthracite },
-                                    { Lang.GetMatching("block-ore-*-bismuthinite-*"), AutoMapMarkers.DeepOre.DeepOreBismuth },
-                                    { Lang.GetMatching("block-ore-bituminouscoal-*"), AutoMapMarkers.DeepOre.DeepOreBlackCoal },
-                                    { Lang.GetMatching("block-ore-borax-*"), AutoMapMarkers.DeepOre.DeepOreBorax },
-                                    { Lang.GetMatching("block-ore-lignite-*"), AutoMapMarkers.DeepOre.DeepOreBrownCoal },
-                                    { Lang.GetMatching("block-ore-cinnabar-*"), AutoMapMarkers.DeepOre.DeepOreCinnabar },
-                                    { Lang.Get("egocarib-mapmarkers:copper-ore"), AutoMapMarkers.DeepOre.DeepOreCopper },
-                                    { Lang.Get("egocarib-mapmarkers:gold-ore"), AutoMapMarkers.DeepOre.DeepOreGold },
-                                    { Lang.GetMatching("block-ore-*-limonite-*"), AutoMapMarkers.DeepOre.DeepOreIron },
-                                    { Lang.GetMatching("block-ore-lapislazuli-*"), AutoMapMarkers.DeepOre.DeepOreLapisLazuli },
-                                    { Lang.GetMatching("block-ore-*-galena-*"), AutoMapMarkers.DeepOre.DeepOreLead },
-                                    { Lang.GetMatching("block-ore-*-pentlandite-*"), AutoMapMarkers.DeepOre.DeepOreNickel },
-                                    { Lang.Get("ore-olivine"), AutoMapMarkers.DeepOre.DeepOreOlivine },
-                                    { Lang.Get("ore-quartz"), AutoMapMarkers.DeepOre.DeepOreQuartz },
-                                    { Lang.Get("egocarib-mapmarkers:silver-ore"), AutoMapMarkers.DeepOre.DeepOreSilver },
-                                    { Lang.Get("ore-sulfur"), AutoMapMarkers.DeepOre.DeepOreSulfur },
-                                    { Lang.GetMatching("block-ore-*-cassiterite-*"), AutoMapMarkers.DeepOre.DeepOreTin },
-                                    { Lang.GetMatching("block-ore-*-ilmenite-*"), AutoMapMarkers.DeepOre.DeepOreTitanium },
-                                    { Lang.GetMatching("block-ore-*-sphalerite-*"), AutoMapMarkers.DeepOre.DeepOreZinc }
-                                }
-                            },
-                            { Lang.Get("egocarib-mapmarkers:misc"),
-                                new OrderedDictionary<string, AutoMapMarkerSetting>
-                                {
-                                    { Lang.Get("egocarib-mapmarkers:beehive"), AutoMapMarkers.MiscBlocks.Beehive },
-                                    { Lang.Get("wpSuggestion-spiral"), AutoMapMarkers.MiscBlocks.Translocator },
-                                    { Lang.GetMatching("item-clay-red"), AutoMapMarkers.MiscBlocks.BlockRedClay },
-                                    { Lang.GetMatching("item-clay-blue"), AutoMapMarkers.MiscBlocks.BlockBlueClay },
-                                    { Lang.GetMatching("item-clay-fire"), AutoMapMarkers.MiscBlocks.BlockFireClay },
-                                    { Lang.GetMatching("block-peat-none"), AutoMapMarkers.MiscBlocks.BlockPeat },
-                                    { Lang.GetMatching("block-soil-compost-none"), AutoMapMarkers.MiscBlocks.BlockHighFertilitySoil },
-                                    { Lang.GetMatching("block-meteorite-iron"), AutoMapMarkers.MiscBlocks.BlockMeteoriticIron },
-                                    { Lang.Get("block-saltpeter-d"), AutoMapMarkers.MiscBlocks.BlockCoatingSaltpeter },
-                                    { Lang.Get("egocarib-mapmarkers:raft-menu"), AutoMapMarkers.MiscBlocks.Raft },
-                                    { Lang.Get("egocarib-mapmarkers:sailboat-menu"), AutoMapMarkers.MiscBlocks.Sailboat }
-                                }
-                            },
-                            { Lang.Get("egocarib-mapmarkers:traders"),
-                                new OrderedDictionary<string, AutoMapMarkerSetting>
-                                {
-                                    { Lang.Get("egocarib-mapmarkers:trader-agriculture"), AutoMapMarkers.Traders.TraderAgriculture },
-                                    { Lang.Get("egocarib-mapmarkers:trader-artisan"), AutoMapMarkers.Traders.TraderArtisan },
-                                    { Lang.Get("egocarib-mapmarkers:trader-buildmaterials"), AutoMapMarkers.Traders.TraderBuildingMaterials },
-                                    { Lang.Get("egocarib-mapmarkers:trader-clothing"), AutoMapMarkers.Traders.TraderClothing },
-                                    { Lang.Get("egocarib-mapmarkers:trader-commodities"), AutoMapMarkers.Traders.TraderCommodities },
-                                    { Lang.Get("egocarib-mapmarkers:trader-furniture"), AutoMapMarkers.Traders.TraderFurniture },
-                                    { Lang.Get("egocarib-mapmarkers:trader-luxuries"), AutoMapMarkers.Traders.TraderLuxuries },
-                                    { Lang.Get("egocarib-mapmarkers:trader-survivalgoods"), AutoMapMarkers.Traders.TraderSurvivalGoods },
-                                    { Lang.Get("egocarib-mapmarkers:trader-treasurehunter"), AutoMapMarkers.Traders.TraderTreasureHunter }
-                                }
-                            },
-                            { Lang.Get("egocarib-mapmarkers:custom"),
-                                new OrderedDictionary<string, AutoMapMarkerSetting>
-                                {
-                                    { Lang.Get("egocarib-mapmarkers:custom-marker-1"), AutoMapMarkers.Custom.CustomMarker1 },
-                                    { Lang.Get("egocarib-mapmarkers:custom-marker-2"), AutoMapMarkers.Custom.CustomMarker2 },
-                                    { Lang.Get("egocarib-mapmarkers:custom-marker-3"), AutoMapMarkers.Custom.CustomMarker3 }
-                                }
-                            }
-                        };
+                    _markerSettingLayout = MarkerSettingsPersistence.BuildSettingLayout(this, _cachedDefinitions);
                 }
-                return _MapMarkerSettingsCollection;
+                return _markerSettingLayout;
+            }
+
+            internal void InvalidateLayout()
+            {
+                _markerSettingLayout = null;
             }
 
             [ProtoContract]
@@ -930,6 +884,19 @@ namespace Egocarib.AutoMapMarkers.Settings
             }
         }
 
+        /// <summary>
+        /// Initializes the definition loader. Should be called once on mod startup.
+        /// Extracts _core.json from embedded resources if needed.
+        /// </summary>
+        public static void InitializeDefinitions(ICoreAPI api)
+        {
+            string modConfigPath = GetModConfigPath(api);
+            MarkerDefinitionLoader.EnsureCoreDefinitionsExist(modConfigPath);
+            _cachedDefinitions = MarkerDefinitionLoader.LoadDefinitions(modConfigPath, api);
+            if (api.Side == EnumAppSide.Client)
+                _cachedClientSettings = null;
+        }
+
         public static Settings GetSettings(ICoreAPI api, bool allowServerThread = false, bool returnDefaults = true)
         {
             if (!allowServerThread && api.Side == EnumAppSide.Server)
@@ -940,23 +907,37 @@ namespace Egocarib.AutoMapMarkers.Settings
             Settings settings = api.Side == EnumAppSide.Client ? _cachedClientSettings : null;
             if (settings == null)
             {
+                string modConfigPath = GetModConfigPath(api);
+
+                // Ensure definitions are loaded
+                if (_cachedDefinitions == null)
+                    InitializeDefinitions(api);
+
+                // Check for migration: if settings.json doesn't exist but old config does, migrate
+                if (!MarkerSettingsPersistence.SettingsFileExists(modConfigPath))
+                {
+                    MigrateLegacyConfig(api, modConfigPath);
+                }
+
+                // Load from new pipeline
                 try
                 {
-                    settings = api.LoadModConfig<Settings>(ConfigFilename);
+                    settings = MarkerSettingsPersistence.LoadSettings(modConfigPath, _cachedDefinitions);
                     if (api.Side == EnumAppSide.Client)
+                    {
                         _cachedClientSettings = settings;
+                        _cachedRegistry = MarkerRegistry.Build(_cachedDefinitions, settings);
+                    }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    MessageUtil.LogError("Unable to load your mod configuration file "
-                        + "(" + ConfigFilename + "). There may have been a syntax error in the file."
-                        + "A new default settings file will be generated.");
+                    MessageUtil.LogError("Failed to load settings via new pipeline: " + ex.Message);
                 }
             }
             if (settings == null && returnDefaults)
             {
                 settings = new Settings();
-                SaveSettings(api, settings, allowServerThread); //Create a default settings file if one didn't already exist.
+                SaveSettings(api, settings, allowServerThread);
             }
             return settings;
         }
@@ -969,21 +950,143 @@ namespace Egocarib.AutoMapMarkers.Settings
                 throw new InvalidOperationException();
             }
             if (api.Side == EnumAppSide.Client)
+            {
                 _cachedClientSettings = settings;
-            api.StoreModConfig<Settings>(settings, ConfigFilename);
+                if (_cachedDefinitions != null)
+                    _cachedRegistry = MarkerRegistry.Build(_cachedDefinitions, settings);
+            }
+
+            string modConfigPath = GetModConfigPath(api);
+            if (_cachedDefinitions == null)
+                InitializeDefinitions(api);
+
+            MarkerSettingsPersistence.SaveSettings(modConfigPath, settings, _cachedDefinitions);
         }
 
         /// <summary>
-        /// Checks if a settings file already exists
+        /// Checks if a settings file already exists (either new or legacy format)
         /// </summary>
         public static bool CheckIfSettingsExist(ICoreAPI api)
         {
-            Settings settings = GetSettings(api, true, false);
-            if (settings != null)
-            {
+            string modConfigPath = GetModConfigPath(api);
+            if (MarkerSettingsPersistence.SettingsFileExists(modConfigPath))
                 return true;
+
+            Settings settings = null;
+            try
+            {
+                settings = api.LoadModConfig<Settings>(ConfigFilename);
             }
-            return false;
+            catch (Exception ex)
+            {
+                MessageUtil.LogError($"Failed to check legacy config: {ex.Message}");
+            }
+            return settings != null;
+        }
+
+        /// <summary>
+        /// Clears the cached client settings so the next GetSettings() call reloads from disk.
+        /// </summary>
+        public static void ClearCachedClientSettings()
+        {
+            _cachedClientSettings = null;
+            _cachedRegistry = null;
+        }
+
+        /// <summary>
+        /// Ensures a default settings.json exists on the server side.
+        /// Creates one with default boolean toggles if none exists, without loading definitions.
+        /// </summary>
+        public static void EnsureServerSettingsExist(ICoreAPI api)
+        {
+            string modConfigPath = GetModConfigPath(api);
+            if (!MarkerSettingsPersistence.SettingsFileExists(modConfigPath))
+            {
+                if (!MigrateLegacyConfig(api, modConfigPath))
+                {
+                    // No existing settings at all — create a minimal default settings.json
+                    MarkerSettingsPersistence.CreateDefaultSettingsFile(modConfigPath);
+                    MessageUtil.Log("Server: created default settings.json.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Attempts to migrate a legacy config file to the new settings.json format.
+        /// Returns true if a legacy config was found and migrated, false otherwise.
+        /// </summary>
+        private static bool MigrateLegacyConfig(ICoreAPI api, string modConfigPath)
+        {
+            Settings legacySettings = null;
+            try
+            {
+                legacySettings = api.LoadModConfig<Settings>(ConfigFilename);
+            }
+            catch
+            {
+                MessageUtil.LogError("Unable to load legacy config file (" + ConfigFilename + "). A new default settings file will be generated.");
+            }
+
+            if (legacySettings == null)
+                return false;
+
+            MessageUtil.Log("Migrating settings from legacy format to new settings.json...");
+            if (_cachedDefinitions == null)
+                InitializeDefinitions(api);
+
+            // Smart berry migration: if any individual berry was enabled, enable the
+            // Berries parent and start it expanded so the user sees their prior settings.
+            var organic = legacySettings.AutoMapMarkers.OrganicMatter;
+            var allBerrySettings = new[]
+            {
+                organic.Blueberry, organic.Beautyberry, organic.Cranberry,
+                organic.BlackCurrant, organic.RedCurrant, organic.WhiteCurrant, organic.Strawberry
+            };
+            bool anyBerryEnabled = allBerrySettings.Any(b => b.Enabled);
+            if (anyBerryEnabled)
+            {
+                organic.Berries.Enabled = true;
+                legacySettings.ExpandStates["egocarib-mapmarkers:berries"] = true;
+            }
+
+            // Smart trader migration: check if all traders have the same icon+color.
+            // If uniform, start collapsed (user had default/uniform settings).
+            // If customized per-trader, start expanded (preserve individual settings).
+            var traders = legacySettings.AutoMapMarkers.Traders;
+            var allTraderSettings = new[]
+            {
+                traders.TraderAgriculture, traders.TraderArtisan, traders.TraderBuildingMaterials,
+                traders.TraderClothing, traders.TraderCommodities, traders.TraderFurniture,
+                traders.TraderLuxuries, traders.TraderSurvivalGoods, traders.TraderTreasureHunter
+            };
+            bool allSameIconColor = allTraderSettings.All(t =>
+                string.Equals(t.MarkerIcon, allTraderSettings[0].MarkerIcon, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(t.MarkerColor, allTraderSettings[0].MarkerColor, StringComparison.OrdinalIgnoreCase));
+            if (allSameIconColor)
+            {
+                legacySettings.ExpandStates["egocarib-mapmarkers:traders"] = false;
+            }
+
+            MarkerSettingsPersistence.SaveSettings(modConfigPath, legacySettings, _cachedDefinitions);
+
+            try
+            {
+                string oldFilePath = Path.Combine(modConfigPath, ConfigFilename);
+                string bakFilePath = Path.Combine(modConfigPath, ConfigFilename + ".bak");
+                if (File.Exists(oldFilePath))
+                {
+                    if (File.Exists(bakFilePath))
+                        File.Delete(bakFilePath);
+                    File.Move(oldFilePath, bakFilePath);
+                    MessageUtil.Log("Legacy config file renamed to " + ConfigFilename + ".bak");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageUtil.LogError("Failed to rename legacy config file: " + ex.Message);
+            }
+
+            return true;
         }
     }
 }

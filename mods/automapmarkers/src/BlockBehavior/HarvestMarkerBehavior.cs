@@ -1,4 +1,4 @@
-﻿using Egocarib.AutoMapMarkers.Settings;
+using Egocarib.AutoMapMarkers.Settings;
 using Egocarib.AutoMapMarkers.Utilities;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
@@ -37,47 +37,25 @@ namespace Egocarib.AutoMapMarkers.BlockBehavior
                     MapMarkerConfig.Settings config = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
                     if (config != null && config.EnableMarkOnInteract)
                     {
-                        ThingIdentifier farmCheck = new ThingIdentifier(block, blockSel.Position);
-                        if (config.SuppressMarkerOnFarmland && farmCheck.IsOnFarmland())
+                        ThingIdentifier thing = new ThingIdentifier(block, blockSel.Position);
+
+                        if (config.SuppressMarkerOnFarmland && thing.IsOnFarmland())
                             return base.OnBlockInteractStart(world, byPlayer, blockSel, ref handling);
 
-                        var settings = GetHarvestableObjectSettings(config, blockSel.Position);
-                        if (settings != null && blockSel.Position != null)
+                        if (thing.Identify(config) && blockSel.Position != null)
                         {
-                            bool shouldChat = config.ChatNotifyOnWaypointCreation;
-                            Vec3d pos = blockSel.Position.ToVec3d();
-                            MapMarkerMod.Network?.RequestWaypointFromServer(pos, settings, shouldChat);
+                            var settings = thing.GetMapMarkerSettings();
+                            if (settings != null)
+                            {
+                                bool shouldChat = config.ChatNotifyOnWaypointCreation;
+                                Vec3d pos = blockSel.Position.ToVec3d();
+                                MapMarkerMod.Network?.RequestWaypointFromServer(pos, settings, shouldChat, thing.DynamicTitleComponent);
+                            }
                         }
                     }
                 }
             }
             return base.OnBlockInteractStart(world, byPlayer, blockSel, ref handling);
-        }
-
-        /// <summary>
-        /// Gets the map marker settings for the block this behavior is attached to.
-        /// </summary>
-        private MapMarkerConfig.Settings.AutoMapMarkerSetting GetHarvestableObjectSettings(MapMarkerConfig.Settings config, BlockPos blockPos)
-        {
-            ThingIdentifier thing = new ThingIdentifier(block, blockPos);
-            if (thing.IsResin)
-                return config.AutoMapMarkers.OrganicMatter.Resin;
-            if (thing.IsBlueberry)
-                return config.AutoMapMarkers.OrganicMatter.Blueberry;
-            if (thing.IsBeautyberry)
-                return config.AutoMapMarkers.OrganicMatter.Beautyberry;
-            if (thing.IsCranberry)
-                return config.AutoMapMarkers.OrganicMatter.Cranberry;
-            if (thing.IsCurrantBlack)
-                return config.AutoMapMarkers.OrganicMatter.BlackCurrant;
-            if (thing.IsCurrantRed)
-                return config.AutoMapMarkers.OrganicMatter.RedCurrant;
-            if (thing.IsCurrantWhite)
-                return config.AutoMapMarkers.OrganicMatter.WhiteCurrant;
-            if (thing.IsStrawberry)
-                return config.AutoMapMarkers.OrganicMatter.Strawberry;
-
-            return null;
         }
     }
 }

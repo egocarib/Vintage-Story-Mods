@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Egocarib.AutoMapMarkers.Settings;
@@ -54,241 +56,143 @@ namespace Egocarib.AutoMapMarkers.Utilities
                 throw new ArgumentNullException(nameof(entity));
         }
 
-        public enum IdentifyAsType
-        {
-            Any,
-            Flora,
-            DynamicFlora,
-            SurfaceOre,
-            DeepOre,
-            Misc,
-            Trader
-        }
-
-        public bool Identify(MapMarkerConfig.Settings config, IdentifyAsType type = IdentifyAsType.Any)
+        public bool Identify(MapMarkerConfig.Settings config)
         {
             ModConfig = config;
-            return Identify(type);
-        }
 
-        public bool Identify(IdentifyAsType type = IdentifyAsType.Any)
-        {
-            if (type == IdentifyAsType.Flora)
-                return IdentifyAsFlora();
-            else if (type == IdentifyAsType.DynamicFlora)
-                return IdentifyAsDynamicFlora();
-            else if (type == IdentifyAsType.SurfaceOre)
-                return IdentifyAsSurfaceOre();
-            else if (type == IdentifyAsType.DeepOre)
-                return IdentifyAsDeepOre();
-            else if (type == IdentifyAsType.Misc)
-                return IdentifyAsMisc();
-            else if (type == IdentifyAsType.Trader)
-                return IdentifyAsTrader();
-            else if (type == IdentifyAsType.Any)
-                return IdentifyAsFlora()
-                    || IdentifyAsDynamicFlora()
-                    || IdentifyAsSurfaceOre()
-                    || IdentifyAsDeepOre()
-                    || IdentifyAsMisc()
-                    || IdentifyAsTrader();
-            return false;
-        }
+            var registry = MapMarkerConfig.GetRegistry();
+            if (registry == null) return false;
 
-        private bool IdentifyAsFlora()
-        {
-            if (IsResin)
-                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Resin;
-            else if (IsBlueberry)
-                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Blueberry;
-            else if (IsBeautyberry)
-                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Beautyberry;
-            else if (IsCranberry)
-                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Cranberry;
-            else if (IsCurrantBlack)
-                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.BlackCurrant;
-            else if (IsCurrantRed)
-                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.RedCurrant;
-            else if (IsCurrantWhite)
-                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.WhiteCurrant;
-            else if (IsStrawberry)
-                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Strawberry;
-            else
-                return false;
+            string assetPath = GetAssetPath();
+            if (string.IsNullOrEmpty(assetPath)) return false;
 
-            Identified = true;
-            return true;
-        }
+            var matches = registry.FindMatches(assetPath);
+            if (matches.Count == 0) return false;
 
-        private bool IdentifyAsDynamicFlora()
-        {
-            if (IsMushroomAny)
-                MarkerSettings = MushroomNotPoisonous() ?
-                    ModConfig?.AutoMapMarkers.OrganicMatter.SafeMushroom :
-                    ModConfig?.AutoMapMarkers.OrganicMatter.UnsafeMushroom;
-            else if (IsReedAny)
-                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Reed;
-            else if (IsTuleAny)
-                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Tule;
-            else if (IsWildCropAny)
-                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.WildCrop;
-            else if (IsFlowerAny)
-                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.Flower;
-            else if (IsFruitTreeAny)
-                MarkerSettings = ModConfig?.AutoMapMarkers.OrganicMatter.FruitTree;
-            else
-                return false;
-
-            DynamicTitleComponent = CalculateDynamicMarkerTitleComponent();
-
-            Identified = true;
-            return true;
-        }
-
-        private bool IdentifyAsSurfaceOre()
-        {
-            if (IsAnthracite)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreAnthracite;
-            else if (IsBlackCoal)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreBlackCoal;
-            else if (IsBorax)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreBorax;
-            else if (IsBrownCoal)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreBrownCoal;
-            else if (IsCinnabar)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreCinnabar;
-            else if (IsGold)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreGold;
-            else if (IsLapisLazuli)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreLapisLazuli;
-            else if (IsLead)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreLead;
-            else if (IsMalachiteCopper)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreCopper;
-            else if (IsNativeCopper)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreCopper;
-            else if (IsOlivine)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreOlivine;
-            else if (IsQuartz)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreQuartz;
-            else if (IsSilver)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreSilver;
-            else if (IsSulfur)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreSulfur;
-            else if (IsTin)
-                MarkerSettings = ModConfig?.AutoMapMarkers.SurfaceOre.LooseOreTin;
-            else
-                return false;
-
-            Identified = true;
-            return true;
-        }
-
-        private bool IdentifyAsDeepOre()
-        {
-            if (IsAnthraciteBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreAnthracite;
-            else if (IsBismuthBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreBismuth;
-            else if (IsBlackCoalBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreBlackCoal;
-            else if (IsBoraxBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreBorax;
-            else if (IsBrownCoalBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreBrownCoal;
-            else if (IsCinnabarBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreCinnabar;
-            else if (IsGoldBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreGold;
-            else if (IsHematiteIronBlock || IsLimoniteIronBlock || IsMagnetiteIronBlock)
+            MarkerDetectionRegistry.MatchResult match;
+            if (matches.Count > 1)
             {
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreIron;
-                DynamicTitleComponent = CalculateDynamicMarkerTitleComponent();
+                match = DisambiguateMatches(matches) ?? matches[0];
             }
-            else if (IsLapisLazuliBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreLapisLazuli;
-            else if (IsLeadBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreLead;
-            else if (IsMalachiteCopperBlock || IsNativeCopperBlock)
+            else
             {
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreCopper;
-                DynamicTitleComponent = CalculateDynamicMarkerTitleComponent();
+                match = matches[0];
             }
-            else if (IsOlivineBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreOlivine;
-            else if (IsQuartzBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreQuartz;
-            else if (IsSilverBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreSilver;
-            else if (IsSulfurBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreSulfur;
-            else if (IsTinBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreTin;
-            else if (IsTitaniumBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreTitanium;
-            else if (IsZincBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreZinc;
-            else if (IsNickelBlock)
-                MarkerSettings = ModConfig?.AutoMapMarkers.DeepOre.DeepOreNickel;
-            else
-                return false;
+
+            MarkerSettings = match.Setting;
+            if (match.DynamicTitle)
+                DynamicTitleComponent = CalculateDynamicMarkerTitleComponent();
 
             Identified = true;
             return true;
         }
 
-        private bool IdentifyAsMisc()
+        public bool Identify()
         {
-            if (IsRedClay)
-                MarkerSettings = ModConfig?.AutoMapMarkers.MiscBlocks.BlockRedClay;
-            else if (IsBlueClay)
-                MarkerSettings = ModConfig?.AutoMapMarkers.MiscBlocks.BlockBlueClay;
-            else if (IsFireClay)
-                MarkerSettings = ModConfig?.AutoMapMarkers.MiscBlocks.BlockFireClay;
-            else if (IsPeat)
-                MarkerSettings = ModConfig?.AutoMapMarkers.MiscBlocks.BlockPeat;
-            else if (IsHighFertSoil)
-                MarkerSettings = ModConfig?.AutoMapMarkers.MiscBlocks.BlockHighFertilitySoil;
-            else if (IsMeteoriticIron)
-                MarkerSettings = ModConfig?.AutoMapMarkers.MiscBlocks.BlockMeteoriticIron;
-            else if (IsSaltpeter)
-                MarkerSettings = ModConfig?.AutoMapMarkers.MiscBlocks.BlockCoatingSaltpeter;
-            else if (IsBeehive)
-                MarkerSettings = ModConfig?.AutoMapMarkers.MiscBlocks.Beehive;
-            else if (IsTranslocator)
-                MarkerSettings = ModConfig?.AutoMapMarkers.MiscBlocks.Translocator;
-            else
-                return false;
-
-            Identified = true;
-            return true;
+            return Identify(ModConfig);
         }
 
-        private bool IdentifyAsTrader()
+        private static readonly HashSet<string> MushroomLabels = new HashSet<string>
         {
-            if (IsArtisan)
-                MarkerSettings = ModConfig?.AutoMapMarkers.Traders.TraderArtisan;
-            else if (IsBuildingMaterials)
-                MarkerSettings = ModConfig?.AutoMapMarkers.Traders.TraderBuildingMaterials;
-            else if (IsClothing)
-                MarkerSettings = ModConfig?.AutoMapMarkers.Traders.TraderClothing;
-            else if (IsCommodities)
-                MarkerSettings = ModConfig?.AutoMapMarkers.Traders.TraderCommodities;
-            else if (IsAgriculture)
-                MarkerSettings = ModConfig?.AutoMapMarkers.Traders.TraderAgriculture;
-            else if (IsFurniture)
-                MarkerSettings = ModConfig?.AutoMapMarkers.Traders.TraderFurniture;
-            else if (IsLuxuries)
-                MarkerSettings = ModConfig?.AutoMapMarkers.Traders.TraderLuxuries;
-            else if (IsSurvivalGoods)
-                MarkerSettings = ModConfig?.AutoMapMarkers.Traders.TraderSurvivalGoods;
-            else if (IsTreasureHunter)
-                MarkerSettings = ModConfig?.AutoMapMarkers.Traders.TraderTreasureHunter;
-            else
-                return false;
+            "egocarib-mapmarkers:safe-mushrooms",
+            "egocarib-mapmarkers:safe-mushrooms-nonpsychedelic",
+            "egocarib-mapmarkers:safe-mushrooms-psychedelic",
+            "egocarib-mapmarkers:unsafe-mushrooms",
+            "egocarib-mapmarkers:unsafe-mushrooms-nonpsychedelic",
+            "egocarib-mapmarkers:unsafe-mushrooms-psychedelic"
+        };
 
-            Identified = true;
-            return true;
+        private const string FruitTreeLabelPrefix = "game:treegen-variant-fruittree-";
+        private const string FruitTreeParentLabel = "egocarib-mapmarkers:fruit-trees";
+
+        /// <summary>
+        /// Disambiguates when multiple registry entries match the same asset path.
+        /// This occurs for mushrooms (safe vs unsafe, psychedelic vs non-psychedelic) and
+        /// fruit trees (tree type is in block entity data, not the block code).
+        /// Returns null if no disambiguation is needed or possible.
+        /// </summary>
+        private MarkerDetectionRegistry.MatchResult DisambiguateMatches(List<MarkerDetectionRegistry.MatchResult> matches)
+        {
+            // Check for mushroom disambiguation
+            int mushroomCount = 0;
+            foreach (var m in matches)
+                if (MushroomLabels.Contains(m.Label)) mushroomCount++;
+
+            if (mushroomCount >= 2)
+            {
+                string targetLabel = ResolveMushroomLabel(matches);
+                return matches.FirstOrDefault(m => m.Label == targetLabel);
+            }
+
+            // Check for fruit tree disambiguation
+            int fruitTreeCount = 0;
+            foreach (var m in matches)
+                if (m.Label.StartsWith(FruitTreeLabelPrefix, StringComparison.Ordinal) || m.Label == FruitTreeParentLabel)
+                    fruitTreeCount++;
+
+            if (fruitTreeCount >= 2)
+            {
+                string targetLabel = ResolveFruitTreeLabel(matches);
+                if (targetLabel != null)
+                    return matches.FirstOrDefault(m => m.Label == targetLabel);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Resolves which mushroom label to use based on the block's nutrition properties.
+        /// Handles both collapsed (parent) and expanded (sub-entry) states.
+        /// </summary>
+        private string ResolveMushroomLabel(List<MarkerDetectionRegistry.MatchResult> matches)
+        {
+            bool isSafe = MushroomNotPoisonous();
+            bool isPsychedelic = MushroomIsPsychedelic();
+
+            // Try the most specific label first (expanded sub-entries)
+            string specificLabel = isSafe
+                ? (isPsychedelic ? "egocarib-mapmarkers:safe-mushrooms-psychedelic" : "egocarib-mapmarkers:safe-mushrooms-nonpsychedelic")
+                : (isPsychedelic ? "egocarib-mapmarkers:unsafe-mushrooms-psychedelic" : "egocarib-mapmarkers:unsafe-mushrooms-nonpsychedelic");
+
+            if (matches.Any(m => m.Label == specificLabel))
+                return specificLabel;
+
+            // Fall back to parent label (collapsed)
+            return isSafe
+                ? "egocarib-mapmarkers:safe-mushrooms"
+                : "egocarib-mapmarkers:unsafe-mushrooms";
+        }
+
+        /// <summary>
+        /// Resolves which fruit tree label to use based on the block entity's TreeType.
+        /// The tree type (cherry, apple, etc.) is stored in the block entity, not the block code.
+        /// </summary>
+        private string ResolveFruitTreeLabel(List<MarkerDetectionRegistry.MatchResult> matches)
+        {
+            string treeType = GetFruitTreeType();
+            if (treeType == null)
+                return FruitTreeParentLabel;
+
+            string specificLabel = FruitTreeLabelPrefix + treeType;
+            if (matches.Any(m => m.Label == specificLabel))
+                return specificLabel;
+
+            // Fall back to parent label (collapsed, or unknown tree type)
+            return FruitTreeParentLabel;
+        }
+
+        /// <summary>
+        /// Reads the tree type from the fruit tree block entity.
+        /// </summary>
+        private string GetFruitTreeType()
+        {
+            if (BlockPosition == null) return null;
+            var entity = MapMarkerMod.CoreAPI.World.BlockAccessor.GetBlockEntity(BlockPosition);
+            if (entity is BlockEntityFruitTreeBranch branchEntity)
+                return branchEntity.TreeType;
+            if (entity is BlockEntityFruitTreeFoliage foliageEntity)
+                return foliageEntity.TreeType;
+            return null;
         }
 
         public bool IsOnFarmland()
@@ -326,146 +230,115 @@ namespace Egocarib.AutoMapMarkers.Utilities
             }
             else if (BlockOrEntity is Entity)
             {
+                // For traders, extract the type from the asset path (e.g. trader-male-treasurehunter-cold)
+                // and resolve via our lang keys, since entity.GetName() returns "Trader" or a personal name.
+                string path = GetAssetPath();
+                if (path.StartsWith("trader-", StringComparison.Ordinal))
+                {
+                    return CalculateTraderTypeName(path);
+                }
                 Entity entity = BlockOrEntity as Entity;
                 return entity.GetName();
             }
             return null;
         }
 
+        /// <summary>
+        /// Extracts the trader type from an asset path like "trader-male-treasurehunter-cold"
+        /// and resolves it via our lang keys (e.g. "egocarib-mapmarkers:trader-treasurehunter").
+        /// </summary>
+        private string CalculateTraderTypeName(string assetPath)
+        {
+            // Pattern: trader-{gender}-{type}-{climate}
+            string[] parts = assetPath.Split('-');
+            if (parts.Length >= 3)
+            {
+                // Type is the third segment (index 2). For multi-word types this is still one segment
+                // (e.g., "buildmaterials", "survivalgoods", "treasurehunter")
+                string traderType = parts[2];
+                string langKey = "egocarib-mapmarkers:trader-" + traderType;
+                string resolved = Lang.Get(langKey);
+                // If the lang key resolved (didn't return the key itself), use it
+                if (resolved != langKey)
+                    return resolved;
+            }
+            // Fallback to generic entity name
+            return (BlockOrEntity as Entity)?.GetName();
+        }
+
+        private static readonly Dictionary<string, string> FruitTreeLangKeys = new()
+        {
+            ["redapple"] = "treegen-variant-fruittree-redapple",
+            ["pinkapple"] = "treegen-variant-fruittree-pinkapple",
+            ["yellowapple"] = "treegen-variant-fruittree-yellowapple",
+            ["cherry"] = "treegen-variant-fruittree-cherry",
+            ["olive"] = "treegen-variant-fruittree-olive",
+            ["peach"] = "treegen-variant-fruittree-peach",
+            ["pear"] = "treegen-variant-fruittree-pear",
+            ["mango"] = "treegen-variant-fruittree-mango",
+            ["orange"] = "treegen-variant-fruittree-orange",
+            ["breadfruit"] = "treegen-variant-fruittree-breadfruit",
+            ["lychee"] = "treegen-variant-fruittree-lychee",
+            ["pomegranate"] = "treegen-variant-fruittree-pomegranate"
+        };
+
         private string CalculateFruitTreeName(string displayName)
         {
-            string treeType = null;
-            var entity = MapMarkerMod.CoreAPI.World.BlockAccessor.GetBlockEntity(BlockPosition);
-            if (entity is BlockEntityFruitTreeBranch branchEntity)
-                treeType = branchEntity.TreeType;
-            else if (entity is BlockEntityFruitTreeFoliage foliageEntity)
-                treeType = foliageEntity.TreeType;
-
-            if (treeType != null)
-            {
-                if (treeType == "redapple")
-                    return Lang.Get("item-fruit-redapple");
-                if (treeType == "pinkapple")
-                    return Lang.Get("item-fruit-pinkapple");
-                if (treeType == "yellowapple")
-                    return Lang.Get("item-fruit-yellowapple");
-                if (treeType == "cherry")
-                    return Lang.Get("item-fruit-cherry");
-                if (treeType == "olive")
-                    return Lang.Get("item-vegetable-olive");
-                if (treeType == "peach")
-                    return Lang.Get("item-fruit-peach");
-                if (treeType == "pear")
-                    return Lang.Get("item-fruit-pear");
-                if (treeType == "mango")
-                    return Lang.Get("item-fruit-mango");
-                if (treeType == "orange")
-                    return Lang.Get("item-fruit-orange");
-                if (treeType == "breadfruit")
-                    return Lang.Get("item-fruit-breadfruit");
-                if (treeType == "lychee")
-                    return Lang.Get("item-fruit-lychee");
-                if (treeType == "pomegranate")
-                    return Lang.Get("item-fruit-pomegranate");
-            }
+            string treeType = GetFruitTreeType();
+            if (treeType != null && FruitTreeLangKeys.TryGetValue(treeType, out string langKey))
+                return Lang.Get(langKey);
             return null;
         }
 
         public bool MushroomNotPoisonous()
         {
             // Returns true by default if error or unexpected case occurs (such as modded mushroom with no nutrition properties)
-            BlockMushroom mushroomBlock = BlockOrEntity as BlockMushroom;
-            if (mushroomBlock == null)
-                return true;
-            IClientWorldAccessor world = MapMarkerMod.CoreClientAPI.World;
-            ItemStack[] drops = mushroomBlock.GetDrops(world, BlockPosition, world.Player);
-            if (drops == null || drops.Length == 0 || drops[0] == null)
-                return true;
-            FoodNutritionProperties mushProps = drops[0].Collectible?.GetNutritionProperties(world, drops[0], world.Player.Entity);
+            FoodNutritionProperties mushProps = GetMushroomNutritionProps();
             if (mushProps != null && mushProps.Health < 0f)
                 return false;
             return true;
         }
 
-        // Misc blocks (soil, etc)
-        public bool IsBeehive { get { return BlockOrEntity.Code.Path.StartsWith("wildbeehive-", StringComparison.Ordinal); } }
-        public bool IsTranslocator { get { return BlockOrEntity.Code.Path.StartsWith("statictranslocator-", StringComparison.Ordinal); } }
-        public bool IsRedClay { get { return BlockOrEntity.Code.Path.StartsWith("rawclay-red-", StringComparison.Ordinal); } }
-        public bool IsBlueClay { get { return BlockOrEntity.Code.Path.StartsWith("rawclay-blue-", StringComparison.Ordinal); } }
-        public bool IsFireClay { get { return BlockOrEntity.Code.Path.StartsWith("rawclay-fire-", StringComparison.Ordinal); } }
-        public bool IsPeat { get { return BlockOrEntity.Code.Path.StartsWith("peat-", StringComparison.Ordinal); } }
-        public bool IsHighFertSoil { get { return BlockOrEntity.Code.Path.StartsWith("soil-compost-", StringComparison.Ordinal); } }
-        public bool IsMeteoriticIron { get { return BlockOrEntity.Code.Path.StartsWith("meteorite-iron", StringComparison.Ordinal); } }
-        public bool IsSaltpeter { get { return BlockOrEntity.Code.Path.StartsWith("saltpeter-", StringComparison.Ordinal); } }
+        private static readonly string[] PsychedelicMushroomVarieties =
+            { "flyagaric", "goldcap", "libertycap", "wavycap", "bluemeanie", "laughingjim" };
 
-        // Flora
-        public bool IsResin { get { return BlockOrEntity.Code.Path.StartsWith("log-resin-", StringComparison.Ordinal); } }
-        public bool IsBlueberry { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-blueberry-"); } }
-        public bool IsBeautyberry { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-beautyberry-"); } }
-        public bool IsCranberry { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-cranberry-"); } }
-        public bool IsCurrantBlack { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-blackcurrant-"); } }
-        public bool IsCurrantRed { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-redcurrant-"); } }
-        public bool IsCurrantWhite { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-whitecurrant-"); } }
-        public bool IsStrawberry { get { return BlockOrEntity.Code.Path.StartsWith("fruitingbush-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-strawberry-"); } }
-        public bool IsMushroomAny { get { return BlockOrEntity.Code.Path.StartsWith("mushroom-", StringComparison.Ordinal); } }
-        public bool IsWildCropAny { get { return BlockOrEntity.Code.Path.StartsWith("crop-", StringComparison.Ordinal); } }
-        public bool IsFlowerAny { get { return BlockOrEntity.Code.Path.StartsWith("flower-", StringComparison.Ordinal) || BlockOrEntity.Code.Path.StartsWith("herb-", StringComparison.Ordinal); } }
-        public bool IsReedAny { get { return BlockOrEntity.Code.Path.StartsWith("tallplant-", StringComparison.Ordinal) && (BlockOrEntity.Code.Path.Contains("-coopersreed-") || BlockOrEntity.Code.Path.Contains("-papyrus-")); } }
-        public bool IsTuleAny { get { return BlockOrEntity.Code.Path.StartsWith("tallplant-tule-", StringComparison.Ordinal); } }
-        public bool IsFruitTreeAny { get { return BlockOrEntity.Code.Path.StartsWith("fruittree-", StringComparison.Ordinal) && !BlockOrEntity.Code.Path.Equals("fruittree-cutting", StringComparison.Ordinal); } }  // Ignore cuttings
+        public bool MushroomIsPsychedelic()
+        {
+            // Ideally we'd check NutritionProps.Psychedelic here, but that property is always 0 on the
+            // client side due to a game bug: Packet_NutritionProperties and CollectibleNet don't include
+            // the Psychedelic (or Intoxication) field when syncing block/item definitions from server to
+            // client, so the value is lost during deserialization.
+            // See: https://github.com/anegostudios/VintageStory-Issues/issues/8769
+            //
+            // As a workaround, we check the block's code path against known psychedelic mushroom varieties.
+            FoodNutritionProperties mushProps = GetMushroomNutritionProps();
+            if (mushProps != null && mushProps.Psychedelic > 0f)
+                return true;
 
+            string path = GetAssetPath();
+            if (!string.IsNullOrEmpty(path))
+            {
+                foreach (string variety in PsychedelicMushroomVarieties)
+                {
+                    if (path.Contains("-" + variety + "-"))
+                        return true;
+                }
+            }
 
-        // Ore bits on surface
-        public bool IsAnthracite { get { return BlockOrEntity.Code.Path.StartsWith("looseores-anthracite-", StringComparison.Ordinal); } }
-        public bool IsBlackCoal { get { return BlockOrEntity.Code.Path.StartsWith("looseores-bituminouscoal-", StringComparison.Ordinal); } }
-        public bool IsBorax { get { return BlockOrEntity.Code.Path.StartsWith("looseores-borax-", StringComparison.Ordinal); } }
-        public bool IsBrownCoal { get { return BlockOrEntity.Code.Path.StartsWith("looseores-lignite-", StringComparison.Ordinal); } }
-        public bool IsCinnabar { get { return BlockOrEntity.Code.Path.StartsWith("looseores-cinnabar-", StringComparison.Ordinal); } }
-        public bool IsGold { get { return BlockOrEntity.Code.Path.StartsWith("looseores-quartz_nativegold-", StringComparison.Ordinal); } }
-        public bool IsLapisLazuli { get { return BlockOrEntity.Code.Path.StartsWith("looseores-lapislazuli-", StringComparison.Ordinal); } }
-        public bool IsLead { get { return BlockOrEntity.Code.Path.StartsWith("looseores-galena-", StringComparison.Ordinal); } }
-        public bool IsMalachiteCopper { get { return BlockOrEntity.Code.Path.StartsWith("looseores-malachite-", StringComparison.Ordinal); } }
-        public bool IsNativeCopper { get { return BlockOrEntity.Code.Path.StartsWith("looseores-nativecopper-", StringComparison.Ordinal); } }
-        public bool IsOlivine { get { return BlockOrEntity.Code.Path.StartsWith("looseores-olivine-", StringComparison.Ordinal); } }
-        public bool IsQuartz { get { return BlockOrEntity.Code.Path.StartsWith("looseores-quartz-", StringComparison.Ordinal); } }
-        public bool IsSilver { get { return BlockOrEntity.Code.Path.StartsWith("looseores-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("_nativesilver-"); } } // Has both quartz & galena variants
-        public bool IsSulfur { get { return BlockOrEntity.Code.Path.StartsWith("looseores-sulfur-", StringComparison.Ordinal); } }
-        public bool IsTin { get { return BlockOrEntity.Code.Path.StartsWith("looseores-cassiterite-", StringComparison.Ordinal); } }
+            return false;
+        }
 
-        // Full mineable ore blocks
-        public bool IsAnthraciteBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-anthracite-", StringComparison.Ordinal); } }
-        public bool IsBismuthBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-bismuthinite-"); } }
-        public bool IsBlackCoalBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-bituminouscoal-", StringComparison.Ordinal); } }
-        public bool IsBoraxBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-borax-", StringComparison.Ordinal); } }
-        public bool IsBrownCoalBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-lignite-", StringComparison.Ordinal); } }
-        public bool IsCinnabarBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-cinnabar-", StringComparison.Ordinal); } }
-        public bool IsGoldBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-quartz_nativegold-"); } }
-        public bool IsHematiteIronBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-hematite-"); } }
-        public bool IsLimoniteIronBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-limonite-"); } }
-        public bool IsMagnetiteIronBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-magnetite-"); } }
-        public bool IsLapisLazuliBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-lapislazuli-", StringComparison.Ordinal); } }
-        public bool IsLeadBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-galena-"); } }
-        public bool IsMalachiteCopperBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-malachite-"); } }
-        public bool IsNativeCopperBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-nativecopper-"); } }
-        public bool IsOlivineBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-olivine-", StringComparison.Ordinal); } }
-        public bool IsQuartzBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-quartz-", StringComparison.Ordinal); } }
-        public bool IsSilverBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("_nativesilver-"); } } // Has both quartz & galena variants
-        public bool IsSulfurBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-sulfur-", StringComparison.Ordinal); } }
-        public bool IsTinBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-cassiterite-"); } }
-        public bool IsTitaniumBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-ilmenite-"); } }
-        public bool IsZincBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-sphalerite-"); } }
-        public bool IsNickelBlock { get { return BlockOrEntity.Code.Path.StartsWith("ore-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-pentlandite-"); } }
+        private FoodNutritionProperties GetMushroomNutritionProps()
+        {
+            BlockMushroom mushroomBlock = BlockOrEntity as BlockMushroom;
+            if (mushroomBlock == null)
+                return null;
+            IClientWorldAccessor world = MapMarkerMod.CoreClientAPI.World;
+            ItemStack[] drops = mushroomBlock.GetDrops(world, BlockPosition, world.Player);
+            if (drops == null || drops.Length == 0 || drops[0] == null)
+                return null;
+            return drops[0].Collectible?.GetNutritionProperties(world, drops[0], world.Player.Entity);
+        }
 
-        // Trader entities (VS 1.22+: entity code is "trader" with gender+type variants, e.g. "trader-male-artisan")
-        private bool IsTrader(string traderType) { return BlockOrEntity.Code.Path.StartsWith("trader-", StringComparison.Ordinal) && BlockOrEntity.Code.Path.Contains("-" + traderType); }
-        public bool IsAgriculture { get { return IsTrader("agriculture"); } }
-        public bool IsArtisan { get { return IsTrader("artisan"); } }
-        public bool IsBuildingMaterials { get { return IsTrader("buildmaterials"); } }
-        public bool IsClothing { get { return IsTrader("clothing"); } }
-        public bool IsCommodities { get { return IsTrader("commodities"); } }
-        public bool IsFurniture { get { return IsTrader("furniture"); } }
-        public bool IsLuxuries { get { return IsTrader("luxuries"); } }
-        public bool IsSurvivalGoods { get { return IsTrader("survivalgoods"); } }
-        public bool IsTreasureHunter { get { return IsTrader("treasurehunter"); } }
     }
 }

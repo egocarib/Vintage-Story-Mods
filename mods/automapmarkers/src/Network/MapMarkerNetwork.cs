@@ -2,6 +2,7 @@
 using Egocarib.AutoMapMarkers.Utilities;
 using ProtoBuf;
 using System;
+using System.IO;
 using System.Timers;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -37,6 +38,13 @@ namespace Egocarib.AutoMapMarkers.Network
     }
 
     [ProtoContract]
+    public class ServerSettingsResponse
+    {
+        [ProtoMember(1)]
+        public string SettingsJson { get; set; }
+    }
+
+    [ProtoContract]
     public class ClientWaypointDeleteRequest
     {
         [ProtoMember(1)]
@@ -61,6 +69,8 @@ namespace Egocarib.AutoMapMarkers.Network
         public IServerNetworkChannel ServerNetworkChannel;
         public IClientNetworkChannel ClientNetworkChannel;
         public const string ChannelID = "Egocarib.AutoMapMarkers.Network.MapMarkerChannel";
+        private const int HandshakeIntervalMs = 1000;
+        private const int MaxConnectionAttempts = 9;
         private Timer ClientHandshakeTimer;
         private int ConnectionCheckAttempts = 0;
         private bool ConnectionWarningSent = false;
@@ -91,10 +101,10 @@ namespace Egocarib.AutoMapMarkers.Network
             ClientNetworkChannel = clientAPI.Network
                 .RegisterChannel(ChannelID)
                 .RegisterMessageType(typeof(ClientDefaultSettingsRequest))
-                .RegisterMessageType(typeof(MapMarkerConfig.Settings))
+                .RegisterMessageType(typeof(ServerSettingsResponse))
                 .RegisterMessageType(typeof(ClientWaypointRequest))
                 .RegisterMessageType(typeof(ClientWaypointDeleteRequest))
-                .SetMessageHandler<MapMarkerConfig.Settings>(OnReceiveDefaultSettingsFromServer);
+                .SetMessageHandler<ServerSettingsResponse>(OnReceiveDefaultSettingsFromServer);
         }
 
         /// <summary>
@@ -108,7 +118,7 @@ namespace Egocarib.AutoMapMarkers.Network
             ServerNetworkChannel = serverAPI.Network
                 .RegisterChannel(ChannelID)
                 .RegisterMessageType(typeof(ClientDefaultSettingsRequest))
-                .RegisterMessageType(typeof(MapMarkerConfig.Settings))
+                .RegisterMessageType(typeof(ServerSettingsResponse))
                 .RegisterMessageType(typeof(ClientWaypointRequest))
                 .RegisterMessageType(typeof(ClientWaypointDeleteRequest))
                 .SetMessageHandler<ClientDefaultSettingsRequest>(OnClientDefaultSettingsRequest)
@@ -163,7 +173,15 @@ namespace Egocarib.AutoMapMarkers.Network
         /// </remarks>
         private void OnClientDefaultSettingsRequest(IPlayer fromPlayer, ClientDefaultSettingsRequest request)
         {
-            ServerNetworkChannel.SendPacket(MapMarkerConfig.GetSettings(CoreAPI, true), new[] { fromPlayer as IServerPlayer });
+            string settingsPath = Path.Combine(
+                MapMarkerConfig.GetModConfigPath(CoreAPI),
+                MarkerSettingsPersistence.SettingsFolder,
+                MarkerSettingsPersistence.SettingsFileName);
+
+            string json = File.Exists(settingsPath) ? File.ReadAllText(settingsPath) : null;
+            ServerNetworkChannel.SendPacket(
+                new ServerSettingsResponse { SettingsJson = json },
+                new[] { fromPlayer as IServerPlayer });
         }
 
         /// <summary>
@@ -172,9 +190,46 @@ namespace Egocarib.AutoMapMarkers.Network
         /// <remarks>
         /// Side: client only
         /// </remarks>
-        private void OnReceiveDefaultSettingsFromServer(MapMarkerConfig.Settings response)
+        private void OnReceiveDefaultSettingsFromServer(ServerSettingsResponse response)
         {
-            MapMarkerConfig.SaveSettings(CoreAPI, response);
+            if (!string.IsNullOrEmpty(response.SettingsJson))
+            {
+                string settingsDir = Path.Combine(
+                    MapMarkerConfig.GetModConfigPath(CoreAPI),
+                    MarkerSettingsPersistence.SettingsFolder);
+                if (!Directory.Exists(settingsDir))
+                    Directory.CreateDirectory(settingsDir);
+
+                string settingsPath = Path.Combine(settingsDir, MarkerSettingsPersistence.SettingsFileName);
+                File.WriteAllText(settingsPath, response.SettingsJson);
+                MessageUtil.Log("Received and saved default settings from server.");
+            }
+            MapMarkerConfig.ClearCachedClientSettings();
+        }
+
+        /// <summary>
+        /// Validates that a client request can proceed: correct side, mod enabled, channel connected.
+        /// Returns the current mod settings if valid, or null if the request should be aborted.
+        /// </summary>
+        private MapMarkerConfig.Settings ValidateClientRequest(string operationName)
+        {
+            if (Side != EnumAppSide.Client)
+            {
+                MessageUtil.LogError($"{operationName} unexpectedly requested from server-side thread.");
+                return null;
+            }
+            var modSettings = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
+            if (modSettings == null || modSettings.DisableAllModFeatures)
+            {
+                MessageUtil.Log($"Suppressed {operationName} - mod features are currently disabled.");
+                return null;
+            }
+            if (!ClientNetworkChannel.Connected)
+            {
+                MessageUtil.LogError($"Not connected to mod instance on server - unable to perform {operationName}.");
+                return null;
+            }
+            return modSettings;
         }
 
         /// <summary>
@@ -185,22 +240,9 @@ namespace Egocarib.AutoMapMarkers.Network
         /// </remarks>
         public void RequestWaypointFromServer(Vec3d position, AutoMapMarkerSetting settings, bool sendChatMessage, string dynamicTitleComponent = null)
         {
-            if (Side != EnumAppSide.Client)
-            {
-                MessageUtil.LogError("New map marker unexpectedly requested from server-side thread.");
-                return;
-            }
-            var modSettings = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
-            if (modSettings == null || modSettings.DisableAllModFeatures)
-            {
-                MessageUtil.Log("Suppressed automatic map marker creation - mod features are currently disabled.");
-                return;
-            }
-            if (!ClientNetworkChannel.Connected)
-            {
-                MessageUtil.LogError("Not connected to mod instance on server - unable to request map marker creation.");
-                return;
-            }
+            var modSettings = ValidateClientRequest("map marker creation");
+            if (modSettings == null) return;
+
             var waypointRequest = new ClientWaypointRequest
             {
                 waypointPosition = position,
@@ -220,22 +262,8 @@ namespace Egocarib.AutoMapMarkers.Network
         /// </remarks>
         public void RequestNearestWaypointDeletionFromServer(bool sendChatMessage)
         {
-            if (Side != EnumAppSide.Client)
-            {
-                MessageUtil.LogError("Waypoint deletion unexpectedly requested from server-side thread.");
-                return;
-            }
-            var modSettings = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
-            if (modSettings == null || modSettings.DisableAllModFeatures)
-            {
-                MessageUtil.Log("Suppressed map marker deletion request - mod features are currently disabled.");
-                return;
-            }
-            if (!ClientNetworkChannel.Connected)
-            {
-                MessageUtil.LogError("Not connected to mod instance on server - unable to request map marker deletion.");
-                return;
-            }
+            if (ValidateClientRequest("map marker deletion") == null) return;
+
             var waypointRequest = new ClientWaypointDeleteRequest
             {
                 sendChatMessageToPlayer = sendChatMessage
@@ -252,22 +280,8 @@ namespace Egocarib.AutoMapMarkers.Network
         /// </remarks>
         public void RequestWaypointDeletionAtPositionFromServer(Vec3d position, bool sendChatMessage, string titlePattern, double maxRadius)
         {
-            if (Side != EnumAppSide.Client)
-            {
-                MessageUtil.LogError("Waypoint deletion unexpectedly requested from server-side thread.");
-                return;
-            }
-            var modSettings = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
-            if (modSettings == null || modSettings.DisableAllModFeatures)
-            {
-                MessageUtil.Log("Suppressed map marker deletion request - mod features are currently disabled.");
-                return;
-            }
-            if (!ClientNetworkChannel.Connected)
-            {
-                MessageUtil.LogError("Not connected to mod instance on server - unable to request map marker deletion.");
-                return;
-            }
+            if (ValidateClientRequest("map marker deletion") == null) return;
+
             var waypointRequest = new ClientWaypointDeleteRequest
             {
                 sendChatMessageToPlayer = sendChatMessage,
@@ -291,7 +305,7 @@ namespace Egocarib.AutoMapMarkers.Network
                 MessageUtil.LogError("Tried to initiate handshake from server-side thread.");
                 return;
             }
-            ClientHandshakeTimer = new Timer(1000);
+            ClientHandshakeTimer = new Timer(HandshakeIntervalMs);
             ClientHandshakeTimer.Elapsed += ClientConnectivityCheck;
             ClientHandshakeTimer.Start();
         }
@@ -313,7 +327,7 @@ namespace Egocarib.AutoMapMarkers.Network
                     ClientNetworkChannel.SendPacket(new ClientDefaultSettingsRequest());
                 }
             }
-            else if (++ConnectionCheckAttempts > 9)
+            else if (++ConnectionCheckAttempts > MaxConnectionAttempts)
             {
                 var clientAPI = CoreAPI as ICoreClientAPI;
                 if (clientAPI == null || clientAPI.IsSinglePlayer == false)

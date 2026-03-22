@@ -1,0 +1,825 @@
+[
+  {
+    // Organic Matter
+    "Category": "Flora",
+    "Entries": [
+      {
+        // Resin
+        "Label": "game:item-resin",
+        "AssetPaths": ["log-resin-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:item-resin",
+          "Icon": "circle",
+          "Color": "darkorange",
+          "Pinned": false,
+          "CoverageRadius": 1
+        }
+      },
+      {
+        // Berries (expandable)
+        "Label": "egocarib-mapmarkers:berries",
+        "AssetPaths": ["fruitingbush-*-blueberry-*", "fruitingbush-*-beautyberry-*", "fruitingbush-*-cranberry-*", "fruitingbush-*-blackcurrant-*", "fruitingbush-*-redcurrant-*", "fruitingbush-*-whitecurrant-*", "fruitingbush-*-strawberry-*"],
+        "DynamicTitle": true,
+        "Defaults": {
+          "Enabled": true,
+          "Title": "egocarib-mapmarkers:berries",
+          "Icon": "berries",
+          "Color": "darkred",
+          "Pinned": false,
+          "CoverageRadius": 6
+        },
+        "ExpandableEntries": [
+          { "Label": "game:item-fruit-beautyberry", "AssetPaths": ["fruitingbush-*-beautyberry-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-beautyberry", "Icon": "berries", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-fruit-blackcurrant", "AssetPaths": ["fruitingbush-*-blackcurrant-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-blackcurrant", "Icon": "berries", "Color": "#291B1A", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-fruit-blueberry", "AssetPaths": ["fruitingbush-*-blueberry-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-blueberry", "Icon": "berries", "Color": "midnightblue", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-fruit-cranberry", "AssetPaths": ["fruitingbush-*-cranberry-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-cranberry", "Icon": "berries", "Color": "maroon", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-fruit-redcurrant", "AssetPaths": ["fruitingbush-*-redcurrant-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-redcurrant", "Icon": "berries", "Color": "darkred", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-fruit-strawberry", "AssetPaths": ["fruitingbush-*-strawberry-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-strawberry", "Icon": "berries", "Color": "orangered", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-fruit-whitecurrant", "AssetPaths": ["fruitingbush-*-whitecurrant-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-whitecurrant", "Icon": "berries", "Color": "ivory", "Pinned": false, "CoverageRadius": 6 } }
+        ]
+      },
+      {
+        // Safe Mushrooms (edible)
+        "Label": "egocarib-mapmarkers:safe-mushrooms",
+        "AssetPaths": ["mushroom-*"], //Intentional duplicate asset path - special handling by mod
+        "DynamicTitle": true,
+        "Defaults": {
+          "Enabled": true,
+          "Title": "egocarib-mapmarkers:safe-mushrooms",
+          "Icon": "mushroom",
+          "Color": "forestgreen",
+          "Pinned": false,
+          "CoverageRadius": 9
+        },
+        "ExpandableEntries": [
+          { "Label": "egocarib-mapmarkers:safe-mushrooms-nonpsychedelic", "AssetPaths": ["mushroom-*"], "DynamicTitle": true, "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:safe-mushrooms-nonpsychedelic-title", "Icon": "mushroom", "Color": "forestgreen", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "egocarib-mapmarkers:safe-mushrooms-psychedelic", "AssetPaths": ["mushroom-*"], "DynamicTitle": true, "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:safe-mushrooms-psychedelic-title", "Icon": "mushroom", "Color": "mediumpurple", "Pinned": false, "CoverageRadius": 9 } }
+        ]
+      },
+      {
+        // Unsafe Mushrooms (poisonous)
+        "Label": "egocarib-mapmarkers:unsafe-mushrooms",
+        "AssetPaths": ["mushroom-*"], //Intentional duplicate asset path - special handling by mod
+        "DynamicTitle": true,
+        "Defaults": {
+          "Enabled": false,
+          "Title": "egocarib-mapmarkers:unsafe-mushrooms",
+          "Icon": "mushroom",
+          "Color": "crimson",
+          "Pinned": false,
+          "CoverageRadius": 9
+        },
+        "ExpandableEntries": [
+          { "Label": "egocarib-mapmarkers:unsafe-mushrooms-nonpsychedelic", "AssetPaths": ["mushroom-*"], "DynamicTitle": true, "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:unsafe-mushrooms-nonpsychedelic-title", "Icon": "mushroom", "Color": "crimson", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "egocarib-mapmarkers:unsafe-mushrooms-psychedelic", "AssetPaths": ["mushroom-*"], "DynamicTitle": true, "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:unsafe-mushrooms-psychedelic-title", "Icon": "mushroom", "Color": "darkmagenta", "Pinned": false, "CoverageRadius": 9 } }
+        ]
+      },
+      {
+        // Flowers
+        "Label": "egocarib-mapmarkers:flowers",
+        "AssetPaths": ["flower-*"],
+        "DynamicTitle": true,
+        "Defaults": {
+          "Enabled": false,
+          "Title": "egocarib-mapmarkers:flowers",
+          "Icon": "grain",
+          "Color": "fuchsia",
+          "Pinned": false,
+          "CoverageRadius": 9
+        },
+        "ExpandableEntries": [
+          { "Label": "game:block-flower-bluebell-*", "AssetPaths": ["flower-bluebell-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-bluebell-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-catmint-*", "AssetPaths": ["flower-catmint-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-catmint-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-cornflower-*", "AssetPaths": ["flower-cornflower-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-cornflower-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-cowparsley-*", "AssetPaths": ["flower-cowparsley-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-cowparsley-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "egocarib-mapmarkers:flower-croton", "AssetPaths": ["flower-croton-*"], "DynamicTitle": true, "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:flower-croton", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-daffodil-*", "AssetPaths": ["flower-daffodil-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-daffodil-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-edelweiss-*", "AssetPaths": ["flower-edelweiss-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-edelweiss-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-forgetmenot-*", "AssetPaths": ["flower-forgetmenot-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-forgetmenot-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-ghostpipe*", "AssetPaths": ["flower-ghostpipe*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-ghostpipe*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-goldenpoppy-*", "AssetPaths": ["flower-goldenpoppy-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-goldenpoppy-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-heather-*", "AssetPaths": ["flower-heather-*", "flower-smallheather-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-heather-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-horsetail-*", "AssetPaths": ["flower-horsetail-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-horsetail-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-lilyofthevalley-*", "AssetPaths": ["flower-lilyofthevalley-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-lilyofthevalley-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "egocarib-mapmarkers:flower-lupine", "AssetPaths": ["flower-lupine-*"], "DynamicTitle": true, "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:flower-lupine", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-mugwort-*", "AssetPaths": ["flower-mugwort-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-mugwort-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-orangemallow-*", "AssetPaths": ["flower-orangemallow-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-orangemallow-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "egocarib-mapmarkers:flower-rafflesia", "AssetPaths": ["flower-rafflesia-*"], "DynamicTitle": true, "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:flower-rafflesia", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-redtopgrass-*", "AssetPaths": ["flower-redtopgrass-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-redtopgrass-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-westerngorse-*", "AssetPaths": ["flower-westerngorse-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-westerngorse-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-wilddaisy-*", "AssetPaths": ["flower-wilddaisy-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-wilddaisy-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } },
+          { "Label": "game:block-flower-woad-*", "AssetPaths": ["flower-woad-*"], "Defaults": { "Enabled": false, "Title": "game:block-flower-woad-*", "Icon": "grain", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 9 } }
+        ]
+      },
+      {
+        // Fruit Trees (expandable)
+        "Label": "egocarib-mapmarkers:fruit-trees",
+        "AssetPaths": ["fruittree-*"],
+        "ExcludePaths": ["fruittree-cutting"],
+        "DynamicTitle": true,
+        "Defaults": {
+          "Enabled": true,
+          "Title": "egocarib-mapmarkers:fruit-trees",
+          "Icon": "tree",
+          "Color": "mediumpurple",
+          "Pinned": false,
+          "CoverageRadius": 6
+        },
+        "ExpandableEntries": [
+          { "Label": "game:treegen-variant-fruittree-breadfruit", "AssetPaths": ["fruittree-*"], "ExcludePaths": ["fruittree-cutting"], "Defaults": { "Enabled": false, "Title": "game:treegen-variant-fruittree-breadfruit", "Icon": "tree", "Color": "olivedrab", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:treegen-variant-fruittree-cherry", "AssetPaths": ["fruittree-*"], "ExcludePaths": ["fruittree-cutting"], "Defaults": { "Enabled": false, "Title": "game:treegen-variant-fruittree-cherry", "Icon": "tree", "Color": "crimson", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:treegen-variant-fruittree-lychee", "AssetPaths": ["fruittree-*"], "ExcludePaths": ["fruittree-cutting"], "Defaults": { "Enabled": false, "Title": "game:treegen-variant-fruittree-lychee", "Icon": "tree", "Color": "palevioletred", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:treegen-variant-fruittree-mango", "AssetPaths": ["fruittree-*"], "ExcludePaths": ["fruittree-cutting"], "Defaults": { "Enabled": false, "Title": "game:treegen-variant-fruittree-mango", "Icon": "tree", "Color": "darkorange", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:treegen-variant-fruittree-olive", "AssetPaths": ["fruittree-*"], "ExcludePaths": ["fruittree-cutting"], "Defaults": { "Enabled": false, "Title": "game:treegen-variant-fruittree-olive", "Icon": "tree", "Color": "darkolivegreen", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:treegen-variant-fruittree-orange", "AssetPaths": ["fruittree-*"], "ExcludePaths": ["fruittree-cutting"], "Defaults": { "Enabled": false, "Title": "game:treegen-variant-fruittree-orange", "Icon": "tree", "Color": "orange", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:treegen-variant-fruittree-peach", "AssetPaths": ["fruittree-*"], "ExcludePaths": ["fruittree-cutting"], "Defaults": { "Enabled": false, "Title": "game:treegen-variant-fruittree-peach", "Icon": "tree", "Color": "peachpuff", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:treegen-variant-fruittree-pear", "AssetPaths": ["fruittree-*"], "ExcludePaths": ["fruittree-cutting"], "Defaults": { "Enabled": false, "Title": "game:treegen-variant-fruittree-pear", "Icon": "tree", "Color": "yellowgreen", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:treegen-variant-fruittree-pinkapple", "AssetPaths": ["fruittree-*"], "ExcludePaths": ["fruittree-cutting"], "Defaults": { "Enabled": false, "Title": "game:treegen-variant-fruittree-pinkapple", "Icon": "tree", "Color": "hotpink", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:treegen-variant-fruittree-pomegranate", "AssetPaths": ["fruittree-*"], "ExcludePaths": ["fruittree-cutting"], "Defaults": { "Enabled": false, "Title": "game:treegen-variant-fruittree-pomegranate", "Icon": "tree", "Color": "darkred", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:treegen-variant-fruittree-redapple", "AssetPaths": ["fruittree-*"], "ExcludePaths": ["fruittree-cutting"], "Defaults": { "Enabled": false, "Title": "game:treegen-variant-fruittree-redapple", "Icon": "tree", "Color": "red", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:treegen-variant-fruittree-yellowapple", "AssetPaths": ["fruittree-*"], "ExcludePaths": ["fruittree-cutting"], "Defaults": { "Enabled": false, "Title": "game:treegen-variant-fruittree-yellowapple", "Icon": "tree", "Color": "gold", "Pinned": false, "CoverageRadius": 6 } }
+        ]
+      },
+      {
+        // Wild Crops
+        "Label": "egocarib-mapmarkers:wild-crops",
+        "AssetPaths": ["crop-*"],
+        "ExcludePaths": ["crop-dead-*"],
+        "DynamicTitle": true,
+        "Defaults": {
+          "Enabled": false,
+          "Title": "egocarib-mapmarkers:wild-crops",
+          "Icon": "grain",
+          "Color": "goldenrod",
+          "Pinned": false,
+          "CoverageRadius": 6
+        },
+        "ExpandableEntries": [
+          { "Label": "egocarib-mapmarkers:crop-amaranth", "AssetPaths": ["crop-amaranth-*"], "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:crop-amaranth", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-vegetable-cabbage", "AssetPaths": ["crop-cabbage-*"], "Defaults": { "Enabled": false, "Title": "game:item-vegetable-cabbage", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-vegetable-carrot", "AssetPaths": ["crop-carrot-*"], "Defaults": { "Enabled": false, "Title": "game:item-vegetable-carrot", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-vegetable-cassava", "AssetPaths": ["crop-cassava-*"], "Defaults": { "Enabled": false, "Title": "game:item-vegetable-cassava", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-vegetable-fennel", "AssetPaths": ["crop-fennel-*"], "Defaults": { "Enabled": false, "Title": "game:item-vegetable-fennel", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:cropprop-type-flax", "AssetPaths": ["crop-flax-*"], "Defaults": { "Enabled": false, "Title": "game:cropprop-type-flax", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:block-crop-licorice-*", "AssetPaths": ["crop-licorice-*"], "Defaults": { "Enabled": false, "Title": "game:block-crop-licorice-*", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-vegetable-onion", "AssetPaths": ["crop-onion-*"], "Defaults": { "Enabled": false, "Title": "game:item-vegetable-onion", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-vegetable-parsnip", "AssetPaths": ["crop-parsnip-*"], "Defaults": { "Enabled": false, "Title": "game:item-vegetable-parsnip", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-legume-peanut", "AssetPaths": ["crop-peanut-*"], "Defaults": { "Enabled": false, "Title": "game:item-legume-peanut", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:block-crop-pineapple-*", "AssetPaths": ["crop-pineapple-*"], "Defaults": { "Enabled": false, "Title": "game:block-crop-pineapple-*", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "egocarib-mapmarkers:crop-rice", "AssetPaths": ["crop-rice-*"], "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:crop-rice", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:cropprop-type-rye", "AssetPaths": ["crop-rye-*"], "Defaults": { "Enabled": false, "Title": "game:cropprop-type-rye", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-legume-soybean", "AssetPaths": ["crop-soybean-*"], "Defaults": { "Enabled": false, "Title": "game:item-legume-soybean", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:cropprop-type-spelt", "AssetPaths": ["crop-spelt-*"], "Defaults": { "Enabled": false, "Title": "game:cropprop-type-spelt", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:cropprop-type-sunflower", "AssetPaths": ["crop-sunflower-*"], "Defaults": { "Enabled": false, "Title": "game:cropprop-type-sunflower", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-vegetable-turnip", "AssetPaths": ["crop-turnip-*"], "Defaults": { "Enabled": false, "Title": "game:item-vegetable-turnip", "Icon": "grain", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } }
+        ]
+      },
+      {
+        // Reeds (Cooper's Reed & Papyrus)
+        "Label": "egocarib-mapmarkers:reeds",
+        "AssetPaths": ["tallplant-coopersreed-*", "tallplant-papyrus-*"],
+        "DynamicTitle": true,
+        "Defaults": {
+          "Enabled": false,
+          "Title": "egocarib-mapmarkers:reeds",
+          "Icon": "grain",
+          "Color": "darkkhaki",
+          "Pinned": false,
+          "CoverageRadius": 20
+        }
+      },
+      {
+        // Tule
+        "Label": "egocarib-mapmarkers:tule",
+        "AssetPaths": ["tallplant-tule-*"],
+        "DynamicTitle": true,
+        "Defaults": {
+          "Enabled": false,
+          "Title": "egocarib-mapmarkers:tule",
+          "Icon": "grain",
+          "Color": "darkkhaki",
+          "Pinned": false,
+          "CoverageRadius": 20
+        }
+      }
+    ]
+  },
+  {
+    // Surface Ore
+    "Category": "Surface Ore",
+    "Entries": [
+      {
+        // Anthracite (surface)
+        "Label": "game:block-looseores-anthracite-*",
+        "AssetPaths": ["looseores-anthracite-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-looseores-anthracite-*",
+          "Icon": "pick",
+          "Color": "black",
+          "Pinned": false,
+          "CoverageRadius": 9
+        }
+      },
+      {
+        // Black Coal / Bituminous Coal (surface)
+        "Label": "game:block-looseores-bituminouscoal-*",
+        "AssetPaths": ["looseores-bituminouscoal-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-looseores-bituminouscoal-*",
+          "Icon": "pick",
+          "Color": "black",
+          "Pinned": false,
+          "CoverageRadius": 9
+        }
+      },
+      {
+        // Borax (surface)
+        "Label": "game:block-looseores-borax-*",
+        "AssetPaths": ["looseores-borax-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-looseores-borax-*",
+          "Icon": "pick",
+          "Color": "ghostwhite",
+          "Pinned": false,
+          "CoverageRadius": 9
+        }
+      },
+      {
+        // Brown Coal / Lignite (surface)
+        "Label": "game:block-looseores-lignite-*",
+        "AssetPaths": ["looseores-lignite-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-looseores-lignite-*",
+          "Icon": "pick",
+          "Color": "black",
+          "Pinned": false,
+          "CoverageRadius": 9
+        }
+      },
+      {
+        // Cinnabar (surface)
+        "Label": "game:block-looseores-cinnabar-*",
+        "AssetPaths": ["looseores-cinnabar-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-looseores-cinnabar-*",
+          "Icon": "pick",
+          "Color": "crimson",
+          "Pinned": false,
+          "CoverageRadius": 9
+        }
+      },
+      {
+        // Copper Ore Bits (Malachite & Native Copper, surface)
+        "Label": "egocarib-mapmarkers:copper-ore-bits",
+        "AssetPaths": ["looseores-malachite-*", "looseores-nativecopper-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-looseores-nativecopper-*",
+          "Icon": "pick",
+          "Color": "darkorange",
+          "Pinned": false,
+          "CoverageRadius": 9
+        }
+      },
+      {
+        // Gold Ore Bits (surface)
+        "Label": "egocarib-mapmarkers:gold-ore-bits",
+        "AssetPaths": ["looseores-quartz_nativegold-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-looseores-quartz_nativegold-*",
+          "Icon": "pick",
+          "Color": "gold",
+          "Pinned": false,
+          "CoverageRadius": 9
+        }
+      },
+      {
+        // Lapis Lazuli (surface)
+        "Label": "game:block-looseores-lapislazuli-*",
+        "AssetPaths": ["looseores-lapislazuli-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-looseores-lapislazuli-*",
+          "Icon": "pick",
+          "Color": "royalblue",
+          "Pinned": false,
+          "CoverageRadius": 9
+        }
+      },
+      {
+        // Lead / Galena (surface)
+        "Label": "game:block-looseores-galena-*",
+        "AssetPaths": ["looseores-galena-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-looseores-galena-*",
+          "Icon": "pick",
+          "Color": "slategray",
+          "Pinned": false,
+          "CoverageRadius": 9
+        }
+      },
+      {
+        // Olivine (surface)
+        "Label": "game:block-looseores-olivine-peridotite-*",
+        "AssetPaths": ["looseores-olivine-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-looseores-olivine-peridotite-*",
+          "Icon": "pick",
+          "Color": "olivedrab",
+          "Pinned": false,
+          "CoverageRadius": 9
+        }
+      },
+      {
+        // Quartz (surface)
+        "Label": "game:block-looseores-quartz-*",
+        "AssetPaths": ["looseores-quartz-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-looseores-quartz-*",
+          "Icon": "pick",
+          "Color": "white",
+          "Pinned": false,
+          "CoverageRadius": 9
+        }
+      },
+      {
+        // Silver Ore Bits (surface)
+        "Label": "egocarib-mapmarkers:silver-ore-bits",
+        "AssetPaths": ["looseores-*_nativesilver-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-looseores-quartz_nativesilver-*",
+          "Icon": "pick",
+          "Color": "silver",
+          "Pinned": false,
+          "CoverageRadius": 9
+        }
+      },
+      {
+        // Sulfur (surface)
+        "Label": "game:block-looseores-sulfur-*",
+        "AssetPaths": ["looseores-sulfur-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-looseores-sulfur-*",
+          "Icon": "pick",
+          "Color": "khaki",
+          "Pinned": false,
+          "CoverageRadius": 9
+        }
+      },
+      {
+        // Tin / Cassiterite (surface)
+        "Label": "game:block-looseores-cassiterite-*",
+        "AssetPaths": ["looseores-cassiterite-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-looseores-cassiterite-*",
+          "Icon": "pick",
+          "Color": "#3C1E05",
+          "Pinned": false,
+          "CoverageRadius": 9
+        }
+      }
+    ]
+  },
+  {
+    // Deep Ore
+    "Category": "Deep Ore",
+    "Entries": [
+      {
+        // Anthracite (deep)
+        "Label": "game:block-ore-anthracite-*",
+        "AssetPaths": ["ore-anthracite-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-ore-anthracite-*",
+          "Icon": "ladder",
+          "Color": "black",
+          "Pinned": false,
+          "CoverageRadius": 20
+        }
+      },
+      {
+        // Bismuth (deep)
+        "Label": "game:block-ore-*-bismuthinite-*",
+        "AssetPaths": ["ore-*-bismuthinite-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-ore-*-bismuthinite-*",
+          "Icon": "ladder",
+          "Color": "seagreen",
+          "Pinned": false,
+          "CoverageRadius": 12
+        }
+      },
+      {
+        // Black Coal / Bituminous Coal (deep)
+        "Label": "game:block-ore-bituminouscoal-*",
+        "AssetPaths": ["ore-bituminouscoal-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-ore-bituminouscoal-*",
+          "Icon": "ladder",
+          "Color": "black",
+          "Pinned": false,
+          "CoverageRadius": 24
+        }
+      },
+      {
+        // Borax (deep)
+        "Label": "game:block-ore-borax-*",
+        "AssetPaths": ["ore-borax-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-ore-borax-*",
+          "Icon": "ladder",
+          "Color": "ghostwhite",
+          "Pinned": false,
+          "CoverageRadius": 18
+        }
+      },
+      {
+        // Brown Coal / Lignite (deep)
+        "Label": "game:block-ore-lignite-*",
+        "AssetPaths": ["ore-lignite-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-ore-lignite-*",
+          "Icon": "ladder",
+          "Color": "black",
+          "Pinned": false,
+          "CoverageRadius": 24
+        }
+      },
+      {
+        // Cinnabar (deep)
+        "Label": "game:block-ore-cinnabar-*",
+        "AssetPaths": ["ore-cinnabar-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-ore-cinnabar-*",
+          "Icon": "ladder",
+          "Color": "crimson",
+          "Pinned": false,
+          "CoverageRadius": 18
+        }
+      },
+      {
+        // Copper Ore (Malachite & Native Copper, deep)
+        "Label": "egocarib-mapmarkers:copper-ore",
+        "AssetPaths": ["ore-*-malachite-*", "ore-*-nativecopper-*"],
+        "DynamicTitle": true,
+        "Defaults": {
+          "Enabled": true,
+          "Title": "egocarib-mapmarkers:copper-ore",
+          "Icon": "ladder",
+          "Color": "darkorange",
+          "Pinned": false,
+          "CoverageRadius": 16
+        }
+      },
+      {
+        // Gold Ore (deep)
+        "Label": "egocarib-mapmarkers:gold-ore",
+        "AssetPaths": ["ore-*-quartz_nativegold-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "egocarib-mapmarkers:gold-ore",
+          "Icon": "ladder",
+          "Color": "gold",
+          "Pinned": false,
+          "CoverageRadius": 16
+        }
+      },
+      {
+        // Iron Ore (Hematite, Limonite & Magnetite, deep)
+        "Label": "game:block-ore-*-limonite-*",
+        "AssetPaths": ["ore-*-hematite-*", "ore-*-limonite-*", "ore-*-magnetite-*"],
+        "DynamicTitle": true,
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-ore-*-limonite-*",
+          "Icon": "ladder",
+          "Color": "maroon",
+          "Pinned": false,
+          "CoverageRadius": 32
+        }
+      },
+      {
+        // Lapis Lazuli (deep)
+        "Label": "game:block-ore-lapislazuli-*",
+        "AssetPaths": ["ore-lapislazuli-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-ore-lapislazuli-*",
+          "Icon": "ladder",
+          "Color": "royalblue",
+          "Pinned": false,
+          "CoverageRadius": 8
+        }
+      },
+      {
+        // Lead / Galena (deep)
+        "Label": "game:block-ore-*-galena-*",
+        "AssetPaths": ["ore-*-galena-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-ore-*-galena-*",
+          "Icon": "ladder",
+          "Color": "slategray",
+          "Pinned": false,
+          "CoverageRadius": 12
+        }
+      },
+      {
+        // Nickel / Pentlandite (deep)
+        "Label": "game:block-ore-*-pentlandite-*",
+        "AssetPaths": ["ore-*-pentlandite-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-ore-*-pentlandite-*",
+          "Icon": "ladder",
+          "Color": "darkgoldenrod",
+          "Pinned": false,
+          "CoverageRadius": 12
+        }
+      },
+      {
+        // Olivine (deep)
+        "Label": "game:ore-olivine",
+        "AssetPaths": ["ore-olivine-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:ore-olivine",
+          "Icon": "ladder",
+          "Color": "olivedrab",
+          "Pinned": false,
+          "CoverageRadius": 32
+        }
+      },
+      {
+        // Quartz (deep)
+        "Label": "game:ore-quartz",
+        "AssetPaths": ["ore-quartz-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:ore-quartz",
+          "Icon": "ladder",
+          "Color": "white",
+          "Pinned": false,
+          "CoverageRadius": 32
+        }
+      },
+      {
+        // Silver Ore (deep)
+        "Label": "egocarib-mapmarkers:silver-ore",
+        "AssetPaths": ["ore-*_nativesilver-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "egocarib-mapmarkers:silver-ore",
+          "Icon": "ladder",
+          "Color": "silver",
+          "Pinned": false,
+          "CoverageRadius": 16
+        }
+      },
+      {
+        // Sulfur (deep)
+        "Label": "game:ore-sulfur",
+        "AssetPaths": ["ore-sulfur-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:ore-sulfur",
+          "Icon": "ladder",
+          "Color": "khaki",
+          "Pinned": false,
+          "CoverageRadius": 18
+        }
+      },
+      {
+        // Tin / Cassiterite (deep)
+        "Label": "game:block-ore-*-cassiterite-*",
+        "AssetPaths": ["ore-*-cassiterite-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-ore-*-cassiterite-*",
+          "Icon": "ladder",
+          "Color": "#3C1E05",
+          "Pinned": false,
+          "CoverageRadius": 12
+        }
+      },
+      {
+        // Titanium / Ilmenite (deep)
+        "Label": "game:block-ore-*-ilmenite-*",
+        "AssetPaths": ["ore-*-ilmenite-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-ore-*-ilmenite-*",
+          "Icon": "ladder",
+          "Color": "darkslategray",
+          "Pinned": false,
+          "CoverageRadius": 22
+        }
+      },
+      {
+        // Zinc / Sphalerite (deep)
+        "Label": "game:block-ore-*-sphalerite-*",
+        "AssetPaths": ["ore-*-sphalerite-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-ore-*-sphalerite-*",
+          "Icon": "ladder",
+          "Color": "gray",
+          "Pinned": false,
+          "CoverageRadius": 10
+        }
+      }
+    ]
+  },
+  {
+    // Miscellaneous
+    "Category": "Misc",
+    "Entries": [
+      {
+        // Traders (expandable)
+        "Label": "egocarib-mapmarkers:traders",
+        "AssetPaths": ["trader-*"],
+        "DynamicTitle": true,
+        "Defaults": {
+          "Enabled": true,
+          "Title": "egocarib-mapmarkers:traders",
+          "Icon": "trader",
+          "Color": "yellow",
+          "Pinned": false,
+          "CoverageRadius": 20
+        },
+        "ExpandableEntries": [
+          { "Label": "egocarib-mapmarkers:trader-agriculture", "AssetPaths": ["trader-*-agriculture-*"], "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:trader-agriculture", "Icon": "trader", "Color": "yellow", "Pinned": false, "CoverageRadius": 20 } },
+          { "Label": "egocarib-mapmarkers:trader-artisan", "AssetPaths": ["trader-*-artisan-*"], "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:trader-artisan", "Icon": "trader", "Color": "yellow", "Pinned": false, "CoverageRadius": 20 } },
+          { "Label": "egocarib-mapmarkers:trader-buildmaterials", "AssetPaths": ["trader-*-buildmaterials-*"], "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:trader-buildmaterials", "Icon": "trader", "Color": "yellow", "Pinned": false, "CoverageRadius": 20 } },
+          { "Label": "egocarib-mapmarkers:trader-clothing", "AssetPaths": ["trader-*-clothing-*"], "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:trader-clothing", "Icon": "trader", "Color": "yellow", "Pinned": false, "CoverageRadius": 20 } },
+          { "Label": "egocarib-mapmarkers:trader-commodities", "AssetPaths": ["trader-*-commodities-*"], "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:trader-commodities", "Icon": "trader", "Color": "yellow", "Pinned": false, "CoverageRadius": 20 } },
+          { "Label": "egocarib-mapmarkers:trader-furniture", "AssetPaths": ["trader-*-furniture-*"], "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:trader-furniture", "Icon": "trader", "Color": "yellow", "Pinned": false, "CoverageRadius": 20 } },
+          { "Label": "egocarib-mapmarkers:trader-luxuries", "AssetPaths": ["trader-*-luxuries-*"], "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:trader-luxuries", "Icon": "trader", "Color": "yellow", "Pinned": false, "CoverageRadius": 20 } },
+          { "Label": "egocarib-mapmarkers:trader-survivalgoods", "AssetPaths": ["trader-*-survivalgoods-*"], "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:trader-survivalgoods", "Icon": "trader", "Color": "yellow", "Pinned": false, "CoverageRadius": 20 } },
+          { "Label": "egocarib-mapmarkers:trader-treasurehunter", "AssetPaths": ["trader-*-treasurehunter-*"], "Defaults": { "Enabled": false, "Title": "egocarib-mapmarkers:trader-treasurehunter", "Icon": "trader", "Color": "yellow", "Pinned": false, "CoverageRadius": 20 } }
+        ]
+      },
+      {
+        // Beehive
+        "Label": "egocarib-mapmarkers:beehive",
+        "AssetPaths": ["wildbeehive-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "egocarib-mapmarkers:beehive",
+          "Icon": "bee",
+          "Color": "gold",
+          "Pinned": false,
+          "CoverageRadius": 1
+        }
+      },
+      {
+        // Translocator
+        "Label": "game:wpSuggestion-spiral",
+        "AssetPaths": ["statictranslocator-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:wpSuggestion-spiral",
+          "Icon": "spiral",
+          "Color": "darkturquoise",
+          "Pinned": false,
+          "CoverageRadius": 2
+        }
+      },
+      {
+        // Red Clay
+        "Label": "game:item-clay-red",
+        "AssetPaths": ["rawclay-red-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:item-clay-red",
+          "Icon": "vessel",
+          "Color": "indianred",
+          "Pinned": false,
+          "CoverageRadius": 30
+        }
+      },
+      {
+        // Blue Clay
+        "Label": "game:item-clay-blue",
+        "AssetPaths": ["rawclay-blue-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:item-clay-blue",
+          "Icon": "vessel",
+          "Color": "cornflowerblue",
+          "Pinned": false,
+          "CoverageRadius": 30
+        }
+      },
+      {
+        // Fire Clay
+        "Label": "game:item-clay-fire",
+        "AssetPaths": ["rawclay-fire-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:item-clay-fire",
+          "Icon": "vessel",
+          "Color": "firebrick",
+          "Pinned": false,
+          "CoverageRadius": 30
+        }
+      },
+      {
+        // Peat
+        "Label": "game:block-peat-none",
+        "AssetPaths": ["peat-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-peat-none",
+          "Icon": "rocks",
+          "Color": "chocolate",
+          "Pinned": false,
+          "CoverageRadius": 30
+        }
+      },
+      {
+        // High Fertility Soil (Compost)
+        "Label": "game:block-soil-compost-none",
+        "AssetPaths": ["soil-compost-*"],
+        "Defaults": {
+          "Enabled": true,
+          "Title": "game:block-soil-compost-none",
+          "Icon": "star2",
+          "Color": "indigo",
+          "Pinned": false,
+          "CoverageRadius": 30
+        }
+      },
+      {
+        // Meteoric Iron
+        "Label": "game:block-meteorite-iron",
+        "AssetPaths": ["meteorite-iron*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-meteorite-iron",
+          "Icon": "star2",
+          "Color": "darkorange",
+          "Pinned": false,
+          "CoverageRadius": 8
+        }
+      },
+      {
+        // Saltpeter
+        "Label": "game:block-saltpeter-d",
+        "AssetPaths": ["saltpeter-*"],
+        "Defaults": {
+          "Enabled": false,
+          "Title": "game:block-saltpeter-d",
+          "Icon": "ladder",
+          "Color": "beige",
+          "Pinned": false,
+          "CoverageRadius": 24
+        }
+      },
+      {
+        // Raft (boat marker)
+        "Label": "egocarib-mapmarkers:raft-menu",
+        "AssetPaths": [], //Intentionally empty - special handling by mod
+        "Defaults": {
+          "Enabled": true,
+          "Title": "egocarib-mapmarkers:raft",
+          "Icon": "star1",
+          "Color": "gold",
+          "Pinned": true,
+          "CoverageRadius": 48
+        }
+      },
+      {
+        // Sailboat (boat marker)
+        "Label": "egocarib-mapmarkers:sailboat-menu",
+        "AssetPaths": [], //Intentionally empty - special handling by mod
+        "Defaults": {
+          "Enabled": true,
+          "Title": "egocarib-mapmarkers:sailboat",
+          "Icon": "star1",
+          "Color": "gold",
+          "Pinned": true,
+          "CoverageRadius": 48
+        }
+      }
+    ]
+  }
+]

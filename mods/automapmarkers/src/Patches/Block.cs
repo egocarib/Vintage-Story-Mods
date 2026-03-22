@@ -1,10 +1,8 @@
 using HarmonyLib;
 using Vintagestory.API.Common;
-using Vintagestory.API.Client;
 using Vintagestory.API.MathTools;
 using Egocarib.AutoMapMarkers.Settings;
 using Egocarib.AutoMapMarkers.Utilities;
-using Vintagestory.API.Util;
 using System.Collections.Generic;
 using System.Reflection;
 using Vintagestory.GameContent;
@@ -42,11 +40,8 @@ namespace Egocarib.AutoMapMarkers.Patches
                 return;
             LastPositionChecked = blockSel.Position.Copy();
 
-            bool shouldRequestWaypoint = false;
             Vintagestory.API.Common.Block block = blockSel.Block;
             BlockPos blockPos = blockSel.Position;
-            MapMarkerConfig.Settings.AutoMapMarkerSetting settings = null;
-            string dynamicTitleComponent = null;
 
             // If the player is looking at grass, check the block beneath the grass instead
             if (block is BlockPlant)
@@ -59,96 +54,18 @@ namespace Egocarib.AutoMapMarkers.Patches
                 }
             }
 
-            // BlockSoil (High Fert. Soil) and BlockSoilDeposit (Peat, Red Clay, Blue Clay, Fire Clay)
-            if (block is BlockSoil)
-            {
-                ThingIdentifier thing = new ThingIdentifier(block, blockPos);
-                if (thing.IsRedClay)
-                    settings = config.AutoMapMarkers.MiscBlocks.BlockRedClay;
-                else if (thing.IsBlueClay)
-                    settings = config.AutoMapMarkers.MiscBlocks.BlockBlueClay;
-                else if (thing.IsFireClay)
-                    settings = config.AutoMapMarkers.MiscBlocks.BlockFireClay;
-                else if (thing.IsPeat)
-                    settings = config.AutoMapMarkers.MiscBlocks.BlockPeat;
-                else if (thing.IsHighFertSoil)
-                    settings = config.AutoMapMarkers.MiscBlocks.BlockHighFertilitySoil;
-                else
-                    return;
+            ThingIdentifier thing = new ThingIdentifier(block, blockPos);
+            if (!thing.Identify(config))
+                return;
 
-                shouldRequestWaypoint = true;
-            }
+            if (config.SuppressMarkerOnFarmland && thing.IsOnFarmland())
+                return;
 
-            // BlockMeteorite (Meteoritic Iron)
-            else if (block is BlockMeteorite)
-            {
-                ThingIdentifier thing = new ThingIdentifier(block, blockPos);
-                if (thing.IsMeteoriticIron)
-                    settings = config.AutoMapMarkers.MiscBlocks.BlockMeteoriticIron;
-                else
-                    return;
+            var settings = thing.GetMapMarkerSettings();
+            string dynamicTitleComponent = thing.DynamicTitleComponent;
 
-                shouldRequestWaypoint = true;
-            }
-
-            // BlockBeehive, BlockStaticTranslocator
-            else if (block is BlockBeehive || block is BlockStaticTranslocator)
-            {
-                ThingIdentifier thing = new ThingIdentifier(block, blockPos);
-                if (thing.IsBeehive)
-                    settings = config.AutoMapMarkers.MiscBlocks.Beehive;
-                else if (thing.IsTranslocator)
-                    settings = config.AutoMapMarkers.MiscBlocks.Translocator;
-                else
-                    return;
-
-                shouldRequestWaypoint = true;
-            }
-
-            // BlockOre (all underground ore deposits)
-            else if (block is BlockOre)
-            {
-                ThingIdentifier thing = new ThingIdentifier(block, blockPos);
-                if (!thing.Identify(config, ThingIdentifier.IdentifyAsType.DeepOre))
-                    return;  // Unrecognized BlockOre variant
-                
-                settings = thing.GetMapMarkerSettings();
-                shouldRequestWaypoint = true;
-            }
-
-            // BlockFullCoating (saltpeter)
-            else if (block is BlockFullCoating)
-            {
-                ThingIdentifier thing = new ThingIdentifier(block, blockPos);
-                if (thing.IsSaltpeter)
-                    settings = config.AutoMapMarkers.MiscBlocks.BlockCoatingSaltpeter;
-                else
-                    return;
-
-                shouldRequestWaypoint = true;
-            }
-
-            // BlockMushroom (all mushrooms), BlockPlant (all flowers), BlockCrop (all crops), BlockReed (all reeds, including Tule), BlockFruitTreePart (all fruit trees)
-            else if (block is BlockPlant
-                || block is BlockCrop
-                || block is BlockMushroom
-                || block is BlockReeds
-                || block is BlockFruitTreePart)
-            {
-                ThingIdentifier thing = new ThingIdentifier(block, blockPos);
-                if (!thing.Identify(config, ThingIdentifier.IdentifyAsType.DynamicFlora))
-                    return;  // Unrecognized mushroom, flower, crop, reed, or fruit tree
-
-                if (config.SuppressMarkerOnFarmland && thing.IsOnFarmland())
-                    return;
-
-                settings = thing.GetMapMarkerSettings();
-                dynamicTitleComponent = thing.DynamicTitleComponent;
-                shouldRequestWaypoint = true;
-            }
-
-            // Attempt to create a waypoint if we matched something above
-            if (shouldRequestWaypoint && MapMarkerMod.Network != null)
+            // Attempt to create a waypoint
+            if (MapMarkerMod.Network != null)
             {
                 MapMarkerMod.Network.RequestWaypointFromServer
                 (
