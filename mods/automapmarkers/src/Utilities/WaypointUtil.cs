@@ -59,7 +59,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
             }
 
             // If there's a dynamic component to the marker title, figure that out before creating the waypoint
-            string title = $"{settings.MarkerTitle}{(dynamicTitleComponent != null ? $" ({dynamicTitleComponent})" : "")}";
+            string title = FormatDynamicTitle(settings.MarkerTitle, dynamicTitleComponent);
 
             if (includeCoordinates)
             {
@@ -220,6 +220,37 @@ namespace Egocarib.AutoMapMarkers.Utilities
                 colors.Add(ColorUtil.Hex2Int(hexcolors[i]));
             }
             return colors.ToArray();
+        }
+
+        /// <summary>
+        /// Combines a marker title with an optional dynamic component, deduplicating
+        /// any shared prefix and unwrapping redundant parentheses.
+        /// e.g. "Lupine" + "Lupine (Blue)" → "Lupine (Blue)"
+        ///      "Traders" + "Agriculture trader" → "Traders (Agriculture trader)"
+        ///      "Wild crops" + "Flax" → "Wild crops (Flax)"
+        /// </summary>
+        internal static string FormatDynamicTitle(string markerTitle, string dynamicComponent)
+        {
+            if (string.IsNullOrEmpty(dynamicComponent))
+                return markerTitle;
+
+            // Strip the marker title from the front of the dynamic component (case-insensitive)
+            string trimmed = dynamicComponent;
+            if (trimmed.StartsWith(markerTitle, StringComparison.OrdinalIgnoreCase))
+            {
+                trimmed = trimmed.Substring(markerTitle.Length).TrimStart();
+            }
+
+            // Unwrap outer parentheses if present, e.g. "(Blue)" → "Blue"
+            if (trimmed.Length >= 2 && trimmed[0] == '(' && trimmed[trimmed.Length - 1] == ')')
+            {
+                trimmed = trimmed.Substring(1, trimmed.Length - 2).Trim();
+            }
+
+            if (string.IsNullOrEmpty(trimmed))
+                return markerTitle;
+
+            return $"{markerTitle} ({trimmed})";
         }
 
         public static bool MatchingWaypointTitle(string title1, string title2)
