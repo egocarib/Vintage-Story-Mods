@@ -24,8 +24,10 @@ namespace Egocarib.AutoMapMarkers.GUI
     {
         public const string HotkeyCode = "egocarib_MapMarkerGUI";
         public const string DialogID = "egocarib-mapmarkers-config-menu";
+        private const double ScrollAreaHeight = 565;
+        private const double ScrollAreaPadding = 10;
         public MapMarkerConfig.Settings ModSettings;
-        public Vintagestory.API.Datastructures.OrderedDictionary<string, Vintagestory.API.Datastructures.OrderedDictionary<string, AutoMapMarkerSetting>> AutoMapMarkerSettings;
+        public MarkerSettingLayout Layout;
         public readonly string ExtraSettingsTabName = Lang.Get("egocarib-mapmarkers:ui");
         public string CurrentTab;
 
@@ -64,7 +66,12 @@ namespace Egocarib.AutoMapMarkers.GUI
             try
             {
                 ModSettings = MapMarkerConfig.GetSettings(capi);
-                AutoMapMarkerSettings = ModSettings.GetMapMarkerSettingCollection();
+                Layout = ModSettings.GetMapMarkerSettingLayout();
+                if (Layout == null)
+                {
+                    MapMarkerMod.CoreAPI.Logger.Error("Map Marker Mod: Marker definitions not loaded. Cannot open settings GUI.");
+                    return;
+                }
                 LoadIconTextures();
                 LoadColorOptions();
 
@@ -137,11 +144,9 @@ namespace Egocarib.AutoMapMarkers.GUI
             CairoFont disabledFont = CairoFont.WhiteSmallishText().Clone().WithSlant(FontSlant.Italic);
             disabledFont.Color[3] = 0.2;
 
-            string customTabName = Lang.Get("egocarib-mapmarkers:custom");
-
             /*
              *  Dialog bounds nesting structure:
-             *  
+             *
              *  dialogBounds
              *    bgBounds
              *      toggleButtonBarBounds
@@ -156,8 +161,8 @@ namespace Egocarib.AutoMapMarkers.GUI
 
             // Determine current tab and whether it needs to be paged
             if (string.IsNullOrEmpty(CurrentTab))
-                CurrentTab = AutoMapMarkerSettings.Keys.First();
-            bool isMarkerTab = CurrentTab != ExtraSettingsTabName;
+                CurrentTab = Layout.Tabs.Count > 0 ? Layout.Tabs[0].TabKey : "UI";
+            bool isMarkerTab = CurrentTab != "UI";
 
             // Auto-sized dialog at the center of the screen
             ElementBounds dialogBounds = ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.CenterMiddle);
@@ -167,7 +172,7 @@ namespace Egocarib.AutoMapMarkers.GUI
             double xpos = 0;
             double ypos = 2.5;
             double yStart = 0;
-            double opAreaHeight = 575;
+            double opAreaHeight = ScrollAreaHeight + ScrollAreaPadding;
             double dgMinWidth = 920;
             double dgMaxWidth = 1080;
             double toggleBarHeight = 76;
@@ -175,7 +180,7 @@ namespace Egocarib.AutoMapMarkers.GUI
             double rowIndent = 20;
             double rowHeight = 42;
 
-            double opPromptWidth = 280;
+            double opPromptWidth = 320;
             double toggleWidth = 64; // 100; //Toggle switch, plus empty space after
             double disabledMsgWidth = 200;
             double iconColorButtonWidth = 70;
@@ -203,8 +208,9 @@ namespace Egocarib.AutoMapMarkers.GUI
                 .WithSizing(horizontalSizing: ElementSizing.FitToChildren, verticalSizing: ElementSizing.Fixed)
                 .WithFixedHeight(rowHeight); // Single option row
 
-            ElementBounds markerOptionPromptBounds = ElementBounds.Fixed(xpos, ypos, opPromptWidth, rowHeight); 
-            ElementBounds markerOptionToggleBounds = ElementBounds.Fixed(xpos += opPromptWidth, ypos - 2.5, toggleWidth, rowHeight); // bigger than dropdown/textinput, so we minus 2.5 pixels to vertically align better with rest of row
+            ElementBounds markerOptionPromptBounds = ElementBounds.Fixed(xpos, ypos, opPromptWidth, rowHeight);
+            double toggleClickSize = 34; // Tightly wrap the 30x30 visual switch
+            ElementBounds markerOptionToggleBounds = ElementBounds.Fixed(xpos += opPromptWidth, ypos - 2.5, toggleClickSize, toggleClickSize);
             ElementBounds markerOptionDisabledMessage = ElementBounds.Fixed(xpos += toggleWidth, ypos, disabledMsgWidth, rowHeight);
             ElementBounds markerOptionIconColorButtonBounds = ElementBounds.Fixed(xpos, ypos - 3.5, iconColorButtonWidth, iconColorButtonHeight);
 
@@ -213,7 +219,7 @@ namespace Egocarib.AutoMapMarkers.GUI
 
             // Scrollable content area bounds
             double clipWidth = dgInnerWidth + rowIndent * 2;
-            double clipHeight = opAreaHeight - 10;
+            double clipHeight = ScrollAreaHeight;
             ElementBounds clipBounds = ElementBounds.Fixed(0, 0, clipWidth, clipHeight);
             ElementBounds scrollbarBounds = ElementBounds.Fixed(clipWidth + 5, 0, 20, clipHeight);
 
@@ -234,25 +240,48 @@ namespace Egocarib.AutoMapMarkers.GUI
                 })
                 .BeginChildElements(); // start header bar toggle buttons
 
-            foreach (var settingGroupName in AutoMapMarkerSettings.Keys.Concat(new [] { ExtraSettingsTabName }))
+            // Marker tabs from layout
+            foreach (var tab in Layout.Tabs)
             {
-                if (settingGroupName == customTabName && !ModSettings.EnableCustomHotkeys)
-                    continue;
-
+                string tabDisplayName = Lang.Get(tab.LangKey);
+                string tabKey = tab.TabKey;
                 CairoFont buttonFont = CairoFont.ButtonText();
                 SingleComposer.AddToggleButton(
-                    text: settingGroupName,
+                    text: tabDisplayName,
                     font: buttonFont,
-                    onToggle: isSelected => OnTabToggle(settingGroupName),
-                    bounds: toggleButtonBounds.WithFixedWidth(GetFontTextWidth(buttonFont, settingGroupName)),
-                    key: settingGroupName + "-toggle-tab");
+                    onToggle: isSelected => OnTabToggle(tabKey),
+                    bounds: toggleButtonBounds.WithFixedWidth(GetFontTextWidth(buttonFont, tabDisplayName)),
+                    key: tabKey + "-toggle-tab");
                 toggleButtonBounds = toggleButtonBounds.RightCopy(15, 0);
+            }
+            // Custom tab (conditional)
+            if (ModSettings.EnableCustomHotkeys)
+            {
+                string customDisplayName = Lang.Get("egocarib-mapmarkers:custom");
+                CairoFont buttonFont = CairoFont.ButtonText();
+                SingleComposer.AddToggleButton(
+                    text: customDisplayName,
+                    font: buttonFont,
+                    onToggle: isSelected => OnTabToggle("Custom"),
+                    bounds: toggleButtonBounds.WithFixedWidth(GetFontTextWidth(buttonFont, customDisplayName)),
+                    key: "Custom-toggle-tab");
+                toggleButtonBounds = toggleButtonBounds.RightCopy(15, 0);
+            }
+            // UI tab (always)
+            {
+                CairoFont buttonFont = CairoFont.ButtonText();
+                SingleComposer.AddToggleButton(
+                    text: ExtraSettingsTabName,
+                    font: buttonFont,
+                    onToggle: isSelected => OnTabToggle("UI"),
+                    bounds: toggleButtonBounds.WithFixedWidth(GetFontTextWidth(buttonFont, ExtraSettingsTabName)),
+                    key: "UI-toggle-tab");
             }
 
             SingleComposer.GetToggleButton(CurrentTab + "-toggle-tab").SetValue(true);
 
             SingleComposer
-                .AddButton(text: Lang.Get("general-save"),
+                .AddButton(text: Lang.Get("general-close"),
                     onClick: OnSaveButton,
                     bounds: ElementBounds.Fixed(0.0, 0.0, 80.0, 40.0).WithFixedPadding(4.0, 3.0).WithAlignment(EnumDialogArea.RightTop))
                 .EndChildElements(); // end header bar toggle buttons
@@ -287,19 +316,21 @@ namespace Egocarib.AutoMapMarkers.GUI
             if (isMarkerTab)
             {
                 scrollContentBounds = markerOptionAreaBounds;
-                SingleComposer.BeginClip(clipBounds);
+                SingleComposer
+                    .AddInset(clipBounds, 3)
+                    .BeginClip(clipBounds);
             }
             SingleComposer.BeginChildElements(markerOptionAreaBounds);
 
-            ComposeMarkerOptions(ref markerOptionRowBounds, rowHeight, dgInnerWidth, customTabName, disabledFont,
+            ComposeMarkerOptions(ref markerOptionRowBounds, rowHeight, dgInnerWidth, disabledFont,
                 markerOptionPromptBounds, markerOptionToggleBounds, markerOptionDisabledMessage,
                 markerOptionIconColorButtonBounds, markerOptionAreaBounds);
 
-            if (CurrentTab == ExtraSettingsTabName)
+            if (CurrentTab == "UI")
             {
                 ComposeExtraSettingsTab(ref markerOptionRowBounds, rowHeight);
             }
-            
+
             SingleComposer
                 .EndChildElements(); // markerOptionAreaBounds
             if (isMarkerTab)
@@ -315,11 +346,8 @@ namespace Egocarib.AutoMapMarkers.GUI
 
             if (isMarkerTab)
             {
-                int itemCount = AutoMapMarkerSettings.ContainsKey(CurrentTab) ? AutoMapMarkerSettings[CurrentTab].Count : 0;
                 float visibleHeight = (float)clipHeight;
-                float totalContentHeight = (float)(itemCount * rowHeight);
-                if (CurrentTab == customTabName)
-                    totalContentHeight += (float)(rowHeight * 0.5); // Account for description row
+                float totalContentHeight = CalculateTabContentHeight(rowHeight);
                 float savedScrollY = currentScrollY;
                 var scrollbar = SingleComposer.GetScrollbar("scrollbar");
                 scrollbar?.SetHeights(visibleHeight, totalContentHeight);
@@ -332,120 +360,285 @@ namespace Egocarib.AutoMapMarkers.GUI
         }
 
         /// <summary>
+        /// Calculates total content height for the current marker tab.
+        /// </summary>
+        private float CalculateTabContentHeight(double rowHeight)
+        {
+            if (CurrentTab == "Custom")
+            {
+                return (float)((Layout.CustomEntries.Count * rowHeight) + (rowHeight * 0.5));
+            }
+
+            var tab = Layout.Tabs.FirstOrDefault(t => t.TabKey == CurrentTab);
+            if (tab == null) return 0;
+
+            int totalRows = 0;
+            foreach (var sg in tab.Subgroups)
+            {
+                foreach (var entry in sg.Entries)
+                {
+                    totalRows++; // parent/header row
+                    if (entry.IsExpandable && entry.IsExpanded)
+                        totalRows += entry.SubEntries?.Count ?? 0;
+                }
+            }
+            double extraHeight = 0;
+            if (tab.HasSubheadings)
+            {
+                totalRows += tab.Subgroups.Count; // one row per subheading
+                extraHeight = (tab.Subgroups.Count - 1) * rowHeight * 0.4; // spacing between subgroups
+            }
+            return (float)(totalRows * rowHeight + extraHeight + 9); // +9 for inset top padding
+        }
+
+        /// <summary>
         /// Composes the marker option rows for the currently selected marker tab.
-        /// Handles: custom tab description, marker row loop (label + toggle + icon button + disabled text), traders "copy settings" button.
+        /// Handles: layout tabs with subheadings, custom tab, expandable entries.
         /// </summary>
         private void ComposeMarkerOptions(ref ElementBounds markerOptionRowBounds, double rowHeight, double dgInnerWidth,
-            string customTabName, CairoFont disabledFont,
+            CairoFont disabledFont,
             ElementBounds markerOptionPromptBounds, ElementBounds markerOptionToggleBounds,
             ElementBounds markerOptionDisabledMessage, ElementBounds markerOptionIconColorButtonBounds,
             ElementBounds markerOptionAreaBounds)
         {
-            foreach (var settingGroup in AutoMapMarkerSettings)
+            // Custom tab
+            if (CurrentTab == "Custom")
             {
-                if (settingGroup.Key != CurrentTab)
+                if (!ModSettings.EnableCustomHotkeys)
+                    return;
+
+                SingleComposer.BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.FlatCopy().WithFixedHeight(rowHeight * 1.5))
+                .AddDynamicText(
+                    text: Lang.Get("egocarib-mapmarkers:custom-gui-description"),
+                    font: CairoFont.WhiteSmallishText(),
+                    bounds: ElementBounds.Fixed(0, 0, dgInnerWidth, rowHeight * 1.5),
+                    key: "custom-tab-description")
+                .EndChildElements();
+                markerOptionRowBounds = markerOptionRowBounds.BelowCopy().WithFixedHeight(rowHeight);
+
+                foreach (var customEntry in Layout.CustomEntries)
                 {
-                    continue;
+                    ComposeMarkerRow(customEntry.Key, customEntry.Value, ref markerOptionRowBounds, disabledFont,
+                        markerOptionPromptBounds, markerOptionToggleBounds, markerOptionDisabledMessage,
+                        markerOptionIconColorButtonBounds);
                 }
-                if (CurrentTab == customTabName)
+                return;
+            }
+
+            // Layout tabs
+            var tab = Layout.Tabs.FirstOrDefault(t => t.TabKey == CurrentTab);
+            if (tab == null)
+                return;
+
+            // Add top padding inside the inset before the first row
+            markerOptionRowBounds = markerOptionRowBounds.FlatCopy().WithFixedHeight(9);
+            markerOptionRowBounds = markerOptionRowBounds.BelowCopy().WithFixedHeight(rowHeight);
+
+            bool isFirstSubgroup = true;
+            foreach (var subgroup in tab.Subgroups)
+            {
+                // Render subheading if tab has multiple subgroups
+                if (tab.HasSubheadings && subgroup.SubgroupName != null)
                 {
-                    if (!ModSettings.EnableCustomHotkeys)
+                    // Add vertical spacing before non-first subheadings
+                    if (!isFirstSubgroup)
                     {
-                        continue;
+                        markerOptionRowBounds = markerOptionRowBounds.FlatCopy().WithFixedHeight(rowHeight * 0.4);
+                        markerOptionRowBounds = markerOptionRowBounds.BelowCopy().WithFixedHeight(rowHeight);
                     }
-                    SingleComposer.BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.FlatCopy().WithFixedHeight(rowHeight * 1.5))
+
+                    string subheadingText = Lang.Get("egocarib-mapmarkers:" + subgroup.SubgroupName.ToLowerInvariant().Replace(" ", "-"));
+                    CairoFont subheadingFont = CairoFont.WhiteSmallishText().Clone().WithWeight(FontWeight.Bold);
+                    SingleComposer.BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.FlatCopy().WithFixedHeight(rowHeight))
                     .AddDynamicText(
-                        text: Lang.Get("egocarib-mapmarkers:custom-gui-description"),
-                        font: CairoFont.WhiteSmallishText(),
-                        bounds: ElementBounds.Fixed(0, 0, dgInnerWidth, rowHeight * 1.5),
-                        key: "custom-tab-description")
+                        text: subheadingText,
+                        font: subheadingFont,
+                        bounds: ElementBounds.Fixed(0, rowHeight * 0.25, dgInnerWidth, rowHeight).WithParent(markerOptionRowBounds),
+                        key: "subheading-" + subgroup.SubgroupName)
                     .EndChildElements();
                     markerOptionRowBounds = markerOptionRowBounds.BelowCopy().WithFixedHeight(rowHeight);
+                    isFirstSubgroup = false;
                 }
 
-                foreach (var setting in settingGroup.Value)
+                // Indent entries under subheadings
+                double subIndent = tab.HasSubheadings ? 15 : 0;
+                ElementBounds promptBounds = subIndent > 0 ? markerOptionPromptBounds.FlatCopy().WithFixedOffset(subIndent, 0) : markerOptionPromptBounds;
+                ElementBounds toggleBounds = subIndent > 0 ? markerOptionToggleBounds.FlatCopy().WithFixedOffset(subIndent, 0) : markerOptionToggleBounds;
+                ElementBounds disabledBounds = subIndent > 0 ? markerOptionDisabledMessage.FlatCopy().WithFixedOffset(subIndent, 0) : markerOptionDisabledMessage;
+                ElementBounds iconBounds = subIndent > 0 ? markerOptionIconColorButtonBounds.FlatCopy().WithFixedOffset(subIndent, 0) : markerOptionIconColorButtonBounds;
+
+                foreach (var entry in subgroup.Entries)
                 {
-                    string markerSettingTitle = setting.Key;
-                    AutoMapMarkerSetting markerSetting = setting.Value;
-
-                    double[] markerColorRGBADoubles = markerSetting.MarkerColorInteger.HasValue
-                        ? ColorUtil.ToRGBADoubles(markerSetting.MarkerColorInteger.Value)
-                        : new double[] { 1.0, 1.0, 1.0, 1.0};
-
-                    SingleComposer.BeginChildElements(markerOptionRowBounds)
-
-                    // Option name + toggle button to enable
-                    .AddDynamicText(
-                        text: markerSettingTitle,
-                        font: CairoFont.WhiteSmallishText(),
-                        bounds: markerOptionPromptBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        key: markerSettingTitle + "-auto-markers-label")
-                    .AddInteractiveSwitch(
-                        onToggle: OnMarkerToggleEnabled,
-                        bounds: markerOptionToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                        key: markerSettingTitle + "-auto-markers-enabled")
-
-                    .AddIf(markerSetting.Enabled == true)
-
-                        .AddColorIconButton(
-                            icon: GetWaypointIconName(markerSetting.MarkerIcon),
-                            iconColor: markerColorRGBADoubles,
-                            onClick: () => { return OnIconColorButtonClick(CurrentTab, markerSettingTitle, markerSetting); },
-                            bounds: markerOptionIconColorButtonBounds.FlatCopy().WithParent(markerOptionRowBounds),
-                            style: EnumButtonStyle.Normal,
-                            key: markerSettingTitle + "-auto-markers-icon")
-
-                    .EndIf()
-                    .AddIf(markerSetting.Enabled == false)
-
-                        .AddDynamicText(
-                            text: Lang.Get("egocarib-mapmarkers:disabled"),
-                            font: disabledFont,
-                            bounds: markerOptionDisabledMessage.FlatCopy().WithParent(markerOptionRowBounds),
-                            key: markerSettingTitle + "-auto-markers-disabled")
-
-                    .EndIf()
-
-                    .EndChildElements(); // markerOptionRowBounds
-
-                    // Set initial option values for this row
-                    SingleComposer.GetInteractiveSwitch(markerSettingTitle + "-auto-markers-enabled").SetValue(markerSetting.Enabled);
-
-                    markerOptionRowBounds = markerOptionRowBounds.BelowCopy(); // Create next row, immediately below current row
-                }
-                if (CurrentTab == Lang.Get("egocarib-mapmarkers:traders"))
-                {
-                    // Add special button for trader settings
-                    string firstTraderSettingName = settingGroup.Value.Cast<KeyValuePair<string, AutoMapMarkerSetting>>().ElementAt(0).Key.ToString();
-                    string buttonLabel = Lang.Get("egocarib-mapmarkers:copy-setting-to-all-traders", firstTraderSettingName);
-                    SingleComposer.AddSmallButton(
-                        text: buttonLabel,
-                        onClick: () =>
-                        {
-                            AutoMapMarkerSetting firstSetting = null;
-                            foreach (var traderSettingInfo in settingGroup.Value)
-                            {
-                                if (firstSetting == null)
-                                {
-                                    firstSetting = traderSettingInfo.Value;
-                                }
-                                else
-                                {
-                                    traderSettingInfo.Value.CopyIconAndColorFrom(firstSetting);
-                                }
-                            }
-                            SetupDialog();
-                            return true;
-                        },
-                        bounds: markerOptionRowBounds
-                            .WithSizing(ElementSizing.Fixed)
-                            .WithParent(markerOptionAreaBounds)
-                            .WithFixedPadding(12, 0)
-                            .WithFixedAlignmentOffset(1, 10)
-                            .WithAlignment(EnumDialogArea.RightFixed)
-                    );
+                    if (entry.IsExpandable)
+                    {
+                        ComposeExpandableMarkerRow(entry, ref markerOptionRowBounds, rowHeight, disabledFont,
+                            promptBounds, toggleBounds, disabledBounds, iconBounds);
+                    }
+                    else
+                    {
+                        ComposeMarkerRow(entry.DisplayName, entry.Setting, ref markerOptionRowBounds, disabledFont,
+                            promptBounds, toggleBounds, disabledBounds, iconBounds);
+                    }
                 }
             }
+        }
+
+        /// <summary>
+        /// Composes an expandable marker entry. When collapsed, renders as a normal entry row
+        /// with an expand (+) button after the icon/color button. When expanded, shows a header
+        /// row with a collapse (-) button near the label, then indented sub-entries below.
+        /// </summary>
+        private void ComposeExpandableMarkerRow(MarkerSettingEntry entry,
+            ref ElementBounds markerOptionRowBounds, double rowHeight, CairoFont disabledFont,
+            ElementBounds promptBounds, ElementBounds toggleBounds,
+            ElementBounds disabledBounds, ElementBounds iconBounds)
+        {
+            var capturedEntry = entry;
+            double expandBtnSize = 32; // Same height as icon/color button
+            double expandBtnGap = 10;  // Gap between icon/color button and expand button
+
+            if (entry.IsExpanded)
+            {
+                // Header row: label + collapse button at toggle position
+                ElementBounds headerLabelBounds = promptBounds.FlatCopy().WithParent(markerOptionRowBounds);
+                ElementBounds collapseButtonBounds = toggleBounds.FlatCopy().WithParent(markerOptionRowBounds)
+                    .WithFixedSize(expandBtnSize, expandBtnSize);
+
+                SingleComposer.BeginChildElements(markerOptionRowBounds)
+                .AddDynamicText(
+                    text: entry.DisplayName,
+                    font: CairoFont.WhiteSmallishText(),
+                    bounds: headerLabelBounds,
+                    key: entry.EntryLabel + "-expand-header")
+                .AddExpandButton(
+                    onClick: () => { ToggleExpand(capturedEntry); },
+                    expand: false,
+                    bounds: collapseButtonBounds,
+                    key: entry.EntryLabel + "-collapse-btn")
+                .EndChildElements();
+                markerOptionRowBounds = markerOptionRowBounds.BelowCopy();
+
+                // Sub-entries indented
+                double subIndent = 25;
+                ElementBounds subPrompt = promptBounds.FlatCopy().WithFixedOffset(subIndent, 0);
+                ElementBounds subToggle = toggleBounds.FlatCopy().WithFixedOffset(subIndent, 0);
+                ElementBounds subDisabled = disabledBounds.FlatCopy().WithFixedOffset(subIndent, 0);
+                ElementBounds subIcon = iconBounds.FlatCopy().WithFixedOffset(subIndent, 0);
+
+                string subKeyPrefix = entry.EntryLabel + "-";
+                foreach (var sub in entry.SubEntries)
+                {
+                    ComposeMarkerRow(sub.DisplayName, sub.Setting, ref markerOptionRowBounds, disabledFont,
+                        subPrompt, subToggle, subDisabled, subIcon, keyPrefix: subKeyPrefix);
+                }
+            }
+            else
+            {
+                // Collapsed: normal entry row + expand button after icon/color button
+                if (entry.Setting != null)
+                {
+                    // Position expand button after the disabled text area (wider than icon button)
+                    // so it doesn't overlap when the entry is disabled
+                    double expandButtonX = iconBounds.fixedX + iconBounds.fixedWidth + expandBtnGap + 15;
+                    ElementBounds expandButtonBounds = ElementBounds.Fixed(expandButtonX, iconBounds.fixedY, expandBtnSize, expandBtnSize);
+
+                    // Capture current row bounds before ref is modified by ComposeMarkerRow
+                    var currentRowBounds = markerOptionRowBounds;
+                    ComposeMarkerRow(entry.DisplayName, entry.Setting, ref markerOptionRowBounds, disabledFont,
+                        promptBounds, toggleBounds, disabledBounds, iconBounds, keyPrefix: "",
+                        expandButton: () => {
+                            SingleComposer.AddExpandButton(
+                                onClick: () => { ToggleExpand(capturedEntry); },
+                                expand: true,
+                                bounds: expandButtonBounds.FlatCopy().WithParent(currentRowBounds),
+                                key: entry.EntryLabel + "-expand-btn");
+                        });
+                }
+            }
+        }
+
+        /// <summary>
+        /// Toggles the expand/collapse state of an expandable entry.
+        /// Invalidates layout cache and rebuilds the registry immediately.
+        /// </summary>
+        private void ToggleExpand(MarkerSettingEntry entry)
+        {
+            entry.IsExpanded = !entry.IsExpanded;
+            ModSettings.ExpandStates[entry.EntryLabel] = entry.IsExpanded;
+            ModSettings.InvalidateLayout();
+            MapMarkerConfig.RebuildRegistry();
+            Layout = ModSettings.GetMapMarkerSettingLayout();
+            // Clamp scroll position if collapsing made it exceed the new content height
+            if (!entry.IsExpanded)
+            {
+                float newContentHeight = CalculateTabContentHeight(42);
+                float visibleHeight = (float)ScrollAreaHeight;
+                float maxScroll = Math.Max(0, newContentHeight - visibleHeight);
+                if (currentScrollY > maxScroll)
+                    currentScrollY = maxScroll;
+            }
+            SetupDialog();
+        }
+
+        /// <summary>
+        /// Composes a single marker option row (label + toggle + icon button or disabled text).
+        /// </summary>
+        private void ComposeMarkerRow(string markerSettingTitle, AutoMapMarkerSetting markerSetting,
+            ref ElementBounds markerOptionRowBounds, CairoFont disabledFont,
+            ElementBounds markerOptionPromptBounds, ElementBounds markerOptionToggleBounds,
+            ElementBounds markerOptionDisabledMessage, ElementBounds markerOptionIconColorButtonBounds,
+            string keyPrefix = "", Action expandButton = null)
+        {
+            string keyBase = keyPrefix + markerSettingTitle;
+            double[] markerColorRGBADoubles = markerSetting.MarkerColorInteger.HasValue
+                ? ColorUtil.ToRGBADoubles(markerSetting.MarkerColorInteger.Value)
+                : new double[] { 1.0, 1.0, 1.0, 1.0 };
+
+            ElementBounds labelBounds = markerOptionPromptBounds.FlatCopy().WithParent(markerOptionRowBounds);
+
+            SingleComposer.BeginChildElements(markerOptionRowBounds)
+
+            .AddDynamicText(
+                text: markerSettingTitle,
+                font: CairoFont.WhiteSmallishText(),
+                bounds: labelBounds,
+                key: keyBase + "-auto-markers-label")
+
+            .AddInteractiveSwitch(
+                onToggle: OnMarkerToggleEnabled,
+                bounds: markerOptionToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                key: keyBase + "-auto-markers-enabled");
+
+            // Add expand button first (before disabled text) to test click dispatch order
+            expandButton?.Invoke();
+
+            SingleComposer
+            .AddIf(markerSetting.Enabled == true)
+
+                .AddColorIconButton(
+                    icon: GetWaypointIconName(markerSetting.MarkerIcon),
+                    iconColor: markerColorRGBADoubles,
+                    onClick: () => { return OnIconColorButtonClick(CurrentTab, markerSettingTitle, markerSetting); },
+                    bounds: markerOptionIconColorButtonBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                    style: EnumButtonStyle.Normal,
+                    key: keyBase + "-auto-markers-icon")
+
+            .EndIf()
+            .AddIf(markerSetting.Enabled == false)
+
+                .AddDynamicText(
+                    text: Lang.Get("egocarib-mapmarkers:disabled"),
+                    font: disabledFont,
+                    bounds: markerOptionDisabledMessage.FlatCopy().WithParent(markerOptionRowBounds),
+                    key: keyBase + "-auto-markers-disabled")
+
+            .EndIf();
+
+            SingleComposer.EndChildElements(); // markerOptionRowBounds
+
+            SingleComposer.GetInteractiveSwitch(keyBase + "-auto-markers-enabled").SetValue(markerSetting.Enabled);
+
+            markerOptionRowBounds = markerOptionRowBounds.BelowCopy();
         }
 
         /// <summary>
@@ -464,9 +657,9 @@ namespace Egocarib.AutoMapMarkers.GUI
                 .AddSwitch(
                     onToggle: isSelected => {
                         ModSettings.EnableMarkOnInteract = isSelected;
-                        if (!ModSettings.EnableMarkOnInteract && !ModSettings.EnableMarkOnSneak)
+                        if (!ModSettings.EnableMarkOnInteract && !ModSettings.EnableMarkOnSneak && !ModSettings.EnableDetectHotkey)
                         {
-                            ModSettings.EnableMarkOnSneak = true; // Force one of these options to be chosen
+                            ModSettings.EnableMarkOnInteract = true; // Force at least one option to be chosen
                             SetupDialog();
                         }
                     },
@@ -484,9 +677,9 @@ namespace Egocarib.AutoMapMarkers.GUI
                 .AddSwitch(
                     onToggle: isSelected => {
                         ModSettings.EnableMarkOnSneak = isSelected;
-                        if (!ModSettings.EnableMarkOnSneak && !ModSettings.EnableMarkOnInteract)
+                        if (!ModSettings.EnableMarkOnSneak && !ModSettings.EnableMarkOnInteract && !ModSettings.EnableDetectHotkey)
                         {
-                            ModSettings.EnableMarkOnInteract = true; // Force one of these options to be chosen
+                            ModSettings.EnableMarkOnSneak = true; // Force at least one option to be chosen
                             SetupDialog();
                         }
                     },
@@ -505,6 +698,10 @@ namespace Egocarib.AutoMapMarkers.GUI
                     onToggle: isSelected =>
                     {
                         ModSettings.EnableDetectHotkey = isSelected;
+                        if (!ModSettings.EnableDetectHotkey && !ModSettings.EnableMarkOnInteract && !ModSettings.EnableMarkOnSneak)
+                        {
+                            ModSettings.EnableDetectHotkey = true; // Force at least one option to be chosen
+                        }
                         RegisterDetectHotkey();
                         SetupDialog();
                     },
@@ -580,6 +777,8 @@ namespace Egocarib.AutoMapMarkers.GUI
                     onToggle: isSelected =>
                     {
                         ModSettings.EnableCustomHotkeys = isSelected;
+                        if (!isSelected && CurrentTab == "Custom")
+                            CurrentTab = null; // will re-default on next SetupDialog
                         RegisterCustomHotkeys();
                         SetupDialog();
                     },
@@ -699,16 +898,39 @@ namespace Egocarib.AutoMapMarkers.GUI
         /// </summary>
         private void OnMarkerToggleEnabled(bool isSelected)
         {
-            foreach (var settingGroup in AutoMapMarkerSettings)
-            {
-                foreach (KeyValuePair<string, AutoMapMarkerSetting> settings in settingGroup.Value)
-                {
-                    GuiElementInteractiveSwitch enabledSwitch = SingleComposer.GetInteractiveSwitch(settings.Key + "-auto-markers-enabled");
-                    if (enabledSwitch != null)
+            // Update all layout tab entries (including sub-entries)
+            foreach (var tab in Layout.Tabs)
+                foreach (var subgroup in tab.Subgroups)
+                    foreach (var entry in subgroup.Entries)
                     {
-                        settings.Value.Enabled = enabledSwitch.On;
+                        if (entry.IsExpandable)
+                        {
+                            if (entry.IsExpanded && entry.SubEntries != null)
+                            {
+                                string subKeyPrefix = entry.EntryLabel + "-";
+                                foreach (var sub in entry.SubEntries)
+                                {
+                                    var sw = SingleComposer.GetInteractiveSwitch(subKeyPrefix + sub.DisplayName + "-auto-markers-enabled");
+                                    if (sw != null) sub.Setting.Enabled = sw.On;
+                                }
+                            }
+                            else if (entry.Setting != null)
+                            {
+                                var sw = SingleComposer.GetInteractiveSwitch(entry.DisplayName + "-auto-markers-enabled");
+                                if (sw != null) entry.Setting.Enabled = sw.On;
+                            }
+                        }
+                        else if (entry.Setting != null)
+                        {
+                            var sw = SingleComposer.GetInteractiveSwitch(entry.DisplayName + "-auto-markers-enabled");
+                            if (sw != null) entry.Setting.Enabled = sw.On;
+                        }
                     }
-                }
+            // Update custom entries
+            foreach (var customEntry in Layout.CustomEntries)
+            {
+                var sw = SingleComposer.GetInteractiveSwitch(customEntry.Key + "-auto-markers-enabled");
+                if (sw != null) customEntry.Value.Enabled = sw.On;
             }
             SetupDialog(); // Redraw GUI
         }
