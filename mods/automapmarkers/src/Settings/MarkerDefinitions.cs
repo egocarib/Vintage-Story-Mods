@@ -6,7 +6,7 @@ namespace Egocarib.AutoMapMarkers.Settings
 {
     /// <summary>
     /// The fixed set of marker categories. Each category maps to a GUI tab.
-    /// JSON values are case-insensitive: "Flora", "Surface Ore", "Deep Ore", "Misc".
+    /// JSON values are case-insensitive: "Flora", "Surface Ore", "Deep Ore", "Other".
     /// </summary>
     [JsonConverter(typeof(MarkerCategoryConverter))]
     public enum MarkerCategory
@@ -14,7 +14,7 @@ namespace Egocarib.AutoMapMarkers.Settings
         Flora,
         SurfaceOre,
         DeepOre,
-        Misc
+        Other
     }
 
     /// <summary>
@@ -31,7 +31,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 ["SurfaceOre"] = MarkerCategory.SurfaceOre,
                 ["Deep Ore"] = MarkerCategory.DeepOre,
                 ["DeepOre"] = MarkerCategory.DeepOre,
-                ["Misc"] = MarkerCategory.Misc,
+                ["Other"] = MarkerCategory.Other,
             };
 
         public override MarkerCategory ReadJson(JsonReader reader, Type objectType,
@@ -41,7 +41,7 @@ namespace Egocarib.AutoMapMarkers.Settings
             if (value != null && NameMap.TryGetValue(value, out var result))
                 return result;
             throw new JsonSerializationException(
-                $"Unknown Category '{value}'. Valid values: Flora, Surface Ore, Deep Ore, Misc");
+                $"Unknown Category '{value}'. Valid values: Flora, Surface Ore, Deep Ore, Other");
         }
 
         public override void WriteJson(JsonWriter writer, MarkerCategory value, JsonSerializer serializer)
@@ -50,6 +50,7 @@ namespace Egocarib.AutoMapMarkers.Settings
             {
                 MarkerCategory.SurfaceOre => "Surface Ore",
                 MarkerCategory.DeepOre => "Deep Ore",
+                MarkerCategory.Other => "Other",
                 _ => value.ToString()
             });
         }

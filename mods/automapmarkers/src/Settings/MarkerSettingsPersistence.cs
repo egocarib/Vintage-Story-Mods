@@ -251,8 +251,8 @@ namespace Egocarib.AutoMapMarkers.Settings
                 MarkerCategory.Flora      => ("Flora", null),
                 MarkerCategory.SurfaceOre => ("Ore", "Surface Ore"),
                 MarkerCategory.DeepOre    => ("Ore", "Deep Ore"),
-                MarkerCategory.Misc       => ("Misc", null),
-                _                         => ("Misc", null)
+                MarkerCategory.Other       => ("Other", null),
+                _                         => ("Other", null)
             };
         }
 
@@ -268,7 +268,7 @@ namespace Egocarib.AutoMapMarkers.Settings
             {
                 ("Flora",   "egocarib-mapmarkers:organic-matter"),
                 ("Ore",     "egocarib-mapmarkers:ore"),
-                ("Misc",    "egocarib-mapmarkers:misc"),
+                ("Other",   "Other"),
             };
             var tabsByKey = new Dictionary<string, MarkerSettingTab>();
             var tabs = new List<MarkerSettingTab>();
@@ -286,8 +286,8 @@ namespace Egocarib.AutoMapMarkers.Settings
 
                 if (!tabsByKey.TryGetValue(tabKey, out var tab))
                 {
-                    // Shouldn't happen since unrecognized maps to Misc, but be safe
-                    tab = tabsByKey["Misc"];
+                    // Shouldn't happen since unrecognized maps to Other, but be safe
+                    tab = tabsByKey["Other"];
                 }
 
                 // Find or create the subgroup within the tab
