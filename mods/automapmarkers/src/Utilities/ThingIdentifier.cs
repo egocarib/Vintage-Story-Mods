@@ -299,31 +299,11 @@ namespace Egocarib.AutoMapMarkers.Utilities
             return true;
         }
 
-        private static readonly string[] PsychedelicMushroomVarieties =
-            { "flyagaric", "goldcap", "libertycap", "wavycap", "bluemeanie", "laughingjim" };
-
         public bool MushroomIsPsychedelic()
         {
-            // Ideally we'd check NutritionProps.Psychedelic here, but that property is always 0 on the
-            // client side due to a game bug: Packet_NutritionProperties and CollectibleNet don't include
-            // the Psychedelic (or Intoxication) field when syncing block/item definitions from server to
-            // client, so the value is lost during deserialization.
-            // See: https://github.com/anegostudios/VintageStory-Issues/issues/8769
-            //
-            // As a workaround, we check the block's code path against known psychedelic mushroom varieties.
             FoodNutritionProperties mushProps = GetMushroomNutritionProps();
             if (mushProps != null && mushProps.Psychedelic > 0f)
                 return true;
-
-            string path = GetAssetPath();
-            if (!string.IsNullOrEmpty(path))
-            {
-                foreach (string variety in PsychedelicMushroomVarieties)
-                {
-                    if (path.Contains("-" + variety + "-"))
-                        return true;
-                }
-            }
 
             return false;
         }
