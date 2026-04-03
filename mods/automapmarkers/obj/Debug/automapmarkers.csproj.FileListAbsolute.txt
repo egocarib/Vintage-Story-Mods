@@ -1,0 +1,5 @@
+D:\Antigrav Projects\Automapmarker 1.22\mods\automapmarkers\obj\Debug\automapmarkers.GeneratedMSBuildEditorConfig.editorconfig
+D:\Antigrav Projects\Automapmarker 1.22\mods\automapmarkers\obj\Debug\automapmarkers.AssemblyInfoInputs.cache
+D:\Antigrav Projects\Automapmarker 1.22\mods\automapmarkers\obj\Debug\automapmarkers.AssemblyInfo.cs
+D:\Antigrav Projects\Automapmarker 1.22\mods\automapmarkers\obj\Debug\automapmarkers.csproj.CoreCompileInputs.cache
+D:\Antigrav Projects\Automapmarker 1.22\mods\automapmarkers\obj\Debug\automapmarkers.sourcelink.json
