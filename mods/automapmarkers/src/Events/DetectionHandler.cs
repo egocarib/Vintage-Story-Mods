@@ -67,6 +67,8 @@ namespace Egocarib.AutoMapMarkers.Events
                 {
                     BlockPos downOnePos = blockSel.Position.DownCopy();
                     Block blockBelow = MapMarkerMod.CoreClientAPI.World.BlockAccessor.GetBlock(downOnePos);
+                    if (blockBelow == null)
+                        return;
                     thing = new ThingIdentifier(blockBelow, downOnePos);
                 }
                 catch
