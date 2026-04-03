@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\$(Configuration)\Mods\mod</OutputPath>
+  </PropertyGroup>
+
+<ItemGroup>
+  <Reference Include="0Harmony">
+    <HintPath>D:\Vintagestory\Lib\0Harmony.dll</HintPath>
+    <Private>False</Private>
+  </Reference>
+  <Reference Include="VintagestoryAPI">
+    <HintPath>D:\Vintagestory\VintagestoryAPI.dll</HintPath>
+	<Private>False</Private>
+  </Reference>
+  <Reference Include="VintagestoryLib">
+    <HintPath>D:\Vintagestory\VintagestoryLib.dll</HintPath>
+	<Private>False</Private>
+  </Reference>
+  <Reference Include="VSEssentials">
+    <HintPath>D:\Vintagestory\Mods\VSEssentials.dll</HintPath>
+	<Private>False</Private>
+  </Reference>
+  <Reference Include="VSSurvivalMod">
+    <HintPath>D:\Vintagestory\Mods\VSSurvivalMod.dll</HintPath>
+	<Private>False</Private>
+  </Reference>
+</ItemGroup>
+
+<ItemGroup>
+  <Content Include="assets\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+  <Content Include="modinfo.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+</ItemGroup>
+
+</Project>

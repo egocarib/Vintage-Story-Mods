@@ -1,0 +1,20 @@
+[
+	{
+		"file": "game:entities/nonliving/boat-sailed",
+		"op": "add",
+		"path": "/server/behaviors/-",
+		"value": { "code": "icebreaker" }
+	},
+	{
+		"file": "game:entities/nonliving/boat-raft",
+		"op": "add",
+		"path": "/server/behaviors/-",
+		"value": { "code": "icebreaker" }
+	},
+	{
+		"file": "game:entities/nonliving/boat-construction",
+		"op": "add",
+		"path": "/server/behaviors/-",
+		"value": { "code": "icebreaker" }
+	}
+]

@@ -1,0 +1,13 @@
+{
+  "type": "code",
+  "modid": "icebreaker",
+  "name": "Icebreaker",
+  "authors": [
+    "Benata"
+  ],
+  "description": "Makes sailboats able to break ice in winter.",
+  "version": "1.0.0",
+  "dependencies": {
+    "game": "1.22.0-rc.7"
+  }
+}

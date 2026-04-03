@@ -1,0 +1,15 @@
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\obj\Release\Icebreaker.csproj.AssemblyReference.cache
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\obj\Release\Icebreaker.GeneratedMSBuildEditorConfig.editorconfig
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\obj\Release\Icebreaker.AssemblyInfoInputs.cache
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\obj\Release\Icebreaker.AssemblyInfo.cs
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\obj\Release\Icebreaker.csproj.CoreCompileInputs.cache
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\obj\Release\Icebreaker.sourcelink.json
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\bin\Release\Mods\mod\assets\icebreaker\patches\boats.json
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\bin\Release\Mods\mod\modinfo.json
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\bin\Release\Mods\mod\Icebreaker.deps.json
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\bin\Release\Mods\mod\Icebreaker.dll
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\bin\Release\Mods\mod\Icebreaker.pdb
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\obj\Release\Icebreaker.dll
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\obj\Release\refint\Icebreaker.dll
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\obj\Release\Icebreaker.pdb
+D:\Antigrav Projects\Automapmarker 1.22\mods\Icebreaker\obj\Release\ref\Icebreaker.dll
