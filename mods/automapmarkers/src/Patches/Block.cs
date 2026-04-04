@@ -36,12 +36,13 @@ namespace Egocarib.AutoMapMarkers.Patches
                 return;
 
             // Avoid expensive recalculations by monitoring position
-            if (blockSel.Position.Equals(LastPositionChecked))
+            if (blockSel?.Position == null || blockSel.Position.Equals(LastPositionChecked))
                 return;
             LastPositionChecked = blockSel.Position.Copy();
 
-            Vintagestory.API.Common.Block block = blockSel.Block;
             BlockPos blockPos = blockSel.Position;
+            Vintagestory.API.Common.Block block = blockSel.Block;
+            block ??= MapMarkerMod.CoreClientAPI.World.BlockAccessor.GetBlock(blockPos);
 
             // If the player is looking at grass, check the block beneath the grass instead
             if (block is BlockPlant)
@@ -53,6 +54,9 @@ namespace Egocarib.AutoMapMarkers.Patches
                     block = MapMarkerMod.CoreClientAPI.World.BlockAccessor.GetBlock(blockPos);
                 }
             }
+
+            if (block == null)
+                return;
 
             ThingIdentifier thing = new ThingIdentifier(block, blockPos);
             if (!thing.Identify(config))
