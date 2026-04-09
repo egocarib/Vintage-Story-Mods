@@ -187,6 +187,33 @@ namespace Egocarib.AutoMapMarkers.Settings
                     markerIcon: "circle",
                     markerCoverageRadius: 6);
 
+                [ProtoMember(20)]
+                public AutoMapMarkerSetting Raspberry = new AutoMapMarkerSetting(
+                    enabled: false,
+                    pinned: false,
+                    markerTitle: Lang.Get("item-fruit-raspberry"),
+                    markerColor: "crimson",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 6);
+
+                [ProtoMember(21)]
+                public AutoMapMarkerSetting Blackberry = new AutoMapMarkerSetting(
+                    enabled: false,
+                    pinned: false,
+                    markerTitle: Lang.Get("item-fruit-blackberry"),
+                    markerColor: "#1a0a1a",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 6);
+
+                [ProtoMember(22)]
+                public AutoMapMarkerSetting Cloudberry = new AutoMapMarkerSetting(
+                    enabled: false,
+                    pinned: false,
+                    markerTitle: Lang.Get("item-fruit-cloudberry"),
+                    markerColor: "goldenrod",
+                    markerIcon: "circle",
+                    markerCoverageRadius: 6);
+
                 [ProtoMember(10)]
                 public AutoMapMarkerSetting SafeMushroom = new AutoMapMarkerSetting(
                     enabled: false,

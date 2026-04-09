@@ -19,7 +19,7 @@
       {
         // Berries (expandable)
         "Label": "egocarib-mapmarkers:berries",
-        "AssetPaths": ["fruitingbush-*-blueberry-*", "fruitingbush-*-beautyberry-*", "fruitingbush-*-cranberry-*", "fruitingbush-*-blackcurrant-*", "fruitingbush-*-redcurrant-*", "fruitingbush-*-whitecurrant-*", "fruitingbush-*-strawberry-*"],
+        "AssetPaths": ["fruitingbush-*-blueberry-*", "fruitingbush-*-beautyberry-*", "fruitingbush-*-cranberry-*", "fruitingbush-*-blackcurrant-*", "fruitingbush-*-redcurrant-*", "fruitingbush-*-whitecurrant-*", "fruitingbush-*-strawberry-*", "fruitingbush-*-raspberry-*", "fruitingbush-*-blackberry-*", "fruitingbush-*-cloudberry-*"],
         "DynamicTitle": true,
         "Defaults": {
           "Enabled": true,
@@ -31,9 +31,12 @@
         },
         "ExpandableEntries": [
           { "Label": "game:item-fruit-beautyberry", "AssetPaths": ["fruitingbush-*-beautyberry-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-beautyberry", "Icon": "berries", "Color": "fuchsia", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-fruit-blackberry", "AssetPaths": ["fruitingbush-*-blackberry-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-blackberry", "Icon": "berries", "Color": "#1a0a1a", "Pinned": false, "CoverageRadius": 6 } },
           { "Label": "game:item-fruit-blackcurrant", "AssetPaths": ["fruitingbush-*-blackcurrant-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-blackcurrant", "Icon": "berries", "Color": "#291B1A", "Pinned": false, "CoverageRadius": 6 } },
           { "Label": "game:item-fruit-blueberry", "AssetPaths": ["fruitingbush-*-blueberry-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-blueberry", "Icon": "berries", "Color": "midnightblue", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-fruit-cloudberry", "AssetPaths": ["fruitingbush-*-cloudberry-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-cloudberry", "Icon": "berries", "Color": "goldenrod", "Pinned": false, "CoverageRadius": 6 } },
           { "Label": "game:item-fruit-cranberry", "AssetPaths": ["fruitingbush-*-cranberry-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-cranberry", "Icon": "berries", "Color": "maroon", "Pinned": false, "CoverageRadius": 6 } },
+          { "Label": "game:item-fruit-raspberry", "AssetPaths": ["fruitingbush-*-raspberry-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-raspberry", "Icon": "berries", "Color": "crimson", "Pinned": false, "CoverageRadius": 6 } },
           { "Label": "game:item-fruit-redcurrant", "AssetPaths": ["fruitingbush-*-redcurrant-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-redcurrant", "Icon": "berries", "Color": "darkred", "Pinned": false, "CoverageRadius": 6 } },
           { "Label": "game:item-fruit-strawberry", "AssetPaths": ["fruitingbush-*-strawberry-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-strawberry", "Icon": "berries", "Color": "orangered", "Pinned": false, "CoverageRadius": 6 } },
           { "Label": "game:item-fruit-whitecurrant", "AssetPaths": ["fruitingbush-*-whitecurrant-*"], "Defaults": { "Enabled": false, "Title": "game:item-fruit-whitecurrant", "Icon": "berries", "Color": "ivory", "Pinned": false, "CoverageRadius": 6 } }
