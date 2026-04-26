@@ -26,15 +26,23 @@ namespace Egocarib.AutoMapMarkers.Settings
         private static List<MarkerCategoryDef> _cachedDefinitions = null;
         /// <summary>Cached detection registry built from definitions + settings.</summary>
         private static MarkerRegistry _cachedRegistry = null;
+        /// <summary>Cached boat detection registry built from definitions + settings.</summary>
+        private static BoatDetectionRegistry _cachedBoatRegistry = null;
 
         /// <summary>Returns the cached detection registry, or null if not yet built.</summary>
         public static MarkerRegistry GetRegistry() => _cachedRegistry;
+
+        /// <summary>Returns the cached boat detection registry, or null if not yet built.</summary>
+        public static BoatDetectionRegistry BoatRegistry => _cachedBoatRegistry;
 
         /// <summary>Rebuilds the detection registry from current definitions and settings.</summary>
         public static void RebuildRegistry()
         {
             if (_cachedDefinitions != null && _cachedClientSettings != null)
+            {
                 _cachedRegistry = MarkerRegistry.Build(_cachedDefinitions, _cachedClientSettings);
+                _cachedBoatRegistry = BoatDetectionRegistry.Build(_cachedDefinitions, _cachedClientSettings);
+            }
         }
 
         /// <summary>Gets the path to the ModConfig folder.</summary>
@@ -954,6 +962,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     {
                         _cachedClientSettings = settings;
                         _cachedRegistry = MarkerRegistry.Build(_cachedDefinitions, settings);
+                        _cachedBoatRegistry = BoatDetectionRegistry.Build(_cachedDefinitions, settings);
                     }
                 }
                 catch (Exception ex)
@@ -980,7 +989,10 @@ namespace Egocarib.AutoMapMarkers.Settings
             {
                 _cachedClientSettings = settings;
                 if (_cachedDefinitions != null)
+                {
                     _cachedRegistry = MarkerRegistry.Build(_cachedDefinitions, settings);
+                    _cachedBoatRegistry = BoatDetectionRegistry.Build(_cachedDefinitions, settings);
+                }
             }
 
             string modConfigPath = GetModConfigPath(api);

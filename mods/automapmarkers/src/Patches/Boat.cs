@@ -101,24 +101,12 @@ namespace Egocarib.AutoMapMarkers.Patches
 
         /// <summary>
         /// Returns the appropriate map marker setting for the given boat entity, or null if not a boat.
+        /// Detection is JSON-driven via the <c>AssetPaths</c> field on marker definition entries —
+        /// addons can register new boat entries or extend existing ones (Raft / Sailboat) by patching.
         /// </summary>
         private static MapMarkerConfig.Settings.AutoMapMarkerSetting GetBoatSetting(Entity entity)
         {
-            string code = entity.Code?.Path;
-            if (code == null)
-                return null;
-
-            MapMarkerConfig.Settings config = MapMarkerConfig.GetSettings(MapMarkerMod.CoreAPI);
-            if (config == null)
-                return null;
-
-            if (code.StartsWith("boat-raft-", StringComparison.Ordinal))
-                return config.AutoMapMarkers.MiscBlocks.Raft;
-
-            if (code.StartsWith("boat-sailed-", StringComparison.Ordinal))
-                return config.AutoMapMarkers.MiscBlocks.Sailboat;
-
-            return null;
+            return MapMarkerConfig.BoatRegistry?.TryMatch(entity.Code?.Path)?.Setting;
         }
     }
 }

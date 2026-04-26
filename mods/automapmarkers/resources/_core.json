@@ -798,9 +798,9 @@
         }
       },
       {
-        // Raft (boat marker)
+        // Raft (boat marker — matched on mount/dismount via the boat detection registry)
         "Label": "egocarib-mapmarkers:raft-menu",
-        "AssetPaths": [], //Intentionally empty - special handling by mod
+        "AssetPaths": ["boat-raft-*"],
         "Defaults": {
           "Enabled": true,
           "Title": "egocarib-mapmarkers:raft",
@@ -811,9 +811,9 @@
         }
       },
       {
-        // Sailboat (boat marker)
+        // Sailboat (boat marker — matched on mount/dismount via the boat detection registry)
         "Label": "egocarib-mapmarkers:sailboat-menu",
-        "AssetPaths": [], //Intentionally empty - special handling by mod
+        "AssetPaths": ["boat-sailed-*"],
         "Defaults": {
           "Enabled": true,
           "Title": "egocarib-mapmarkers:sailboat",
