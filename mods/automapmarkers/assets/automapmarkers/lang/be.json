@@ -1,4 +1,5 @@
 {
+  "egocarib-mapmarkers:modname": "Auto Map Markers",
   "egocarib-mapmarkers:server-warning": "Мод Auto Map Markers не змог злучыцца з серверам і можа працаваць некарэктна. Калі вы гуляеце ў мультыплэеры, мод павінен быць усталяваны і на серверы.",
   "egocarib-mapmarkers:config-menu-title": "Налады Auto Map Marker",
   "egocarib-mapmarkers:config-menu-section-header1": "Аўтаматычныя маркеры на мапе",
