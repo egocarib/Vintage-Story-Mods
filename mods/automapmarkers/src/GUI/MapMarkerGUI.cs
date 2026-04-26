@@ -119,8 +119,11 @@ namespace Egocarib.AutoMapMarkers.GUI
             foreach (var icon in loadedIconAssets)
             {
                 // Replicate logic the game uses when loading map icons in WaypointMapLayer constructor
-                string name = icon.Name.Substring(0, icon.Name.IndexOf("."));
+                int dotIndex = icon.Name.IndexOf(".");
+                if (dotIndex <= 0) continue;
+                string name = icon.Name.Substring(0, dotIndex);
                 name = Regex.Replace(name, "\\d+\\-", "");
+                if (string.IsNullOrEmpty(name)) continue;
                 listIcons.Add(name);                                               //example:  bee
                 listIconsVTML.Add($"<icon name=\"{GetWaypointIconName(name)}\">"); //example:  <icon name=\"wpBee\">
             }
