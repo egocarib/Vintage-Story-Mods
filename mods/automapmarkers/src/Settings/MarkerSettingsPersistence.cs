@@ -152,6 +152,13 @@ namespace Egocarib.AutoMapMarkers.Settings
                 }
             }
 
+            // Custom markers (3 hotkey slots) live outside the JSON definitions system,
+            // so apply their overrides separately against hardcoded defaults.
+            foreach (var (label, defaults, _, set) in CustomMarkerEntries)
+            {
+                set(settings, CreateMarkerSetting(defaults, overrides.GetValueOrDefault(label)));
+            }
+
             if (settingsFile?.ExpandStates != null)
                 settings.ExpandStates = settingsFile.ExpandStates;
 
@@ -203,6 +210,15 @@ namespace Egocarib.AutoMapMarkers.Settings
                         }
                     }
                 }
+            }
+
+            foreach (var (label, defaults, get, _) in CustomMarkerEntries)
+            {
+                var current = get(settings);
+                if (current == null) continue;
+                var over = ComputeOverride(defaults, current);
+                if (over != null)
+                    settingsFile.MarkerOverrides[label] = over;
             }
 
             settingsFile.ExpandStates = settings.ExpandStates;
@@ -441,6 +457,38 @@ namespace Egocarib.AutoMapMarkers.Settings
 
             return hasDiff ? over : null;
         }
+
+        // Custom markers are not in the JSON definitions list — their defaults live in
+        // MapMarkerSettings_Custom. This table mirrors those defaults so the same diff-based
+        // override pipeline (MarkerOverrides in settings.json) can persist them.
+        // Title uses the lang-key form so ResolveLangKey produces the same resolved string
+        // as the in-memory default — otherwise unchanged titles would be flagged as diffs.
+        private static readonly (
+            string Label,
+            MarkerDefaultsDef Defaults,
+            Func<MapMarkerConfig.Settings, AutoMapMarkerSetting> Get,
+            Action<MapMarkerConfig.Settings, AutoMapMarkerSetting> Set
+        )[] CustomMarkerEntries = new (string, MarkerDefaultsDef, Func<MapMarkerConfig.Settings, AutoMapMarkerSetting>, Action<MapMarkerConfig.Settings, AutoMapMarkerSetting>)[]
+        {
+            (
+                "egocarib-mapmarkers:custom-marker-1",
+                new MarkerDefaultsDef { Enabled = false, Pinned = false, Title = "egocarib-mapmarkers:custom-marker-1", Color = "black", Icon = "circle", CoverageRadius = 1 },
+                s => s.AutoMapMarkers.Custom.CustomMarker1,
+                (s, v) => s.AutoMapMarkers.Custom.CustomMarker1 = v
+            ),
+            (
+                "egocarib-mapmarkers:custom-marker-2",
+                new MarkerDefaultsDef { Enabled = false, Pinned = false, Title = "egocarib-mapmarkers:custom-marker-2", Color = "black", Icon = "circle", CoverageRadius = 1 },
+                s => s.AutoMapMarkers.Custom.CustomMarker2,
+                (s, v) => s.AutoMapMarkers.Custom.CustomMarker2 = v
+            ),
+            (
+                "egocarib-mapmarkers:custom-marker-3",
+                new MarkerDefaultsDef { Enabled = false, Pinned = false, Title = "egocarib-mapmarkers:custom-marker-3", Color = "black", Icon = "circle", CoverageRadius = 1 },
+                s => s.AutoMapMarkers.Custom.CustomMarker3,
+                (s, v) => s.AutoMapMarkers.Custom.CustomMarker3 = v
+            ),
+        };
 
         #region Label→Grouper Field Mapping
 
