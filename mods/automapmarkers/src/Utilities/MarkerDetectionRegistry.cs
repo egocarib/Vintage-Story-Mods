@@ -71,17 +71,17 @@ namespace Egocarib.AutoMapMarkers.Utilities
                         {
                             // Expanded: register each sub-entry individually
                             foreach (var subDef in entryDef.ExpandableEntries)
-                                RegisterEntry(subDef, category.Category, settings, entries, prefixChars);
+                                RegisterEntry(subDef, category.Category, settings, entries, prefixChars, entryDef.TriggerType);
                         }
                         else
                         {
                             // Collapsed: register parent only (broad pattern)
-                            RegisterEntry(entryDef, category.Category, settings, entries, prefixChars);
+                            RegisterEntry(entryDef, category.Category, settings, entries, prefixChars, MarkerTriggerType.Default);
                         }
                         continue;
                     }
 
-                    RegisterEntry(entryDef, category.Category, settings, entries, prefixChars);
+                    RegisterEntry(entryDef, category.Category, settings, entries, prefixChars, MarkerTriggerType.Default);
                 }
             }
 
@@ -89,8 +89,16 @@ namespace Egocarib.AutoMapMarkers.Utilities
         }
 
         private static void RegisterEntry(MarkerEntryDef entryDef, MarkerCategory category,
-            MapMarkerConfig.Settings settings, List<RegistryEntry> entries, HashSet<char> prefixChars)
+            MapMarkerConfig.Settings settings, List<RegistryEntry> entries, HashSet<char> prefixChars,
+            MarkerTriggerType parentTriggerType)
         {
+            // Sub-entries inherit the parent's TriggerType when left at the schema default.
+            var effectiveTrigger = entryDef.TriggerType != MarkerTriggerType.Default
+                ? entryDef.TriggerType
+                : parentTriggerType;
+            if (effectiveTrigger != MarkerTriggerType.Default)
+                return;
+
             if (entryDef.AssetPaths == null || entryDef.AssetPaths.Count == 0)
                 return;
 

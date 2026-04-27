@@ -57,6 +57,46 @@ namespace Egocarib.AutoMapMarkers.Settings
     }
 
     /// <summary>
+    /// Determines which detection registry an entry is registered with — i.e., the trigger
+    /// context in which the marker fires. <c>Default</c> entries are evaluated at block
+    /// placement and entity interaction. <c>Mount</c> entries are evaluated at the moment
+    /// the player mounts or dismounts a matching entity (boats, pack animals — anything
+    /// mountable). JSON values are case-insensitive.
+    /// </summary>
+    [JsonConverter(typeof(MarkerTriggerTypeConverter))]
+    public enum MarkerTriggerType
+    {
+        Default,
+        Mount
+    }
+
+    /// <summary>Case-insensitive JSON converter for <see cref="MarkerTriggerType"/>.</summary>
+    public class MarkerTriggerTypeConverter : JsonConverter<MarkerTriggerType>
+    {
+        private static readonly Dictionary<string, MarkerTriggerType> NameMap =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Default"] = MarkerTriggerType.Default,
+                ["Mount"] = MarkerTriggerType.Mount,
+            };
+
+        public override MarkerTriggerType ReadJson(JsonReader reader, Type objectType,
+            MarkerTriggerType existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            string value = reader.Value?.ToString();
+            if (value != null && NameMap.TryGetValue(value, out var result))
+                return result;
+            throw new JsonSerializationException(
+                $"Unknown TriggerType '{value}'. Valid values: Default, Mount");
+        }
+
+        public override void WriteJson(JsonWriter writer, MarkerTriggerType value, JsonSerializer serializer)
+        {
+            writer.WriteValue(value.ToString());
+        }
+    }
+
+    /// <summary>
     /// POCO classes for deserializing marker definition JSON files.
     /// These are never sent over the wire (no ProtoContract).
     /// </summary>
@@ -80,6 +120,12 @@ namespace Egocarib.AutoMapMarkers.Settings
         public List<string> AssetPaths { get; set; } = new List<string>();
         public List<string> ExcludePaths { get; set; } = new List<string>();
         public bool DynamicTitle { get; set; } = false;
+        /// <summary>
+        /// Trigger context for this entry. <c>Default</c> entries fire on block placement /
+        /// entity interaction; <c>Mount</c> entries fire on mount/dismount. Sub-entries inherit
+        /// the parent's value when left at <c>Default</c>.
+        /// </summary>
+        public MarkerTriggerType TriggerType { get; set; } = MarkerTriggerType.Default;
         public MarkerDefaultsDef Defaults { get; set; } = new MarkerDefaultsDef();
         public List<MarkerEntryDef> ExpandableEntries { get; set; }
         public bool DefaultExpanded { get; set; } = false;

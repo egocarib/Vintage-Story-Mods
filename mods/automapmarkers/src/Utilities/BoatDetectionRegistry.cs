@@ -5,11 +5,11 @@ using static Egocarib.AutoMapMarkers.Settings.MapMarkerConfig.Settings;
 namespace Egocarib.AutoMapMarkers.Utilities
 {
     /// <summary>
-    /// Detection registry consulted by the boat Harmony patches on mount/dismount to look up the
-    /// right marker setting for a boat-like entity. Built from the same <c>AssetPaths</c> field as
-    /// <see cref="MarkerDetectionRegistry"/> — the only difference between the two is the trigger
-    /// context. Trader/block patterns will be evaluated here too, but they harmlessly fail to
-    /// match any boat entity code.
+    /// Detection registry consulted by the boat Harmony patches on mount/dismount. Registers
+    /// only entries whose <see cref="MarkerEntryDef.TriggerType"/> is <c>Mount</c>; all other
+    /// entries are owned by <see cref="MarkerDetectionRegistry"/>. The Harmony hooks fire on
+    /// any mountable entity (boats today, pack animals or other mountable creatures via
+    /// addon-defined Mount entries), so the registry is not boat-specific despite the name.
     /// </summary>
     public class BoatDetectionRegistry
     {
@@ -49,11 +49,11 @@ namespace Egocarib.AutoMapMarkers.Utilities
             {
                 foreach (var entryDef in category.Entries)
                 {
-                    RegisterEntry(entryDef, settings, entries);
+                    RegisterEntry(entryDef, settings, entries, MarkerTriggerType.Default);
                     if (entryDef.ExpandableEntries != null)
                     {
                         foreach (var sub in entryDef.ExpandableEntries)
-                            RegisterEntry(sub, settings, entries);
+                            RegisterEntry(sub, settings, entries, entryDef.TriggerType);
                     }
                 }
             }
@@ -61,8 +61,16 @@ namespace Egocarib.AutoMapMarkers.Utilities
             return new BoatDetectionRegistry(entries);
         }
 
-        private static void RegisterEntry(MarkerEntryDef entryDef, MapMarkerConfig.Settings settings, List<RegistryEntry> entries)
+        private static void RegisterEntry(MarkerEntryDef entryDef, MapMarkerConfig.Settings settings,
+            List<RegistryEntry> entries, MarkerTriggerType parentTriggerType)
         {
+            // Sub-entries inherit the parent's TriggerType when left at the schema default.
+            var effectiveTrigger = entryDef.TriggerType != MarkerTriggerType.Default
+                ? entryDef.TriggerType
+                : parentTriggerType;
+            if (effectiveTrigger != MarkerTriggerType.Mount)
+                return;
+
             if (entryDef.AssetPaths == null || entryDef.AssetPaths.Count == 0)
                 return;
 

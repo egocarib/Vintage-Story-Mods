@@ -801,6 +801,7 @@
         // Raft (boat marker — matched on mount/dismount via the boat detection registry)
         "Label": "egocarib-mapmarkers:raft-menu",
         "AssetPaths": ["boat-raft-*"],
+        "TriggerType": "Mount",
         "Defaults": {
           "Enabled": true,
           "Title": "egocarib-mapmarkers:raft",
@@ -814,6 +815,7 @@
         // Sailboat (boat marker — matched on mount/dismount via the boat detection registry)
         "Label": "egocarib-mapmarkers:sailboat-menu",
         "AssetPaths": ["boat-sailed-*"],
+        "TriggerType": "Mount",
         "Defaults": {
           "Enabled": true,
           "Title": "egocarib-mapmarkers:sailboat",
