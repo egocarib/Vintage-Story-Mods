@@ -46,6 +46,7 @@ namespace Egocarib.AutoMapMarkers
         {
             CoreClientAPI = api;
             MapMarkerConfig.InitializeDefinitions(api);
+            api.Event.BlockTexturesLoaded += () => MapMarkerConfig.RunDeferredConflictCheck(api);
             Network = new MapMarkerNetwork(CoreClientAPI);
             CoreClientAPI.Input.InWorldAction += DetectionHandler.HandlePlayerSneak;
         }

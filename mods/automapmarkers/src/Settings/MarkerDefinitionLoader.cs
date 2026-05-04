@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using Egocarib.AutoMapMarkers.Utilities;
 using Newtonsoft.Json;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 
 
@@ -75,7 +77,6 @@ namespace Egocarib.AutoMapMarkers.Settings
 
             string definitionsDir = Path.Combine(modConfigPath, DefinitionsFolder);
             var mergedCategories = new Dictionary<MarkerCategory, MarkerCategoryDef>();
-            var coreAssetPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             // Load _core.json first
             string coreFilePath = Path.Combine(definitionsDir, CoreFileName);
@@ -90,16 +91,12 @@ namespace Egocarib.AutoMapMarkers.Settings
                         {
                             entry.IsCore = true;
                             entry.Source = CoreFileName;
-                            foreach (var assetPath in entry.AssetPaths)
-                                coreAssetPaths.Add(assetPath);
                             if (entry.ExpandableEntries != null)
                             {
                                 foreach (var subEntry in entry.ExpandableEntries)
                                 {
                                     subEntry.IsCore = true;
                                     subEntry.Source = CoreFileName;
-                                    foreach (var ap in subEntry.AssetPaths)
-                                        coreAssetPaths.Add(ap);
                                 }
                             }
                         }
@@ -115,7 +112,7 @@ namespace Egocarib.AutoMapMarkers.Settings
             // Load asset-based addon definitions from all mods (client side only)
             if (api.Side == EnumAppSide.Client)
             {
-                LoadAssetBasedAddons(api, mergedCategories, coreAssetPaths);
+                LoadAssetBasedAddons(api, mergedCategories);
             }
 
             // Load ModConfig addon files alphabetically (excluding _core.json)
@@ -130,7 +127,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                     var addonCategories = LoadDefinitionFile(addonFile);
                     if (addonCategories == null) continue;
 
-                    MergeAddonCategories(addonCategories, mergedCategories, coreAssetPaths, Path.GetFileName(addonFile));
+                    MergeAddonCategories(addonCategories, mergedCategories, Path.GetFileName(addonFile));
                 }
             }
 
@@ -145,7 +142,7 @@ namespace Egocarib.AutoMapMarkers.Settings
         /// Discovers and loads marker definition files from all mods' asset folders.
         /// Any mod can place JSON files at assets/&lt;modid&gt;/config/automapmarkers/ to add markers.
         /// </summary>
-        private static void LoadAssetBasedAddons(ICoreAPI api, Dictionary<MarkerCategory, MarkerCategoryDef> mergedCategories, HashSet<string> coreAssetPaths)
+        private static void LoadAssetBasedAddons(ICoreAPI api, Dictionary<MarkerCategory, MarkerCategoryDef> mergedCategories)
         {
             List<IAsset> addonAssets;
             try
@@ -175,15 +172,17 @@ namespace Egocarib.AutoMapMarkers.Settings
                 var addonCategories = LoadDefinitionJson(asset.ToText(), assetPath);
                 if (addonCategories == null) continue;
 
-                MergeAddonCategories(addonCategories, mergedCategories, coreAssetPaths, assetPath);
+                MergeAddonCategories(addonCategories, mergedCategories, assetPath);
                 MessageUtil.Log($"    Loaded asset-based addon definitions from '{assetPath}'");
             }
         }
 
         /// <summary>
-        /// Merges addon categories into the merged dictionary, protecting core entries.
+        /// Merges addon categories into the merged dictionary. Conflict detection against core
+        /// is deferred to <see cref="RunDeferredConflictCheck"/>, which runs after blocks/entities
+        /// are registered.
         /// </summary>
-        private static void MergeAddonCategories(List<MarkerCategoryDef> addonCategories, Dictionary<MarkerCategory, MarkerCategoryDef> mergedCategories, HashSet<string> coreAssetPaths, string sourceName)
+        private static void MergeAddonCategories(List<MarkerCategoryDef> addonCategories, Dictionary<MarkerCategory, MarkerCategoryDef> mergedCategories, string sourceName)
         {
             foreach (var category in addonCategories)
             {
@@ -196,14 +195,6 @@ namespace Egocarib.AutoMapMarkers.Settings
                     foreach (var entry in category.Entries)
                     {
                         entry.Source = sourceName;
-
-                        var conflicts = FindCoreAssetPathConflicts(entry, coreAssetPaths);
-                        if (conflicts.Count > 0)
-                        {
-                            var details = string.Join(", ", conflicts.Select(c => $"'{c.addonPath}' overlaps core '{c.corePath}'"));
-                            MessageUtil.Log($"    Addon '{sourceName}' entry '{entry.Label}' conflicts with core asset paths - skipped. Conflicts: {details}");
-                            continue;
-                        }
 
                         if (existingLabels.TryGetValue(entry.Label, out int idx))
                         {
@@ -222,20 +213,8 @@ namespace Egocarib.AutoMapMarkers.Settings
                 }
                 else
                 {
-                    category.Entries = category.Entries
-                        .Where(e =>
-                        {
-                            var conflicts = FindCoreAssetPathConflicts(e, coreAssetPaths);
-                            if (conflicts.Count > 0)
-                            {
-                                var details = string.Join(", ", conflicts.Select(c => $"'{c.addonPath}' overlaps core '{c.corePath}'"));
-                                MessageUtil.Log($"    Addon '{sourceName}' entry '{e.Label}' conflicts with core asset paths - skipped. Conflicts: {details}");
-                                return false;
-                            }
-                            e.Source = sourceName;
-                            return true;
-                        })
-                        .ToList();
+                    foreach (var e in category.Entries)
+                        e.Source = sourceName;
                     mergedCategories[category.Category] = category;
                 }
 
@@ -247,6 +226,186 @@ namespace Egocarib.AutoMapMarkers.Settings
                         ApplyPatch(patch, mergedCategories, category.Category, sourceName);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Runs after blocks/entities are loaded. For each non-core entry, checks whether any of its
+        /// AssetPaths matches a real block or entity code that a core pattern also matches. If so,
+        /// removes the entry and logs the conflict. Patterns that overlap only theoretically (no
+        /// actual loaded asset matches both) are left alone.
+        /// </summary>
+        public static void RunDeferredConflictCheck(ICoreClientAPI api, List<MarkerCategoryDef> mergedCategories)
+        {
+            if (api == null || mergedCategories == null) return;
+
+            var coreMatchers = CollectCoreMatchers(mergedCategories);
+            if (coreMatchers.Count == 0) return;
+
+            // Build per-entry checks for every non-core entry up front, so the single pass over
+            // real block/entity codes can apply all of them in one go.
+            var addonChecks = new List<AddonEntryCheck>();
+            foreach (var category in mergedCategories)
+            {
+                foreach (var entry in category.Entries)
+                {
+                    if (entry.IsCore) continue;
+                    var check = AddonEntryCheck.Build(entry, category);
+                    if (check != null)
+                        addonChecks.Add(check);
+                }
+            }
+            if (addonChecks.Count == 0) return;
+
+            MessageUtil.Log($"Running deferred conflict check ({addonChecks.Count} addon entries vs {coreMatchers.Count} core patterns)...");
+            var stopwatch = Stopwatch.StartNew();
+            int blockCount = 0;
+            int entityCount = 0;
+
+            // Single pass: iterate the game's loaded block and entity registries directly,
+            // testing each code against every addon entry.
+            if (api.World?.Blocks != null)
+            {
+                foreach (var block in api.World.Blocks)
+                {
+                    var code = block?.Code?.Path;
+                    if (string.IsNullOrEmpty(code)) continue;
+                    blockCount++;
+                    TestCodeAgainstAddons(code, addonChecks, coreMatchers);
+                }
+            }
+            if (api.World?.EntityTypes != null)
+            {
+                foreach (var entityType in api.World.EntityTypes)
+                {
+                    var code = entityType?.Code?.Path;
+                    if (string.IsNullOrEmpty(code)) continue;
+                    entityCount++;
+                    TestCodeAgainstAddons(code, addonChecks, coreMatchers);
+                }
+            }
+
+            // Apply pruning + logging.
+            int conflictingEntries = 0;
+            foreach (var check in addonChecks)
+            {
+                if (check.Conflicts.Count == 0) continue;
+                conflictingEntries++;
+                var details = string.Join(", ", check.Conflicts.Select(c => $"'{c.addonPath}' overlaps core '{c.corePath}' (e.g. '{c.exampleCode}')"));
+                MessageUtil.Log($"    Addon '{check.Entry.Source}' entry '{check.Entry.Label}' conflicts with core asset paths - skipped. Conflicts: {details}");
+                check.Category.Entries.Remove(check.Entry);
+            }
+
+            stopwatch.Stop();
+            MessageUtil.Log($"Deferred conflict check finished in {stopwatch.Elapsed.TotalMilliseconds:F2}ms (scanned {blockCount} blocks + {entityCount} entities, {conflictingEntries} addon entries pruned).");
+        }
+
+        private static void TestCodeAgainstAddons(
+            string code,
+            List<AddonEntryCheck> addonChecks,
+            List<(string pattern, AssetPatternMatcher matcher)> coreMatchers)
+        {
+            foreach (var check in addonChecks)
+            {
+                foreach (var (addonPattern, addonMatcher) in check.AddonMatchers)
+                {
+                    if (!addonMatcher.Matches(code)) continue;
+
+                    // Skip if addon's own excludes filter this code out.
+                    bool excluded = false;
+                    foreach (var ex in check.ExcludeMatchers)
+                    {
+                        if (ex.Matches(code)) { excluded = true; break; }
+                    }
+                    if (excluded) continue;
+
+                    // Find the first core pattern that also matches this code.
+                    foreach (var (corePattern, coreMatcher) in coreMatchers)
+                    {
+                        if (!coreMatcher.Matches(code)) continue;
+                        if (check.ReportedPairs.Add((addonPattern, corePattern)))
+                            check.Conflicts.Add((addonPattern, corePattern, code));
+                        break; // one example per (addon, core) pair is enough
+                    }
+                }
+            }
+        }
+
+        private static List<(string pattern, AssetPatternMatcher matcher)> CollectCoreMatchers(List<MarkerCategoryDef> mergedCategories)
+        {
+            var list = new List<(string, AssetPatternMatcher)>();
+            foreach (var category in mergedCategories)
+            {
+                foreach (var entry in category.Entries)
+                {
+                    if (!entry.IsCore) continue;
+                    AddPatternsFromEntry(entry, list);
+                    if (entry.ExpandableEntries != null)
+                    {
+                        foreach (var sub in entry.ExpandableEntries)
+                        {
+                            if (sub.IsCore)
+                                AddPatternsFromEntry(sub, list);
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+
+        private static void AddPatternsFromEntry(MarkerEntryDef entry, List<(string, AssetPatternMatcher)> list)
+        {
+            if (entry.AssetPaths == null) return;
+            foreach (var pattern in entry.AssetPaths)
+            {
+                if (string.IsNullOrEmpty(pattern)) continue;
+                if (pattern[0] == '*') continue; // matches existing skip-leading-star behavior in registry build
+                list.Add((pattern, new AssetPatternMatcher(pattern)));
+            }
+        }
+
+        /// <summary>
+        /// Per-entry compiled state for the deferred conflict check. Built once per non-core entry
+        /// before the single pass over real block/entity codes.
+        /// </summary>
+        private class AddonEntryCheck
+        {
+            public MarkerEntryDef Entry;
+            public MarkerCategoryDef Category;
+            public List<(string pattern, AssetPatternMatcher matcher)> AddonMatchers;
+            public List<AssetPatternMatcher> ExcludeMatchers;
+            public HashSet<(string addonPattern, string corePattern)> ReportedPairs = new HashSet<(string, string)>();
+            public List<(string addonPath, string corePath, string exampleCode)> Conflicts = new List<(string, string, string)>();
+
+            public static AddonEntryCheck Build(MarkerEntryDef entry, MarkerCategoryDef category)
+            {
+                if (entry.AssetPaths == null || entry.AssetPaths.Count == 0) return null;
+
+                var addonMatchers = new List<(string, AssetPatternMatcher)>();
+                foreach (var p in entry.AssetPaths)
+                {
+                    if (string.IsNullOrEmpty(p) || p[0] == '*') continue;
+                    addonMatchers.Add((p, new AssetPatternMatcher(p)));
+                }
+                if (addonMatchers.Count == 0) return null;
+
+                var excludeMatchers = new List<AssetPatternMatcher>();
+                if (entry.ExcludePaths != null)
+                {
+                    foreach (var ex in entry.ExcludePaths)
+                    {
+                        if (!string.IsNullOrEmpty(ex))
+                            excludeMatchers.Add(new AssetPatternMatcher(ex));
+                    }
+                }
+
+                return new AddonEntryCheck
+                {
+                    Entry = entry,
+                    Category = category,
+                    AddonMatchers = addonMatchers,
+                    ExcludeMatchers = excludeMatchers,
+                };
             }
         }
 
@@ -342,54 +501,6 @@ namespace Egocarib.AutoMapMarkers.Settings
                 }
             }
             return (null, false);
-        }
-
-        /// <summary>
-        /// Finds conflicting asset path pairs between an entry and core-protected asset paths.
-        /// Uses wildcard-aware overlap detection so that e.g. "log-resin-oak" conflicts with
-        /// core's "log-resin-*", and "log-*" also conflicts.
-        /// Returns a list of (addonPath, corePath) pairs that conflict, empty if no conflicts.
-        /// </summary>
-        private static List<(string addonPath, string corePath)> FindCoreAssetPathConflicts(MarkerEntryDef entry, HashSet<string> coreAssetPaths)
-        {
-            var conflicts = new List<(string, string)>();
-            foreach (var addonPath in entry.AssetPaths)
-            {
-                foreach (var corePath in coreAssetPaths)
-                {
-                    if (GlobsOverlap(addonPath, corePath))
-                        conflicts.Add((addonPath, corePath));
-                }
-            }
-            return conflicts;
-        }
-
-        /// <summary>
-        /// Determines whether two glob patterns (using * as wildcard) could match any common string.
-        /// Walks both patterns simultaneously — a * on either side can consume characters from the other.
-        /// </summary>
-        private static bool GlobsOverlap(string a, string b, int ai = 0, int bi = 0)
-        {
-            while (ai < a.Length && bi < b.Length)
-            {
-                if (a[ai] == '*')
-                {
-                    // '*' matches zero or more characters: try skipping it, or consuming one char from b
-                    return GlobsOverlap(a, b, ai + 1, bi) || GlobsOverlap(a, b, ai, bi + 1);
-                }
-                if (b[bi] == '*')
-                {
-                    return GlobsOverlap(a, b, ai, bi + 1) || GlobsOverlap(a, b, ai + 1, bi);
-                }
-                if (a[ai] != b[bi])
-                    return false;
-                ai++;
-                bi++;
-            }
-            // Consume any trailing *s on either side
-            while (ai < a.Length && a[ai] == '*') ai++;
-            while (bi < b.Length && b[bi] == '*') bi++;
-            return ai == a.Length && bi == b.Length;
         }
 
         /// <summary>

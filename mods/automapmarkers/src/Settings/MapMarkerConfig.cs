@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.IO;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
@@ -930,6 +931,25 @@ namespace Egocarib.AutoMapMarkers.Settings
             _cachedDefinitions = MarkerDefinitionLoader.LoadDefinitions(modConfigPath, api);
             if (api.Side == EnumAppSide.Client)
                 _cachedClientSettings = null;
+        }
+
+        /// <summary>
+        /// Runs after blocks and entities are registered. Removes addon entries whose AssetPaths
+        /// match a real loaded block/entity code that a core pattern also matches, and invalidates
+        /// the cached registries so they rebuild from the pruned definition list on next access.
+        /// </summary>
+        public static void RunDeferredConflictCheck(ICoreClientAPI api)
+        {
+            if (_cachedDefinitions == null) return;
+            MarkerDefinitionLoader.RunDeferredConflictCheck(api, _cachedDefinitions);
+
+            // Force registries to rebuild from pruned definitions on next access.
+            _cachedRegistry = null;
+            _cachedBoatRegistry = null;
+
+            // The cached settings instance holds a settings layout built from un-pruned
+            // definitions. Drop it so a new layout is built next time the GUI opens.
+            _cachedClientSettings = null;
         }
 
         public static Settings GetSettings(ICoreAPI api, bool allowServerThread = false, bool returnDefaults = true)
