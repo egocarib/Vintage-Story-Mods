@@ -1,6 +1,7 @@
 ﻿using Egocarib.AutoMapMarkers.Settings;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -41,7 +42,7 @@ namespace Egocarib.AutoMapMarkers.Utilities
         /// at the specified coordinates based on those settings. Then creates the waypoint and syncs it
         /// back to the client.
         /// </summary>
-        public void AddWaypoint(Vec3d position, MapMarkerConfig.Settings.AutoMapMarkerSetting settings, bool sendChatMessageToPlayer, string dynamicTitleComponent, bool includeCoordinates)
+        public void AddWaypoint(Vec3d position, MapMarkerConfig.Settings.AutoMapMarkerSetting settings, bool sendChatMessageToPlayer, string dynamicTitleComponent, bool includeCoordinates, bool includeGrade)
         {
             if (!Valid)
             {
@@ -58,8 +59,14 @@ namespace Egocarib.AutoMapMarkers.Utilities
                 return;
             }
 
-            // If there's a dynamic component to the marker title, figure that out before creating the waypoint
             string title = FormatDynamicTitle(settings.MarkerTitle, dynamicTitleComponent);
+
+            if (includeGrade)
+            {
+                string grade = GetOreGrade(position);
+                if (!string.IsNullOrEmpty(grade))
+                    title = $"{title} ({grade})";
+            }
 
             if (includeCoordinates)
             {
@@ -88,6 +95,48 @@ namespace Egocarib.AutoMapMarkers.Utilities
             }
 
             AddWaypointToMap(position, title, settings.MarkerIcon, settings.MarkerColorInteger, sendChatMessageToPlayer, settings.MarkerPinned);
+        }
+
+        /// <summary>
+        /// Checks if the block at the specified position is an ore, and if so returns its grade for display on the map. 
+        /// Returns null if the block isn't an ore or if the grade can't be determined for any reason.
+        /// </summary>
+        private static string GetOreGrade(Vec3d position)
+        {
+            if (position == null || MapMarkerMod.CoreServerAPI?.World?.BlockAccessor == null)
+            {
+                return null;
+            }
+
+            BlockOre oreBlock = MapMarkerMod.CoreServerAPI.World.BlockAccessor.GetBlock(position.AsBlockPos) as BlockOre;
+            return FormatOreGrade(oreBlock?.Grade);
+        }
+
+        /// <summary>
+        /// Formats the ore grade for display on the map.
+        /// </summary>
+        private static string FormatOreGrade(string grade)
+        {
+            if (string.IsNullOrEmpty(grade))
+            {
+                return null;
+            }
+
+            string langKey = "ore-grade-" + grade;
+            string translated = Lang.Get(langKey);
+            string titleCaseGrade = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(grade);
+            if (string.IsNullOrEmpty(translated) || translated == langKey)
+            {
+                return titleCaseGrade;
+            }
+
+            int colonIndex = translated.IndexOf(':');
+            if (colonIndex >= 0)
+            {
+                translated = translated.Substring(colonIndex + 1).Trim();
+            }
+
+            return string.IsNullOrEmpty(translated) ? titleCaseGrade : translated;
         }
 
         /// <summary>

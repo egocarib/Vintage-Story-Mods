@@ -63,6 +63,7 @@ namespace Egocarib.AutoMapMarkers.Settings
             public bool EnableMarkOnSneak { get; set; } = true;
             public bool EnableMarkOnInteract { get; set; } = true;
             public bool LabelCoordinates { get; set; } = false;
+            public bool LabelGrade { get; set; } = false;
             public bool SuppressMarkerOnFarmland { get; set; } = true;
             public bool EnableDetectHotkey { get; set; } = false;
             public bool ChatNotifyOnBoatMarker { get; set; } = false;
@@ -123,6 +124,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 settings.EnableMarkOnSneak = settingsFile.EnableMarkOnSneak;
                 settings.EnableMarkOnInteract = settingsFile.EnableMarkOnInteract;
                 settings.LabelCoordinates = settingsFile.LabelCoordinates;
+                settings.LabelGrade = settingsFile.LabelGrade;
                 settings.SuppressMarkerOnFarmland = settingsFile.SuppressMarkerOnFarmland;
                 settings.EnableDetectHotkey = settingsFile.EnableDetectHotkey;
                 settings.ChatNotifyOnBoatMarker = settingsFile.ChatNotifyOnBoatMarker;
@@ -180,6 +182,7 @@ namespace Egocarib.AutoMapMarkers.Settings
                 EnableMarkOnSneak = settings.EnableMarkOnSneak,
                 EnableMarkOnInteract = settings.EnableMarkOnInteract,
                 LabelCoordinates = settings.LabelCoordinates,
+                LabelGrade = settings.LabelGrade,
                 SuppressMarkerOnFarmland = settings.SuppressMarkerOnFarmland,
                 EnableDetectHotkey = settings.EnableDetectHotkey,
                 ChatNotifyOnBoatMarker = settings.ChatNotifyOnBoatMarker,

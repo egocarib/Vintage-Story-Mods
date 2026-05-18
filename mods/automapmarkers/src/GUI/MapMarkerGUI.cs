@@ -749,6 +749,19 @@ namespace Egocarib.AutoMapMarkers.GUI
             .EndChildElements()
             .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
 
+                // Include the ore grade in marker labels enabled/disabled
+                .AddSwitch(
+                    onToggle: isSelected => { ModSettings.LabelGrade = isSelected; },
+                    bounds: uiToggleBounds.FlatCopy().WithParent(markerOptionRowBounds),
+                    key: "toggle-label-grade")
+                .AddStaticText(
+                    text: Lang.Get("egocarib-mapmarkers:include-grade"),
+                    font: CairoFont.WhiteSmallishText(),
+                    bounds: uiToggleLabelBounds.FlatCopy().WithParent(markerOptionRowBounds))
+
+            .EndChildElements()
+            .BeginChildElements(markerOptionRowBounds = markerOptionRowBounds.BelowCopy())
+
                 // Suppress markers on farmland enabled/disabled
                 .AddSwitch(
                     onToggle: isSelected => { ModSettings.SuppressMarkerOnFarmland = isSelected; },
@@ -864,6 +877,7 @@ namespace Egocarib.AutoMapMarkers.GUI
             SingleComposer.GetSwitch("toggle-mark-style-sneak").SetValue(ModSettings.EnableMarkOnSneak);
             SingleComposer.GetSwitch("toggle-show-create-chat-message").SetValue(ModSettings.ChatNotifyOnWaypointCreation);
             SingleComposer.GetSwitch("toggle-label-coordinates").SetValue(ModSettings.LabelCoordinates);
+            SingleComposer.GetSwitch("toggle-label-grade").SetValue(ModSettings.LabelGrade);
             SingleComposer.GetSwitch("toggle-suppress-farmland").SetValue(ModSettings.SuppressMarkerOnFarmland);
             SingleComposer.GetSwitch("toggle-show-boat-chat-message").SetValue(ModSettings.ChatNotifyOnBoatMarker);
             SingleComposer.GetSwitch("toggle-enable-detect-hotkey").SetValue(ModSettings.EnableDetectHotkey);

@@ -23,6 +23,7 @@
   "egocarib-mapmarkers:show-chat-message": "Mostrar mensagem de bate-papo quando um novo marcador de mapa for adicionado",
   "egocarib-mapmarkers:show-chat-message-on-delete": "Mostrar mensagem do chat quando o marcador do mapa mais próximo for excluído",
   "egocarib-mapmarkers:include-coordinates": "Incluir coordenadas X, Y,Z nas etiquetas dos marcadores do mapa",
+  "egocarib-mapmarkers:include-grade": "Incluir o nível de qualidade do minério nas etiquetas dos marcadores do mapa (se aplicável)",
   "egocarib-mapmarkers:enable-custom-hotkeys": "Habilitar teclas de atalho para adicionar marcadores personalizáveis de mapa",
   "egocarib-mapmarkers:show-chat-message-hotkey-tooltip": "Depois de ativar esta opção, você pode configurar as teclas de atalho nas configurações do jogo (Esc > Configurações > Controles)",
   "egocarib-mapmarkers:enable-delete-hotkey": "Ativar a tecla de atalho para excluir o marcador do mapa mais próximo",
