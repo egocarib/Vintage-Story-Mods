@@ -29,6 +29,8 @@ namespace Egocarib.AutoMapMarkers.Network
         public string dynamicTitleComponent;
         [ProtoMember(5)]
         public bool includeCoordinates;
+        [ProtoMember(6)]
+        public bool includeGrade;
     }
 
     [ProtoContract]
@@ -141,7 +143,7 @@ namespace Egocarib.AutoMapMarkers.Network
                 return;
             }
             WaypointUtil waypointUtil = new WaypointUtil(serverPlayer);
-            waypointUtil.AddWaypoint(request.waypointPosition, request.waypointSettings, request.sendChatMessageToPlayer, request.dynamicTitleComponent, request.includeCoordinates);
+            waypointUtil.AddWaypoint(request.waypointPosition, request.waypointSettings, request.sendChatMessageToPlayer, request.dynamicTitleComponent, request.includeCoordinates, request.includeGrade);
         }
 
         /// <summary>
@@ -249,7 +251,8 @@ namespace Egocarib.AutoMapMarkers.Network
                 waypointSettings = settings,
                 sendChatMessageToPlayer = sendChatMessage,
                 dynamicTitleComponent = dynamicTitleComponent,
-                includeCoordinates = modSettings.LabelCoordinates
+                includeCoordinates = modSettings.LabelCoordinates,
+                includeGrade = modSettings.LabelGrade
             };
             ClientNetworkChannel.SendPacket(waypointRequest);
         }

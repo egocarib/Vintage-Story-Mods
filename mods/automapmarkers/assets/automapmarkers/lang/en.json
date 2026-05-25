@@ -29,6 +29,7 @@
   "egocarib-mapmarkers:show-chat-message": "Show chat message when new map marker is added",
   "egocarib-mapmarkers:show-chat-message-on-delete": "Show chat message when nearest map marker is deleted",
   "egocarib-mapmarkers:include-coordinates": "Include X,Y,Z coordinates in map marker labels",
+  "egocarib-mapmarkers:include-grade": "Include ore grade in map marker labels (if applicable)",
   "egocarib-mapmarkers:suppress-farmland": "Suppress map markers for plants on farmland",
   "egocarib-mapmarkers:enable-custom-hotkeys": "Enable hotkeys to add customizable map markers",
   "egocarib-mapmarkers:show-chat-message-hotkey-tooltip": "After enabling this option, you can configure hotkeys in game settings (Esc > Settings > Controls)",
