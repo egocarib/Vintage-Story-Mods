@@ -1,5 +1,6 @@
 ﻿using Egocarib.AutoMapMarkers.Settings;
 using Egocarib.AutoMapMarkers.Utilities;
+using Egocarib.AutoMapMarkers.Waypoints;
 using ProtoBuf;
 using System;
 using System.IO;
@@ -58,12 +59,27 @@ namespace Egocarib.AutoMapMarkers.Network
     }
 
     /// <summary>
-    /// Network handler for Auto Map Markers mod. Facilitates communication between the
-    /// client, which may request that a waypoint be created, and the server, which creates 
-    /// the waypoints and syncs them back to the client.
+    /// Waypoint request handler for Auto Map Markers mod.
     /// </summary>
+    /// <remarks>
+    /// When the mod is installed on the server, this facilitates communication between the client,
+    /// which may request that a waypoint be created, and the server, which creates the waypoints and
+    /// syncs them back to the client.
+    ///
+    /// When the mod is not installed on the server, requests are instead fulfilled entirely
+    /// client-side by <see cref="ClientWaypointCommands"/>, which drives the vanilla waypoint chat
+    /// commands. The transport is chosen per request; detection code doesn't need to care which one
+    /// is in use.
+    /// </remarks>
     public class MapMarkerNetwork
     {
+        /// <summary>
+        /// Set the AUTOMAPMARKERS_FORCE_CLIENT environment variable to exercise the client-side
+        /// waypoint path in single player, where the integrated server always has the mod.
+        /// </summary>
+        private static readonly bool ForceClientSideWaypoints =
+            !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AUTOMAPMARKERS_FORCE_CLIENT"));
+
         public EnumAppSide Side;
         public ICoreAPI CoreAPI;
         public IServerNetworkChannel ServerNetworkChannel;
@@ -73,7 +89,14 @@ namespace Egocarib.AutoMapMarkers.Network
         private const int MaxConnectionAttempts = 9;
         private Timer ClientHandshakeTimer;
         private int ConnectionCheckAttempts = 0;
-        private bool ConnectionWarningSent = false;
+        private bool FallbackModeLogged = false;
+
+        /// <summary>
+        /// True when the mod is present on the server and its channel is available, meaning waypoint
+        /// requests can be handled directly by <see cref="WaypointUtil"/> on the server.
+        /// </summary>
+        private bool UseServerChannel =>
+            !ForceClientSideWaypoints && ClientNetworkChannel?.Connected == true;
 
         public MapMarkerNetwork(ICoreAPI api)
         {
@@ -208,9 +231,13 @@ namespace Egocarib.AutoMapMarkers.Network
         }
 
         /// <summary>
-        /// Validates that a client request can proceed: correct side, mod enabled, channel connected.
+        /// Validates that a client request can proceed: correct side, mod enabled.
         /// Returns the current mod settings if valid, or null if the request should be aborted.
         /// </summary>
+        /// <remarks>
+        /// Connectivity is deliberately not checked here - a missing server-side mod is not a failure,
+        /// it just selects the client-side transport instead.
+        /// </remarks>
         private MapMarkerConfig.Settings ValidateClientRequest(string operationName)
         {
             if (Side != EnumAppSide.Client)
@@ -224,16 +251,12 @@ namespace Egocarib.AutoMapMarkers.Network
                 MessageUtil.Log($"Suppressed {operationName} - mod features are currently disabled.");
                 return null;
             }
-            if (!ClientNetworkChannel.Connected)
-            {
-                MessageUtil.LogError($"Not connected to mod instance on server - unable to perform {operationName}.");
-                return null;
-            }
             return modSettings;
         }
 
         /// <summary>
-        /// Method called by a client to request that the server create a waypoint on behalf of the client.
+        /// Method called by a client to request the creation of a waypoint. Handled by the server if
+        /// the mod is installed there, otherwise by the client itself.
         /// </summary>
         /// <remarks>
         /// Side: client only
@@ -242,6 +265,13 @@ namespace Egocarib.AutoMapMarkers.Network
         {
             var modSettings = ValidateClientRequest("map marker creation");
             if (modSettings == null) return;
+
+            if (!UseServerChannel)
+            {
+                ClientWaypointCommands.AddWaypoint(position, settings, sendChatMessage,
+                    dynamicTitleComponent, modSettings.LabelCoordinates);
+                return;
+            }
 
             var waypointRequest = new ClientWaypointRequest
             {
@@ -255,7 +285,7 @@ namespace Egocarib.AutoMapMarkers.Network
         }
 
         /// <summary>
-        /// Method called by a client to request that the server delete a waypoint on behalf of the client.
+        /// Method called by a client to request the deletion of the waypoint nearest to the player.
         /// </summary>
         /// <remarks>
         /// Side: client only
@@ -263,6 +293,12 @@ namespace Egocarib.AutoMapMarkers.Network
         public void RequestNearestWaypointDeletionFromServer(bool sendChatMessage)
         {
             if (ValidateClientRequest("map marker deletion") == null) return;
+
+            if (!UseServerChannel)
+            {
+                ClientWaypointCommands.DeleteNearestWaypoint(sendChatMessage);
+                return;
+            }
 
             var waypointRequest = new ClientWaypointDeleteRequest
             {
@@ -272,7 +308,7 @@ namespace Egocarib.AutoMapMarkers.Network
         }
 
         /// <summary>
-        /// Method called by a client to request that the server delete a waypoint at a specific position
+        /// Method called by a client to request the deletion of a waypoint at a specific position
         /// matching a title pattern, within a given radius.
         /// </summary>
         /// <remarks>
@@ -281,6 +317,13 @@ namespace Egocarib.AutoMapMarkers.Network
         public void RequestWaypointDeletionAtPositionFromServer(Vec3d position, bool sendChatMessage, string titlePattern, double maxRadius)
         {
             if (ValidateClientRequest("map marker deletion") == null) return;
+
+            if (!UseServerChannel)
+            {
+                ClientWaypointCommands.DeleteNearestWaypoint(sendChatMessage, position, titlePattern,
+                    maxRadius > 0 ? maxRadius : double.MaxValue);
+                return;
+            }
 
             var waypointRequest = new ClientWaypointDeleteRequest
             {
@@ -293,7 +336,9 @@ namespace Egocarib.AutoMapMarkers.Network
         }
 
         /// <summary>
-        /// Initiates a handshake with the server to confirm that the mod is installed on the server.
+        /// Initiates a handshake with the server to determine whether the mod is installed there.
+        /// The result decides whether the mod's own network channel or the client-side waypoint
+        /// commands are used, and whether default settings can be downloaded from the server.
         /// </summary>
         /// <remarks>
         /// Side: client only
@@ -329,15 +374,12 @@ namespace Egocarib.AutoMapMarkers.Network
             }
             else if (++ConnectionCheckAttempts > MaxConnectionAttempts)
             {
-                var clientAPI = CoreAPI as ICoreClientAPI;
-                if (clientAPI == null || clientAPI.IsSinglePlayer == false)
+                if (!FallbackModeLogged)
                 {
-                    if (!ConnectionWarningSent)
-                    {
-                        ConnectionWarningSent = true;  // Ensure only a single chat warning appears
-                        MessageUtil.Chat(Lang.Get("egocarib-mapmarkers:server-warning"));
-                        MapMarkerConfig.GetSettings(CoreAPI); //Ensure that a config file is generated
-                    }
+                    FallbackModeLogged = true;
+                    MessageUtil.Log("Mod is not installed on the server - map markers will be created"
+                        + " client-side using the game's waypoint commands.");
+                    MapMarkerConfig.GetSettings(CoreAPI); //Ensure that a config file is generated
                 }
             }
             else
