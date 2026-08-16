@@ -1,9 +1,11 @@
 ﻿using Egocarib.AutoMapMarkers.BlockBehavior;
+using Egocarib.AutoMapMarkers.Compat;
 using Egocarib.AutoMapMarkers.EntityBehavior;
 using Egocarib.AutoMapMarkers.Events;
 using Egocarib.AutoMapMarkers.Network;
 using Egocarib.AutoMapMarkers.Patches;
 using Egocarib.AutoMapMarkers.Settings;
+using Egocarib.AutoMapMarkers.Waypoints;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
@@ -26,7 +28,7 @@ namespace Egocarib.AutoMapMarkers
             CoreAPI.RegisterEntityBehaviorClass("egocarib_TraderMarkerBehavior", typeof(TraderMarkerBehavior));
             CoreAPI.RegisterBlockBehaviorClass("egocarib_HarvestMarkerBehavior", typeof(HarvestMarkerBehavior));
             CoreAPI.RegisterBlockBehaviorClass("egocarib_LooseOreMarkerBehavior", typeof(LooseOresMarkerBehavior));
-            HarmonyAgent.Harmonize();
+            HarmonyAgent.Harmonize(api.Side);
         }
 
         /// <summary>
@@ -48,6 +50,8 @@ namespace Egocarib.AutoMapMarkers
             MapMarkerConfig.InitializeDefinitions(api);
             api.Event.BlockTexturesLoaded += () => MapMarkerConfig.RunDeferredConflictCheck(api);
             Network = new MapMarkerNetwork(CoreClientAPI);
+            ClientWaypointCommands.Initialize(api);
+            ClientBehaviorInjector.Register(api);
             CoreClientAPI.Input.InWorldAction += DetectionHandler.HandlePlayerSneak;
         }
 
@@ -61,6 +65,9 @@ namespace Egocarib.AutoMapMarkers
             {
                 if (CoreClientAPI.Input != null)
                     CoreClientAPI.Input.InWorldAction -= DetectionHandler.HandlePlayerSneak;
+                ClientWaypointCommands.Dispose(CoreClientAPI);
+                ClientBehaviorInjector.Unregister(CoreClientAPI);
+                ClientWaypointAccess.Reset();
                 CoreClientAPI = null;
             }
             CoreAPI = null;
